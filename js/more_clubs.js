@@ -140,6 +140,7 @@ CLUBS = CLUBS.concat([
 
   /* --- Bundesliga 2026/27 promoted --- */
   _xc("s04", "Schalke", "Gelsenkirchen", "de", "ger", 3.6, "#004D95", "#FFFFFF"),
+  _xc("elv", "Elversberg", "Elversberg", "de", "ger", 3.2, "#FFFFFF", "#000000"),
   _xc("pad", "Paderborn", "Paderborn", "de", "ger", 3.3, "#005CA9", "#FFFFFF"),
 
   /* --- Ligue 1 2026/27 promoted --- */
