@@ -1688,11 +1688,12 @@ input[type="text"] {
 .season-theme {
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 800;
-  font-size: 18px;
+  font-size: 26px;
   letter-spacing: .02em;
   color: var(--gold, #f5c542);
-  line-height: 1.15;
-  margin: 2px 0 4px;
+  line-height: 1.1;
+  margin: 6px 0 8px;
+  text-shadow: 0 0 18px rgba(245, 197, 66, .25);
 }
 .flavor-line {
   font-size: 12px;
@@ -1704,33 +1705,53 @@ input[type="text"] {
 .flavor-line.derby { color: #f0a0ae; }
 .flavor-line.rival { color: #c4b5fd; }
 .mini-relato {
-  margin-top: 6px;
-  font-size: 12px;
+  margin: 8px 0;
+  font-size: 13px;
   font-style: italic;
-  color: #c5ccd6;
-  line-height: 1.3;
+  color: #e8edf4;
+  line-height: 1.35;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+}
+.mini-relato.loud {
+  font-style: normal;
+  font-weight: 500;
+  border-color: rgba(245, 197, 66, .35);
+  background: rgba(245, 197, 66, .08);
+  color: #f3f5f7;
 }
 .goals-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin: 6px 0 2px;
+  align-items: center;
+  gap: 5px;
+  margin: 8px 0 4px;
+}
+.goals-strip-lab {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--gold, #f5c542);
+  margin-right: 2px;
 }
 .goal-pill {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  color: var(--muted);
-  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(245, 197, 66, .35);
+  color: #e8edf4;
+  background: rgba(245, 197, 66, .07);
   line-height: 1.3;
   max-width: 100%;
 }
 .goal-pill.done {
   color: var(--green);
-  border-color: rgba(61, 214, 140, .4);
-  background: rgba(61, 214, 140, .08);
+  border-color: rgba(61, 214, 140, .45);
+  background: rgba(61, 214, 140, .12);
 }
 .goal-toast {
   font-size: 12px;
@@ -1743,23 +1764,94 @@ input[type="text"] {
   margin: 6px 0;
 }
 .rival-chip {
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 6px;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  margin: 4px 0 2px;
+  gap: 6px 10px;
+  font-size: 12px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(167, 139, 250, .55);
+  background: rgba(124, 58, 237, .14);
+  margin: 8px 0 4px;
   max-width: 100%;
   overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(124, 58, 237, .15);
 }
-.rival-chip span { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: 9px; }
-.rival-chip b { color: var(--ink); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rival-chip em { font-style: normal; font-weight: 800; font-family: "Barlow Condensed", sans-serif; }
+.rival-chip span { color: #c4b5fd; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 10px; }
+.rival-chip b { color: var(--ink); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rival-chip em { font-style: normal; font-weight: 800; font-family: "Barlow Condensed", sans-serif; font-size: 15px; }
+.rival-chip .rival-gap {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-left: auto;
+}
 .rival-chip.up em { color: var(--green); }
 .rival-chip.dn em { color: var(--red); }
-.rival-chip.flat em { color: var(--muted); }
+.rival-chip.flat em { color: #e9d5ff; }
+.pace-row { gap: 8px; }
+.pace-chip { position: relative; }
+.pace-chip.pace-rapido {
+  border-color: rgba(245, 197, 66, .55);
+  box-shadow: 0 0 0 1px rgba(245, 197, 66, .15);
+}
+.pace-chip .pace-new {
+  display: inline-block;
+  margin-left: 6px;
+  font-style: normal;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #0b0d11;
+  background: var(--gold, #f5c542);
+  padding: 1px 5px;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+.pace-chip.on .pace-new { background: #0b0d11; color: var(--gold, #f5c542); }
+.pace-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #c5ccd6;
+  line-height: 1.3;
+}
+.goals-pick-block {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(245, 197, 66, .28);
+  background: rgba(245, 197, 66, .05);
+}
+.goals-pick-block .label { display: flex; align-items: baseline; gap: 8px; }
+.goals-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold, #f5c542);
+}
+.goals-lead { margin: 4px 0 8px !important; }
+.goals-pick-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip.goal-pick {
+  font-size: 11px;
+  padding: 6px 10px;
+  line-height: 1.25;
+  white-space: normal;
+  text-align: left;
+  max-width: 100%;
+}
+.btn.season-dl {
+  background: linear-gradient(180deg, rgba(245, 197, 66, .95), rgba(214, 160, 40, .95));
+  color: #0b0d11;
+  border: none;
+  font-weight: 700;
+}
+.btn.season-dl:active { filter: brightness(.95); }
 
 /* Stronger OVR delta on timeline — no extra row height */
 .tl-ovr em.tl-delta {

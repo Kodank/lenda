@@ -205,6 +205,19 @@ function newCareer(draft) {
   };
   s.ovr = computeOvr(s.attrs, s.pos);
   if (typeof ensureRival === "function") ensureRival(s);
+  if (draft.goalIds && draft.goalIds.length && typeof CAREER_GOAL_POOL !== "undefined") {
+    var picked = [];
+    for (var gi = 0; gi < draft.goalIds.length && picked.length < 2; gi++) {
+      var gid = draft.goalIds[gi];
+      for (var gj = 0; gj < CAREER_GOAL_POOL.length; gj++) {
+        if (CAREER_GOAL_POOL[gj].id === gid) {
+          picked.push({ id: gid, label: CAREER_GOAL_POOL[gj].label, done: 0 });
+          break;
+        }
+      }
+    }
+    if (picked.length) s.goals = picked;
+  }
   if (typeof ensureCareerGoals === "function") ensureCareerGoals(s);
   return s;
 }

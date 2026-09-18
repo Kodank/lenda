@@ -1,8 +1,6 @@
 /* Lenda minimal service worker — cache app shell for offline-ish LAN/localhost use */
-const CACHE = "lenda-shell-v12-fun-packs-1";
+const CACHE = "lenda-shell-v13-fun-packs-2";
 const SHELL = [
-  "./",
-  "./index.html",
   "./manifest.webmanifest",
   "./css/style.css",
   "./js/app.js",
@@ -36,9 +34,41 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+function isHtmlRequest(req) {
+  if (req.mode === "navigate") return true;
+  try {
+    const url = new URL(req.url);
+    const path = url.pathname;
+    return path.endsWith("/") || path.endsWith("/index.html") || path.endsWith("index.html");
+  } catch (_) {
+    return false;
+  }
+}
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
+
+  /* HTML: network-first so Pages updates are not stuck behind old shell */
+  if (isHtmlRequest(req)) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          try {
+            if (res && res.ok) {
+              const copy = res.clone();
+              caches.open(CACHE).then((c) => c.put(req, copy));
+            }
+          } catch (_) {}
+          return res;
+        })
+        .catch(() =>
+          caches.match(req).then((cached) => cached || caches.match("./index.html") || caches.match("./"))
+        )
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(req).then((cached) => {
       const net = fetch(req).then((res) => {

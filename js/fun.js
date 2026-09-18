@@ -370,17 +370,22 @@ function miniRelatoFor(s, ev, side) {
 
 function ensureCareerGoals(s) {
   if (!s) return [];
-  if (s.goals && s.goals.length) return s.goals;
+  if (s.goals && s.goals.length >= 2) return s.goals;
+  var have = (s.goals || []).slice();
+  var haveIds = {};
+  for (var h = 0; h < have.length; h++) haveIds[have[h].id] = 1;
   var pool = CAREER_GOAL_POOL.slice();
-  var out = [];
+  var out = have.slice();
   var n = 2;
   while (out.length < n && pool.length) {
     var i = Math.floor(rnd(s) * pool.length);
     var g = pool.splice(i, 1)[0];
+    if (haveIds[g.id]) continue;
     /* skip impossible-ish early filters lightly */
     if (g.id === "lib" && nationOf(s.nation).conf === "uefa" && rnd(s) < 0.5) continue;
     if (g.id === "ucl" && nationOf(s.nation).conf === "conmebol" && rnd(s) < 0.35) continue;
     out.push({ id: g.id, label: g.label, done: 0 });
+    haveIds[g.id] = 1;
   }
   s.goals = out;
   return out;

@@ -366,8 +366,11 @@ function viewCreate() {
     }).join("");
     var paces = ["intensa", "normal", "rapido"].map(function (k) {
       var p = PACE[k];
-      return '<button type="button" class="chip pace-chip' + (d.pace === k ? " on" : "") + '" data-pace="' + k + '" title="' + esc(p.hint) + '">' + p.label + "</button>";
+      var extra = k === "rapido" ? '<i class="pace-new">novo</i>' : "";
+      return '<button type="button" class="chip pace-chip' + (d.pace === k ? " on" : "") + (k === "rapido" ? " pace-rapido" : "") +
+        '" data-pace="' + k + '" title="' + esc(p.hint) + '">' + p.label + extra + "</button>";
     }).join("");
+    var paceHint = (PACE[d.pace] || PACE.normal).hint;
     return top +
       '<div class="step-card focus-shirt">' +
       "<h2>Define a camisa</h2>" +
@@ -378,7 +381,9 @@ function viewCreate() {
       '<div><div class="label">Número</div><div class="dorsal compact"><button type="button" class="chip" data-num="-1">−</button><b class="num">' + d.number + '</b><button type="button" class="chip" data-num="1">+</button></div></div>' +
       "</div>" +
       '<div class="label">Perna boa</div><div class="row">' + feet + "</div>" +
-      '<div class="label" style="margin-top:12px">Ritmo</div><div class="row">' + paces + "</div>" +
+      '<div class="label" style="margin-top:12px">Ritmo da carreira</div>' +
+      '<div class="row pace-row">' + paces + "</div>" +
+      '<div class="pace-hint">' + esc(paceHint) + "</div>" +
       '<div class="step-actions">' +
       '<button class="btn alt" data-go="home">Voltar</button>' +
       '<button class="btn" data-step="1">Continuar</button>' +
@@ -405,11 +410,18 @@ function viewCreate() {
       "</div></div>";
   }
 
-  /* step 2 — position */
+  /* step 2 — position + career goals */
+  if (!d.goalIds) d.goalIds = [];
   var slots = PITCH.map(function (p) {
     return '<button type="button" class="slot' + (d.pos === p.pos ? " on" : "") + '" data-pos="' + p.pos +
       '" style="left:' + p.x + "%;top:" + p.y + '%">' + p.pos + "</button>";
   }).join("");
+  var goalPool = (typeof CAREER_GOAL_POOL !== "undefined" ? CAREER_GOAL_POOL : []);
+  var goalChips = goalPool.map(function (g) {
+    var on = d.goalIds.indexOf(g.id) >= 0;
+    return '<button type="button" class="chip goal-pick' + (on ? " on" : "") + '" data-goal="' + g.id + '">' + esc(g.label) + "</button>";
+  }).join("");
+  var gCount = d.goalIds.length;
   return top +
     '<div class="step-card focus-pos">' +
     "<h2>Posição</h2>" +
@@ -420,6 +432,11 @@ function viewCreate() {
     '<div class="pos-now"><span class="label">Posição</span><b>' + POS[d.pos].name + "</b>" +
     "<small>" + POS[d.pos].short + "</small></div></div>" +
     '<div class="pitch-wrap compact"><div class="pitch"></div>' + slots + "</div>" +
+    "</div>" +
+    '<div class="goals-pick-block">' +
+    '<div class="label">Metas da carreira <span class="goals-count">' + gCount + "/2</span></div>" +
+    '<p class="lead tight goals-lead">Escolhe 2 objetivos — eles ficam no painel durante a carreira.</p>' +
+    '<div class="row goals-pick-row">' + goalChips + "</div>" +
     "</div>" +
     '<div class="step-actions">' +
     '<button class="btn alt" data-step="1">Voltar</button>' +
@@ -691,7 +708,7 @@ function goalsStripHtml(s) {
   if (!s || typeof ensureCareerGoals !== "function") return "";
   var goals = ensureCareerGoals(s);
   if (!goals.length) return "";
-  return '<div class="goals-strip">' + goals.map(function (g) {
+  return '<div class="goals-strip"><span class="goals-strip-lab">Metas</span>' + goals.map(function (g) {
     return '<span class="goal-pill' + (g.done ? " done" : "") + '">' + (g.done ? "✓ " : "○ ") + esc(g.label) + "</span>";
   }).join("") + "</div>";
 }
@@ -701,7 +718,11 @@ function rivalChipHtml(s) {
   var r = s.rival;
   var gap = (s.ovr || 0) - (r.ovr || 0);
   var tone = gap >= 2 ? "up" : gap <= -2 ? "dn" : "flat";
-  return '<div class="rival-chip ' + tone + '"><span>Rival</span><b>' + esc(r.name) + "</b><em>" + r.ovr + " OVR</em></div>";
+  var gapTxt = gap > 0 ? "+" + gap : String(gap);
+  return '<div class="rival-chip ' + tone + '">' +
+    '<span>Rival</span><b>' + esc(r.name) + "</b>" +
+    '<em>' + r.ovr + " OVR</em>" +
+    '<i class="rival-gap">' + gapTxt + " vs você</i></div>";
 }
 
 function viewDecision() {
@@ -751,7 +772,7 @@ function viewReport() {
     }
     var rivalLine = last.rivalNote ? '<div class="flavor-line rival">Rival · ' + esc(last.rivalNote) + "</div>" : "";
     recap = '<div class="story compact"><div class="meta">Temporada encerrada</div>' +
-      (theme ? '<div class="season-theme">' + esc(theme) + "</div>" : "") +
+      (theme ? '<div class="season-theme" role="status">' + esc(theme) + "</div>" : "") +
       "<h2 class=\"club-title\" style=\"color:#ffffff !important;-webkit-text-fill-color:#ffffff !important\">" + esc(club.name) + "</h2>" +
       '<p class="lead tight">OVR ' + last.ovr + " (" + fmtDelta(last.delta) + ") · " +
       last.apps + " jogos · " + (s.pos === "GOL" ? last.cs + " CS" : last.goals + " gols / " + last.assists + " ast") +
@@ -773,18 +794,19 @@ function viewReport() {
     goalsStripHtml(s) +
     (S._goalToast ? '<div class="goal-toast">Meta: ' + esc(S._goalToast) + "</div>" : "") +
     (S._lastRisk ? '<div class="risk-toast ' + (S._lastRisk.ok ? "ok" : "bad") + '">' + esc(S._lastRisk.text) + "</div>" : "") +
+    (S._lastOutcome && S._lastOutcome.relato
+      ? '<div class="mini-relato loud">' + esc(S._lastOutcome.relato) + "</div>" : "") +
     (S._lastOutcome ? '<div class="outcome-board">' +
       '<div class="outcome-label">Resultado da escolha</div>' +
       pillsHtml(S._lastOutcome.pills || [], "landed") +
-      (S._lastOutcome.relato ? '<div class="mini-relato">' + esc(S._lastOutcome.relato) + "</div>" : "") +
       (S._lastOutcome.temp
         ? '<div class="temp-ovr-tag ' + (S._lastOutcome.temp < 0 ? "dn" : "up") + '">OVR tmp ' +
           (S._lastOutcome.temp > 0 ? "+" : "") + S._lastOutcome.temp + "</div>"
         : "") +
       "</div>" : "") +
     '<div class="report-actions">' +
+    (last ? '<button class="btn season-dl" id="dl-season" type="button">Baixar card da temporada</button>' : "") +
     '<button class="btn" data-go="' + next + '">' + (s.retired ? "Ver o quadro" : "Próxima decisão") + "</button>" +
-    (last ? '<button class="btn alt" id="dl-season" type="button">Baixar temporada</button>' : "") +
     retireBtnHtml(s) +
     "</div>" +
     "</div>" +
@@ -959,6 +981,21 @@ function bind() {
   document.querySelectorAll("[data-pace]").forEach(function (b) {
     b.onclick = function () { UI.draft.pace = b.getAttribute("data-pace"); render(); };
   });
+  document.querySelectorAll("[data-goal]").forEach(function (b) {
+    b.onclick = function () {
+      if (!UI.draft) return;
+      if (!UI.draft.goalIds) UI.draft.goalIds = [];
+      var id = b.getAttribute("data-goal");
+      var i = UI.draft.goalIds.indexOf(id);
+      if (i >= 0) UI.draft.goalIds.splice(i, 1);
+      else if (UI.draft.goalIds.length < 2) UI.draft.goalIds.push(id);
+      else {
+        UI.draft.goalIds.shift();
+        UI.draft.goalIds.push(id);
+      }
+      render();
+    };
+  });
   document.querySelectorAll("[data-num]").forEach(function (b) {
     b.onclick = function () {
       UI.draft.number = clamp(UI.draft.number + Number(b.getAttribute("data-num")), 1, 99);
@@ -1043,7 +1080,7 @@ function bind() {
 function go(to) {
   if (to === "home") UI.screen = "home";
   else if (to === "create") {
-    UI.draft = { name: "SILVA", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
+    UI.draft = { name: "SILVA", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", goalIds: [], step: 0 };
     UI.screen = "create";
   } else if (to === "continue") {
     var s = load();
@@ -1077,7 +1114,7 @@ function go(to) {
     UI.event = null;
     UI.reports = [];
     UI.offers = null;
-    UI.draft = { name: "SILVA", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
+    UI.draft = { name: "SILVA", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", goalIds: [], step: 0 };
     UI.screen = "create";
   } else if (to === "reset") {
     if (!window.confirm("Apagar a carreira salva e recomeçar do zero?")) return;
