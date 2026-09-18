@@ -29,10 +29,29 @@ var NATION_STYLE = {
 };
 
 function crestSrc(path) {
-  return path || 'img/clubs/fla.png';
+  return path || "img/clubs/fla.png";
 }
-function imgCrest(path, cls) {
-  return '<img class="' + (cls || 'crest') + '" src="' + crestSrc(path) + '" alt="" onerror="this.style.opacity=.25">';
+
+function crestInitials(name) {
+  var parts = String(name || "?").replace(/[^A-Za-zÀ-ÿ0-9]+/g, " ").trim().split(/\s+/).filter(Boolean);
+  var init = parts.map(function (w) { return w[0]; }).join("").slice(0, 2);
+  return (init || "?").toUpperCase();
+}
+
+function crestBroken(el) {
+  if (!el || el._crestFb) return;
+  el._crestFb = 1;
+  var s = document.createElement("span");
+  s.className = ((el.className || "crest") + " crest-fallback").replace(/\s+/g, " ").trim();
+  s.textContent = el.getAttribute("data-fb") || "?";
+  s.setAttribute("title", el.getAttribute("title") || el.getAttribute("alt") || "");
+  if (el.parentNode) el.parentNode.replaceChild(s, el);
+}
+
+function imgCrest(path, cls, name) {
+  var fb = crestInitials(name);
+  return '<img class="' + (cls || "crest") + '" src="' + crestSrc(path) + '" alt="" data-fb="' + esc(fb) +
+    '" onerror="crestBroken(this)">';
 }
 
 function esc(t) {
@@ -45,7 +64,7 @@ function onColor(hex) {
   var h = (hex || "#111").replace("#", "");
   if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
   var r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62 ? "#12151a" : "#ffffff";
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.58 ? "#12151a" : "#ffffff";
 }
 
 function hexLum(hex) {
@@ -188,7 +207,7 @@ function identityStrip(s) {
     '<img class="mini-flag" src="' + nat.flag + '" alt="">' +
     '<span class="pill">#' + s.number + " " + POS[s.pos].short + "</span>" +
     '<b class="club-name">' + esc(club.name) + "</b>" +
-    '<img class="crest sm" src="' + club.crest + '" alt="">' +
+    imgCrest(club.crest, 'crest sm', club.name) +
     "</div>" +
     '<div class="id-kpis">' +
     "<div><b>" + apps + "</b><span>APPS</span></div>" +
@@ -313,7 +332,7 @@ function viewAcademy() {
   var cards = offers.map(function (o) {
     var lg = leagueOf(o.club.leagueId);
     return '<button class="card offer" data-sign="' + o.club.id + '">' +
-      '<img class="crest" src="' + o.club.crest + '" alt="">' +
+      imgCrest(o.club.crest, 'crest', o.club.name) +
       "<div class='bars'><b>" + esc(o.club.name) + "</b>" +
       '<div style="display:flex;gap:8px;align-items:center;margin:6px 0 10px;color:var(--muted);font-size:12px">' +
       '<img class="lg-logo" src="' + lg.logo + '" alt="">' +
@@ -336,8 +355,9 @@ function choiceBtn(side, ch) {
     var lg = ch.leagueId ? leagueOf(ch.leagueId) : null;
     var nat = ch.nation ? nationOf(ch.nation) : null;
     var cols = ch.colors || ["#222", "#111"];
-    return '<button class="choice transfer" data-choice="' + side + '" style="--c1:' + cols[0] + ";--c2:" + (cols[1] || cols[0]) + '">' +
-      '<img class="choice-crest" src="' + ch.crest + '" alt="">' +
+    var on = onColor(cols[0]);
+    return '<button class="choice transfer" data-choice="' + side + '" style="--c1:' + cols[0] + ";--c2:" + (cols[1] || cols[0]) + ';--on:' + on + '">' +
+      imgCrest(ch.crest, 'choice-crest', ch.label) +
       "<div class='choice-body'><b>" + esc(ch.label) + "</b><small>" + esc(ch.hint) + "</small>" +
       '<div class="choice-meta">' +
       (lg ? '<img class="lg-logo" src="' + lg.logo + '" alt="">' + esc(lg.name) : "") +
@@ -375,7 +395,7 @@ function timelineHtml(s, hiN, choosing) {
         : "";
       html += '<div class="tl-row filled' + (hi ? " hi" : "") + (cups.length ? " won" : "") + '">' +
         '<span class="tl-age">' + age + "</span>" +
-        '<span class="tl-club"><img src="' + club.crest + '" alt=""><b>' + esc(club.name) + "</b>" + cupDot + "</span>" +
+        '<span class="tl-club">' + imgCrest(club.crest, 'tl-crest', club.name) + '<b>' + esc(club.name) + "</b>" + cupDot + "</span>" +
         '<span class="tl-ovr">' + r.ovr + dlt + "</span>" +
         '<span class="tl-n">' + r.apps + "</span>" +
         '<span class="tl-n">' + g + "</span>" +
@@ -582,13 +602,14 @@ function viewLegacy() {
     return '<div class="vitrine-item"><img src="' + trophyOf(id).img + '" alt=""><span>' + esc(trophyOf(id).name) + "</span></div>";
   }).join("");
   var path = clubAppsMap(s).map(function (c, i) {
-    return (i ? "<span>→</span>" : "") + '<img src="' + clubOf(c.id).crest + '" title="' + esc(clubOf(c.id).name) + '">';
+    var pc = clubOf(c.id);
+    return (i ? "<span>→</span>" : "") + '<img class="path-crest" src="' + crestSrc(pc.crest) + '" title="' + esc(pc.name) + '" data-fb="' + esc(crestInitials(pc.name)) + '" onerror="crestBroken(this)">';
   }).join("");
   var heroBg = "background:linear-gradient(145deg," + c1 + " 0%," + c2 + " 100%)";
   return '<div class="top"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
     '<article class="quadro" id="quadro" style="--c1:' + c1 + ";--c2:" + c2 + ";--on:" + on + ";" + heroBg + '">' +
     '<div class="quadro-hero" style="' + heroBg + '">' +
-    '<img class="quadro-crest" src="' + club.crest + '" alt="">' +
+    imgCrest(club.crest, 'quadro-crest', club.name) +
     '<div class="quadro-id"><img class="flag" src="' + nat.flag + '" alt=""><h1>' + esc(s.name) + "</h1>" +
     "<p>" + s.number + " · " + POS[s.pos].name + " · " + esc(nat.name) + "</p>" +
     "<p>" + years + " · " + esc(club.name) + "</p></div>" +
