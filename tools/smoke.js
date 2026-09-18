@@ -7,7 +7,7 @@ const ctx = {
   localStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} }
 };
 vm.createContext(ctx);
-["world", "more_clubs", "data", "rng", "engine", "sim", "career"].forEach(function (f) {
+["world", "more_clubs", "data", "rng", "engine", "fun", "sim", "career"].forEach(function (f) {
   vm.runInContext(fs.readFileSync(path.join(root, "js", f + ".js"), "utf8"), ctx);
 });
 

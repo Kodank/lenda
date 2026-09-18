@@ -1683,3 +1683,117 @@ input[type="text"] {
   .event-hero { height: 120px; max-height: 120px; }
   .event-hero img { max-height: 120px; }
 }
+
+/* —— Fun packs: compact narrative / meta —— */
+.season-theme {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: .02em;
+  color: var(--gold, #f5c542);
+  line-height: 1.15;
+  margin: 2px 0 4px;
+}
+.flavor-line {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.25;
+}
+.flavor-line.nt-path { color: #9ad7f2; }
+.flavor-line.derby { color: #f0a0ae; }
+.flavor-line.rival { color: #c4b5fd; }
+.mini-relato {
+  margin-top: 6px;
+  font-size: 12px;
+  font-style: italic;
+  color: #c5ccd6;
+  line-height: 1.3;
+}
+.goals-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 6px 0 2px;
+}
+.goal-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: rgba(255,255,255,.03);
+  line-height: 1.3;
+  max-width: 100%;
+}
+.goal-pill.done {
+  color: var(--green);
+  border-color: rgba(61, 214, 140, .4);
+  background: rgba(61, 214, 140, .08);
+}
+.goal-toast {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(61, 214, 140, .1);
+  border: 1px solid rgba(61, 214, 140, .3);
+  margin: 6px 0;
+}
+.rival-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  margin: 4px 0 2px;
+  max-width: 100%;
+  overflow: hidden;
+}
+.rival-chip span { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: 9px; }
+.rival-chip b { color: var(--ink); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rival-chip em { font-style: normal; font-weight: 800; font-family: "Barlow Condensed", sans-serif; }
+.rival-chip.up em { color: var(--green); }
+.rival-chip.dn em { color: var(--red); }
+.rival-chip.flat em { color: var(--muted); }
+
+/* Stronger OVR delta on timeline — no extra row height */
+.tl-ovr em.tl-delta {
+  display: inline;
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 800;
+  margin-left: 2px;
+  padding: 0 3px;
+  border-radius: 3px;
+  line-height: 1;
+}
+.tl-ovr em.tl-delta.up {
+  color: #0b2a1a;
+  background: rgba(61, 214, 140, .95);
+}
+.tl-ovr em.tl-delta.dn {
+  color: #2a0b0b;
+  background: rgba(255, 107, 107, .95);
+}
+.tl-ovr em.tl-delta.flat {
+  color: var(--muted);
+  background: transparent;
+  padding: 0;
+  font-weight: 600;
+  font-size: 9px;
+}
+.tl-ovr em.tl-delta.big {
+  font-size: 11px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.15);
+}
+.tl-row.ovr-up .tl-ovr {
+  box-shadow: inset 0 0 0 1px rgba(61, 214, 140, .55);
+}
+.tl-row.ovr-dn .tl-ovr {
+  box-shadow: inset 0 0 0 1px rgba(255, 107, 107, .55);
+}

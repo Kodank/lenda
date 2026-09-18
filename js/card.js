@@ -494,3 +494,116 @@ function loadImg(src) {
     im.src = src;
   });
 }
+
+function downloadSeasonCard(season) {
+  var s = S;
+  if (!s || !season) return;
+  var btn = document.getElementById("dl-season");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Gerando…";
+  }
+  drawSeasonCardCanvas(s, season)
+    .then(function (cv) {
+      triggerPngDownload(cv, (s.name || "lenda") + "-" + (season.year || "") + "-temp");
+    })
+    .catch(function (err) {
+      console.error("downloadSeasonCard", err);
+    })
+    .then(function () {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Baixar temporada";
+      }
+    });
+}
+
+function drawSeasonCardCanvas(s, season) {
+  var club = clubOf(season.clubId);
+  var nat = nationOf(s.nation);
+  var pos = POS[s.pos] || { short: s.pos };
+  var theme = season.themeTitle || "";
+  var cups = (season.trophies || []).concat(season.awards || []);
+  var W = 720;
+  var H = 420;
+  var pad = 24;
+  var cv = document.createElement("canvas");
+  cv.width = W;
+  cv.height = H;
+  var ctx = cv.getContext("2d");
+  ctx.fillStyle = "#070809";
+  ctx.fillRect(0, 0, W, H);
+  drawCcCard(ctx, pad, pad, W - pad * 2, H - pad * 2);
+
+  ctx.fillStyle = "#a8b0bc";
+  ctx.font = "700 12px DM Sans, sans-serif";
+  ctx.fillText("LENDA · TEMPORADA", pad + 20, pad + 36);
+
+  if (theme) {
+    ctx.fillStyle = "#f5c542";
+    ctx.font = "800 22px Barlow Condensed, sans-serif";
+    fitText(ctx, theme.toUpperCase(), pad + 20, pad + 68, W - pad * 2 - 140, "800 ", "px Barlow Condensed, sans-serif", 22, 14);
+  }
+
+  ctx.fillStyle = "#f4f6f8";
+  ctx.font = "800 36px Barlow Condensed, sans-serif";
+  fitText(ctx, String(s.name || "").toUpperCase(), pad + 20, pad + 112, W - pad * 2 - 120, "800 ", "px Barlow Condensed, sans-serif", 36, 22);
+
+  drawPill(ctx, pad + 20, pad + 128, "#" + s.number, false);
+  var pw = measurePill("#" + s.number);
+  drawPill(ctx, pad + 20 + pw + 8, pad + 128, String(pos.short), true);
+  drawPill(ctx, pad + 20 + pw + 8 + measurePill(String(pos.short)) + 8, pad + 128, String(season.age) + " anos", false);
+
+  drawOvrBadge(ctx, W - pad - 86, pad + 40, season.ovr);
+  ctx.fillStyle = (season.delta || 0) >= 0 ? "#3dd68c" : "#ff6b6b";
+  ctx.font = "800 16px Barlow Condensed, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText(fmtDelta(season.delta || 0) + " OVR", W - pad - 28, pad + 130);
+  ctx.textAlign = "left";
+
+  var urls = [cardCrestSrc(club.crest), nat.flag];
+  for (var i = 0; i < cups.length; i++) urls.push(trophyOf(cups[i]).img);
+
+  return Promise.all(urls.map(loadImg)).then(function (loaded) {
+    var crest = loaded[0];
+    var flag = loaded[1];
+    if (crest) {
+      try { ctx.drawImage(crest, pad + 20, pad + 168, 56, 56); } catch (e) {}
+    }
+    ctx.fillStyle = "#f4f6f8";
+    ctx.font = "700 18px DM Sans, sans-serif";
+    ctx.fillText(club.name, pad + 88, pad + 192);
+    ctx.fillStyle = "#a8b0bc";
+    ctx.font = "600 13px DM Sans, sans-serif";
+    ctx.fillText((season.year || "") + " · #" + season.leaguePos + " · " + ROLE_NAME[season.role], pad + 88, pad + 214);
+
+    if (flag) {
+      try { ctx.drawImage(flag, pad + 20, pad + 244, 28, 18); } catch (e) {}
+    }
+    var gLab = s.pos === "GOL" ? "CS" : "G";
+    var aLab = s.pos === "GOL" ? "GS" : "A";
+    var g = s.pos === "GOL" ? season.cs : season.goals;
+    var a = s.pos === "GOL" ? season.ga : season.assists;
+    drawStatsBar(ctx, pad + 56, pad + 236, 280, season.apps, g, a, 22);
+
+    var yF = pad + 290;
+    if (season.nt && season.nt.path && season.nt.path.text) {
+      ctx.fillStyle = "#9ad7f2";
+      ctx.font = "600 13px DM Sans, sans-serif";
+      ctx.fillText(season.nt.path.text, pad + 20, yF);
+      yF += 22;
+    }
+    if (season.derby) {
+      var vs = clubOf(season.derby.vs);
+      ctx.fillStyle = "#f0a0ae";
+      ctx.font = "600 13px DM Sans, sans-serif";
+      ctx.fillText((season.derby.won ? "Clássico ganho" : "Clássico perdido") + " vs " + vs.name, pad + 20, yF);
+      yF += 22;
+    }
+    if (cups.length) {
+      var items = cups.map(function (id) { return { id: id, n: 1, meta: trophyOf(id) }; });
+      drawTrophyRow(ctx, loaded, 2, items, pad + 20, H - pad - 86, W - pad * 2 - 40, 40, { labelMax: 64 });
+    }
+    return cv;
+  });
+}

@@ -141,8 +141,23 @@ function pickEvent(s) {
   if (cur && s.age <= 21 && (s.role === "youth" || s.role === "bench") && cur.level >= 4.2) marketP = 0.92;
   /* Ritmo Intensa: oferta bem mais frequente (antes ~0.72–0.82 → ~0.92–0.97) */
   if (s.pace === "intensa") marketP = Math.min(0.97, marketP + 0.2);
+  /* Modo Rápido: mais mercado/títulos, menos narrativa */
+  if (s.pace === "rapido") marketP = Math.min(0.94, marketP + 0.18);
   if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.alwaysTransfers) {
     return buildTransferWindow(s);
+  }
+
+  /* Tour de despedida (últimas 1–2 temporadas) */
+  if (typeof isFarewellWindow === "function" && isFarewellWindow(s) && (s.usedEvents || []).indexOf("farewell") < 0 && rnd(s) < 0.72) {
+    return buildFarewellEvent(s);
+  }
+
+  /* Rivalidade gerada — pressão de titularidade / prêmios */
+  if (typeof ensureRival === "function") ensureRival(s);
+  if (s.rival && s.age >= 18 && s.ovr >= 64 && (s.usedEvents || []).indexOf("rivalspot") < 0) {
+    var rivalChance = s.pace === "rapido" ? 0.1 : 0.16;
+    if ((s.rival.pressure || 0) >= 5) rivalChance += 0.12;
+    if (rnd(s) < rivalChance) return buildRivalEvent(s);
   }
 
   /* ~9% chance de evento raro de salto (não frequente; 1x cada id por carreira) */
@@ -152,11 +167,15 @@ function pickEvent(s) {
     if (!eventFits(s, EVENTS[ri])) continue;
     rarePool.push(EVENTS[ri]);
   }
-  if (rarePool.length && rnd(s) < 0.09) {
+  var rareP = s.pace === "rapido" ? 0.05 : 0.09;
+  if (rarePool.length && rnd(s) < rareP) {
     return rarePool[Math.floor(rnd(s) * rarePool.length)];
   }
 
   if (rnd(s) < marketP) return buildTransferWindow(s);
+
+  /* Rápido: segunda chance de mercado em vez de narrativa */
+  if (s.pace === "rapido" && rnd(s) < 0.45) return buildTransferWindow(s);
 
   var pool = [];
   for (var i = 0; i < EVENTS.length; i++) {
@@ -402,7 +421,7 @@ function applyChoice(s, ev, side) {
     delete fx.risk;
   }
   s.usedEvents = s.usedEvents || [];
-  if (ev.id && ev.id !== "market" && ev.id !== "quiet" && ev.id !== "muscle" && ev.id !== "formdip" && s.usedEvents.indexOf(ev.id) < 0) {
+  if (ev.id && ev.id !== "market" && ev.id !== "quiet" && ev.id !== "muscle" && ev.id !== "formdip" && ev.id !== "rivalaward" && s.usedEvents.indexOf(ev.id) < 0) {
     s.usedEvents.push(ev.id);
   }
   if (fx.loyalty) touchTrait(s.traits, "loyalty", fx.loyalty);
@@ -440,12 +459,17 @@ function applyChoice(s, ev, side) {
   if (fx.transferDown) moveTo(s, pickClub(s, "down"));
   if (fx.transferRival) moveTo(s, pickClub(s, "rival"));
   if (fx.loan) loanTo(s, pickClub(s, "loan"));
+  if (fx.farewellTour) {
+    s._farewellTour = Math.max(s._farewellTour || 0, 2);
+    s.farewellBonus = Math.max(s.farewellBonus || 0, 1);
+  }
   s._lastOutcome = {
     side: side,
     label: ch.label,
     risk: s._lastRisk || null,
     pills: summarizeLandedPills(fx),
-    temp: tempOvrTotal(s)
+    temp: tempOvrTotal(s),
+    relato: (typeof miniRelatoFor === "function") ? miniRelatoFor(s, ev, side) : ""
   };
 }
 
@@ -718,6 +742,8 @@ function finalScore(s) {
   var inf = clamp(s.caps * 0.9 + s.ntGoals * 0.8 + (s.ovr - 50) * 0.3, 0, 100);
   var res = clamp(s.traits.resilience * 0.5 + (s.age - 16) * 2.2 + s.energy * 0.2, 0, 100);
   var total = Math.round(ach * 0.27 + legend * 0.25 + loyalty * 0.16 + inf * 0.16 + res * 0.16);
+  if (typeof farewellLegacyBonus === "function") total = clamp(total + farewellLegacyBonus(s), 1, 99);
+  else if (s.farewellBonus) total = clamp(total + 4, 1, 99);
   return { total: clamp(total, 1, 99), ach: Math.round(ach), legend: Math.round(legend), loyalty: Math.round(loyalty), inf: Math.round(inf), res: Math.round(res) };
 }
 

@@ -198,9 +198,14 @@ function newCareer(draft) {
     awards: [],
     seasons: [],
     clubs: [],
-    usedEvents: []
+    usedEvents: [],
+    rival: null,
+    goals: null,
+    farewellBonus: 0
   };
   s.ovr = computeOvr(s.attrs, s.pos);
+  if (typeof ensureRival === "function") ensureRival(s);
+  if (typeof ensureCareerGoals === "function") ensureCareerGoals(s);
   return s;
 }
 

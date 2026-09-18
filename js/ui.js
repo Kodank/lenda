@@ -364,9 +364,9 @@ function viewCreate() {
     var feet = [["D", "Destro"], ["E", "Canhoto"], ["A", "Ambidestro"]].map(function (f) {
       return '<button type="button" class="chip' + (d.foot === f[0] ? " on" : "") + '" data-foot="' + f[0] + '">' + f[1] + "</button>";
     }).join("");
-    var paces = ["intensa", "normal", "expressa"].map(function (k) {
+    var paces = ["intensa", "normal", "rapido"].map(function (k) {
       var p = PACE[k];
-      return '<button type="button" class="chip pace-chip' + (d.pace === k ? " on" : "") + '" data-pace="' + k + '">' + p.label + "</button>";
+      return '<button type="button" class="chip pace-chip' + (d.pace === k ? " on" : "") + '" data-pace="' + k + '" title="' + esc(p.hint) + '">' + p.label + "</button>";
     }).join("");
     return top +
       '<div class="step-card focus-shirt">' +
@@ -543,10 +543,15 @@ function timelineHtml(s, hiN, choosing) {
       var a = s.pos === "GOL" ? r.ga : r.assists;
       var cups = (r.trophies || []).concat(r.awards || []);
       var cupDot = cups.length ? '<i class="tl-cup" title="' + esc(cups.map(function (id) { return trophyOf(id).name; }).join(", ")) + '">🏆</i>' : "";
-      var dlt = r.delta != null
-        ? '<em class="' + (r.delta >= 0 ? "up" : "dn") + '">' + fmtDelta(r.delta) + "</em>"
-        : "";
-      html += '<div class="tl-row filled' + (hi ? " hi" : "") + (cups.length ? " won" : "") + '">' +
+      var dlt = "";
+      if (r.delta != null && r.delta !== 0) {
+        var big = Math.abs(r.delta) >= 2 ? " big" : "";
+        dlt = '<em class="tl-delta ' + (r.delta > 0 ? "up" : "dn") + big + '">' + fmtDelta(r.delta) + "</em>";
+      } else if (r.delta === 0) {
+        dlt = '<em class="tl-delta flat">0</em>';
+      }
+      html += '<div class="tl-row filled' + (hi ? " hi" : "") + (cups.length ? " won" : "") +
+        (r.delta > 0 ? " ovr-up" : r.delta < 0 ? " ovr-dn" : "") + '">' +
         '<span class="tl-age">' + age + "</span>" +
         '<span class="tl-club">' + imgCrest(club.crest, 'tl-crest', club.name) + clubNameHtml(club.name, "tl-name") + cupDot + "</span>" +
         ovrTlHtml(r.ovr, dlt) +
@@ -682,6 +687,23 @@ function retireBtnHtml(s) {
   return '<button class="btn alt retire-btn" data-go="retire" type="button">Aposentar</button>';
 }
 
+function goalsStripHtml(s) {
+  if (!s || typeof ensureCareerGoals !== "function") return "";
+  var goals = ensureCareerGoals(s);
+  if (!goals.length) return "";
+  return '<div class="goals-strip">' + goals.map(function (g) {
+    return '<span class="goal-pill' + (g.done ? " done" : "") + '">' + (g.done ? "✓ " : "○ ") + esc(g.label) + "</span>";
+  }).join("") + "</div>";
+}
+
+function rivalChipHtml(s) {
+  if (!s || !s.rival) return "";
+  var r = s.rival;
+  var gap = (s.ovr || 0) - (r.ovr || 0);
+  var tone = gap >= 2 ? "up" : gap <= -2 ? "dn" : "flat";
+  return '<div class="rival-chip ' + tone + '"><span>Rival</span><b>' + esc(r.name) + "</b><em>" + r.ovr + " OVR</em></div>";
+}
+
 function viewDecision() {
   var ev = UI.event;
   var s = S;
@@ -692,6 +714,8 @@ function viewDecision() {
     '<div class="career-left">' +
     identityStrip(s) +
     trophyCaseHtml(s) +
+    rivalChipHtml(s) +
+    goalsStripHtml(s) +
     '<div class="story compact">' +
     '<div class="event-hero"><img src="' + hero + '" alt="" loading="lazy" onerror="this.src=\'img/choices/default.png\'"></div>' +
     '<div class="meta">' + esc(clubOf(s.clubId).name) + " · " + s.age + " anos</div>" +
@@ -715,11 +739,24 @@ function viewReport() {
     var nt = last.nt && last.nt.apps
       ? " · " + (last.nt.youth ? "Sub-20" : "seleção") + " (" + last.nt.apps + " j)"
       : "";
+    var theme = last.themeTitle || (typeof pickSeasonTheme === "function" ? pickSeasonTheme(s, last) : "");
+    var pathLine = (last.nt && last.nt.path && last.nt.path.text)
+      ? '<div class="flavor-line nt-path">' + esc(last.nt.path.text) + "</div>"
+      : "";
+    var derbyLine = "";
+    if (last.derby) {
+      var vsClub = clubOf(last.derby.vs);
+      derbyLine = '<div class="flavor-line derby">' + (last.derby.won ? "Clássico ganho" : "Clássico perdido") +
+        " vs " + esc(vsClub.name) + (last.derby.crisis ? " · crise" : "") + "</div>";
+    }
+    var rivalLine = last.rivalNote ? '<div class="flavor-line rival">Rival · ' + esc(last.rivalNote) + "</div>" : "";
     recap = '<div class="story compact"><div class="meta">Temporada encerrada</div>' +
+      (theme ? '<div class="season-theme">' + esc(theme) + "</div>" : "") +
       "<h2 class=\"club-title\" style=\"color:#ffffff !important;-webkit-text-fill-color:#ffffff !important\">" + esc(club.name) + "</h2>" +
       '<p class="lead tight">OVR ' + last.ovr + " (" + fmtDelta(last.delta) + ") · " +
       last.apps + " jogos · " + (s.pos === "GOL" ? last.cs + " CS" : last.goals + " gols / " + last.assists + " ast") +
       " · #" + last.leaguePos + nt + "</p>" +
+      pathLine + derbyLine + rivalLine +
       (cups.length ? '<div class="report-cups">' + cups.map(function (id) {
         return '<div class="report-cup"><img src="' + trophyOf(id).img + '" alt=""><b>' + esc(trophyOf(id).name) + "</b></div>";
       }).join("") + "</div>" : "") +
@@ -732,10 +769,14 @@ function viewReport() {
     identityStrip(s) +
     trophyCaseHtml(s) +
     recap +
+    rivalChipHtml(s) +
+    goalsStripHtml(s) +
+    (S._goalToast ? '<div class="goal-toast">Meta: ' + esc(S._goalToast) + "</div>" : "") +
     (S._lastRisk ? '<div class="risk-toast ' + (S._lastRisk.ok ? "ok" : "bad") + '">' + esc(S._lastRisk.text) + "</div>" : "") +
     (S._lastOutcome ? '<div class="outcome-board">' +
       '<div class="outcome-label">Resultado da escolha</div>' +
       pillsHtml(S._lastOutcome.pills || [], "landed") +
+      (S._lastOutcome.relato ? '<div class="mini-relato">' + esc(S._lastOutcome.relato) + "</div>" : "") +
       (S._lastOutcome.temp
         ? '<div class="temp-ovr-tag ' + (S._lastOutcome.temp < 0 ? "dn" : "up") + '">OVR tmp ' +
           (S._lastOutcome.temp > 0 ? "+" : "") + S._lastOutcome.temp + "</div>"
@@ -743,6 +784,7 @@ function viewReport() {
       "</div>" : "") +
     '<div class="report-actions">' +
     '<button class="btn" data-go="' + next + '">' + (s.retired ? "Ver o quadro" : "Próxima decisão") + "</button>" +
+    (last ? '<button class="btn alt" id="dl-season" type="button">Baixar temporada</button>' : "") +
     retireBtnHtml(s) +
     "</div>" +
     "</div>" +
@@ -872,7 +914,7 @@ function viewLegacy() {
 }
 
 function nextDecision() {
-  if (S) { S._lastRisk = null; S._lastOutcome = null; }
+  if (S) { S._lastRisk = null; S._lastOutcome = null; S._goalToast = null; }
   if (shouldRetire(S)) {
     S.retired = true;
     UI.screen = "legacy";
@@ -989,6 +1031,13 @@ function bind() {
   });
   var dl = document.getElementById("dl");
   if (dl) dl.onclick = function () { downloadCard(); };
+  var dls = document.getElementById("dl-season");
+  if (dls) dls.onclick = function () {
+    var reps = UI.reports || [];
+    var season = reps.length ? reps[reps.length - 1] : null;
+    if (!season && S && S.seasons && S.seasons.length) season = S.seasons[S.seasons.length - 1];
+    if (season && typeof downloadSeasonCard === "function") downloadSeasonCard(season);
+  };
 }
 
 function go(to) {

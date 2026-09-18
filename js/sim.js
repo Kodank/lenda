@@ -3,6 +3,10 @@ function simSeason(s) {
   var league = leagueOf(club.leagueId);
   var role = roleOf(s, club);
   s.role = role;
+  if (s._farewellTour && s._farewellTour > 0) {
+    s.confidence = clamp(s.confidence + 3, 15, 100);
+    s.form = clamp(s.form + 2, 20, 100);
+  }
   var inj = s.injuryWeeks || 0;
   if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.ignoreInjury) inj = 0;
   s.injuryWeeks = 0;
@@ -136,6 +140,7 @@ function simSeason(s) {
     s.clubs.push({ id: s.clubId, from: s.year });
   }
   s.value = marketValue(s);
+  if (typeof afterSeasonFun === "function") afterSeasonFun(s, season);
   s.year++;
   s.age++;
   tickTempOvr(s);

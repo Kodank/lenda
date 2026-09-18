@@ -1,5 +1,5 @@
 /* Lenda minimal service worker — cache app shell for offline-ish LAN/localhost use */
-const CACHE = "lenda-shell-v11-ovr-pills-1";
+const CACHE = "lenda-shell-v12-fun-packs-1";
 const SHELL = [
   "./",
   "./index.html",
@@ -10,6 +10,7 @@ const SHELL = [
   "./js/dev.js",
   "./js/data.js",
   "./js/engine.js",
+  "./js/fun.js",
   "./js/sim.js",
   "./js/career.js",
   "./js/card.js",

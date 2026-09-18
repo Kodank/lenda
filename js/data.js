@@ -7,6 +7,7 @@ var START_AGE = 16;
 var PACE = {
   intensa: { n: 1, label: "Intensa", hint: "Uma decisão por temporada" },
   normal: { n: 2, label: "Normal", hint: "Uma decisão a cada duas temporadas" },
+  rapido: { n: 3, label: "Rápido", hint: "Menos eventos · foco em mercado e títulos" },
   expressa: { n: 3, label: "Expressa", hint: "Uma decisão a cada três temporadas" }
 };
 
@@ -171,6 +172,24 @@ var EVENTS = [
     a: { label: "Deixar ele agir", hint: "Ambiente esfria · chance de salto", fx: { ambition: 8, coach: -6, risk: { p: 0.5, win: { transferEurope: 1 }, lose: { loyalty: -8, confidence: -4 }, winText: "Uma porta europeia se abriu de verdade.", loseText: "A briga vazou. Ninguém ligou." } } },
     b: { label: "Segurar a onda", hint: "Continuidade", fx: { loyalty: 6, discipline: 4 } } },
   { id: "shift", title: "Mudança tática", text: "O novo esquema te empurra para uma função vizinha no campo.", when: { minAge: 18, maxAge: 30 }, a: { label: "Aceitar a nova função", hint: "Minutos, identidade nova", fx: { shiftPos: 1, resilience: 5 } }, b: { label: "Fincar pé na original", hint: "Pode perder lugar", fx: { coach: -5, confidence: 3 } } },
+  { id: "locker", title: "Vestiário partido", text: "Dois líderes discutem no intervalo. Alguém precisa falar — ou o silêncio vira rachadura.", when: { minAge: 20, minOvr: 70, roles: ["starter", "star", "rotation"] }, theme: "captain",
+    a: { label: "Mediar na hora", hint: "Peso de líder", theme: "captain", fx: { loyalty: 6, coach: 4, energy: -4 } },
+    b: { label: "Deixar o técnico resolver", hint: "Menos exposição", theme: "coach", fx: { discipline: 4, coach: 2 } } },
+  { id: "fans", title: "Faixa na arquibancada", text: "A torcida pendurou seu nome. O clube pergunta se você aparece no dia de sócio.", when: { minAge: 19, minOvr: 68 }, theme: "home",
+    a: { label: "Ir e agradecer", hint: "Laço com a casa", theme: "home", fx: { loyalty: 8, confidence: 4, energy: -3 } },
+    b: { label: "Treinar e seguir", hint: "Foco no gramado", theme: "focus", fx: { form: 4, discipline: 3 } } },
+  { id: "pressroom", title: "Microfone quente", text: "Perguntam se o rival da posição merece mais minutos. A câmera não pisca.", when: { minAge: 21, minOvr: 72, roles: ["starter", "star"] }, theme: "media",
+    a: { label: "Elogiar o rival", hint: "Clima leve", theme: "media", fx: { loyalty: 4, discipline: 4 } },
+    b: { label: "Defender seu lugar", hint: "Ambiente esquenta", theme: "rival", fx: { confidence: 6, ambition: 4, coach: -3 } } },
+  { id: "scan", title: "Exame de imagem", text: "Dorzinha chata. O médico quer exame completo. O técnico quer você no clássico.", when: { minAge: 18 }, theme: "physio",
+    a: { label: "Fazer o exame", hint: "Pode perder o jogo", theme: "physio", fx: { injury: 4, resilience: 4, energy: 3 } },
+    b: { label: "Segurar até domingo", hint: "Risco de piorar", theme: "injury", fx: { form: 3, risk: { p: 0.55, win: { confidence: 4 }, lose: { injury: 10, energy: -8, tempOvr: { delta: -1, seasons: 1 } }, winText: "Aguentou o clássico. Dor passou.", loseText: "O exame atrasado mostrou o óbvio. Semanas fora." } } } },
+  { id: "ultras", title: "Portão 2", text: "Um grupo de ultras quer foto e discurso depois do treino. Segurança recomenda não.", when: { minAge: 20, minOvr: 74, roles: ["starter", "star"] }, theme: "home",
+    a: { label: "Encontrar a torcida", hint: "Amor e pressão", theme: "home", fx: { loyalty: 7, confidence: 3, energy: -4 } },
+    b: { label: "Mandar recado pelo clube", hint: "Distância segura", theme: "safe", fx: { discipline: 5, coach: 2 } } },
+  { id: "recovery", title: "Protocolo de retorno", text: "Você volta de lesão. Fisioterapia lenta ou atalho com carga alta?", when: { minAge: 19 }, theme: "physio",
+    a: { label: "Protocolo completo", hint: "Seguro", theme: "physio", fx: { injury: 6, energy: 6, resilience: 5 } },
+    b: { label: "Acelerar a volta", hint: "Minutos cedo · risco", theme: "injury", fx: { form: 5, tempOvr: { delta: -1, seasons: 1 }, risk: { p: 0.6, win: { confidence: 5 }, lose: { injury: 8, energy: -10 }, winText: "Voltou afiado.", loseText: "A recaída veio no primeiro treino forte." } } } },
   /* Saltos raros de overall — aparecem pouco, mas podem abrir caminho ao ápice */
   { id: "breakthrough", rare: 1, title: "Janela de ouro", text: "O preparador diz que seu corpo respondeu a um protocolo novo. Duas semanas podem mudar o teto da carreira — ou te quebrar.", when: { minAge: 18, maxAge: 26, minOvr: 68, maxOvr: 88 },
     a: { label: "Entrar de cabeça no protocolo", hint: "Raro: grande salto · risco alto", theme: "breakthrough", fx: { energy: -10, risk: { p: 0.58, win: { ovr: 3, pot: 3, form: 10, confidence: 8 }, lose: { injury: 12, energy: -14, form: -8, tempOvr: { delta: -2, seasons: 2 } }, winText: "Você acordou outro jogador. O teto subiu.", loseText: "O corpo não aguentou a carga. Recuo forçado." } } },
@@ -253,6 +272,15 @@ var EVENT_CHOICE_THEMES = {
   masterclass: ["coach", "safe"],
   worldstage: ["breakthrough", "safe"],
   lab: ["gym", "safe"],
+  locker: ["captain", "coach"],
+  fans: ["home", "focus"],
+  pressroom: ["media", "rival"],
+  scan: ["physio", "injury"],
+  ultras: ["home", "safe"],
+  recovery: ["physio", "injury"],
+  farewell: ["retire", "focus"],
+  rivalspot: ["rival", "safe"],
+  rivalaward: ["media", "captain"],
   market: ["transfer", "transfer", "stay"],
   quiet: ["training", "safe"]
 };
