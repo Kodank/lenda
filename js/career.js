@@ -59,6 +59,9 @@ function pickEvent(s) {
   /* jovem engavetado em clube grande: janela quase certa (empréstimo/passo lateral) */
   var cur = s.clubId ? clubOf(s.clubId) : null;
   if (cur && s.age <= 21 && (s.role === "youth" || s.role === "bench") && cur.level >= 4.2) marketP = 0.92;
+  if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.alwaysTransfers) {
+    return buildTransferWindow(s);
+  }
 
   /* ~9% chance de evento raro de salto (não frequente; 1x cada id por carreira) */
   var rarePool = [];
@@ -265,7 +268,7 @@ function applyChoice(s, ev, side) {
   if (fx.form) s.form = clamp(s.form + fx.form, 20, 100);
   if (fx.confidence) s.confidence = clamp(s.confidence + fx.confidence, 15, 100);
   if (fx.coach) s.coach = clamp(s.coach + fx.coach, 10, 100);
-  if (fx.injury) s.injuryWeeks = (s.injuryWeeks || 0) + fx.injury;
+  if (fx.injury && !(typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.ignoreInjury)) s.injuryWeeks = (s.injuryWeeks || 0) + fx.injury;
   if (fx.pot) {
     s.pot = clamp((s.pot || 88) + fx.pot, 82, OVR_CAP);
   }
@@ -278,7 +281,7 @@ function applyChoice(s, ev, side) {
   }
   if (fx.ntNo) s.ntNoStreak = 2;
   if (fx.clubApps) s._clubAppsMod = true;
-  if (fx.injuryRisk && rnd(s) < 0.35) s.injuryWeeks = (s.injuryWeeks || 0) + 10;
+  if (fx.injuryRisk && !(typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.ignoreInjury) && rnd(s) < 0.35) s.injuryWeeks = (s.injuryWeeks || 0) + 10;
   if (fx.retire) s.retireForce = true;
   if (fx.extraYear) s.extraYears = (s.extraYears || 0) + 2;
   if (fx.shiftPos) s.pos = neighborPos(s.pos);

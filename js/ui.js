@@ -324,6 +324,7 @@ function render() {
   root.className = "screen-" + UI.screen + (UI.screen === "create" ? " step-" + ((UI.draft && UI.draft.step) || 0) : "");
   bind();
   enforceLightInk();
+  if (typeof devAfterRender === "function") devAfterRender();
 }
 
 function viewHome() {

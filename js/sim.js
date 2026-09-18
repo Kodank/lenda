@@ -4,6 +4,7 @@ function simSeason(s) {
   var role = roleOf(s, club);
   s.role = role;
   var inj = s.injuryWeeks || 0;
+  if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.ignoreInjury) inj = 0;
   s.injuryWeeks = 0;
   var mins = ROLE_MINS[role] * (0.84 + s.energy / 550) * (1 - Math.min(0.65, inj / 40));
   var apps = Math.round(league.size * mins * (0.88 + rnd(s) * 0.24));
@@ -192,6 +193,10 @@ function developOvr(s, role, apps, games, inj) {
   if ((role === "starter" || role === "star") && age <= 22 && room > 6 && rnd(s) < 0.14) d += 1.2;
   /* faísca rara de pico se o potencial já foi aberto (eventos de salto) */
   if (s.pot >= 94 && age >= 22 && age <= 30 && room > 2 && (role === "starter" || role === "star") && rnd(s) < 0.08) d += 1.6;
+  if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.godGrowth) {
+    if (d > 0) d = d * 1.85 + 0.6;
+    else d = d * 0.25;
+  }
   return d;
 }
 

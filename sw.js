@@ -1,5 +1,5 @@
 /* Lenda minimal service worker — cache app shell for offline-ish LAN/localhost use */
-const CACHE = "lenda-shell-v3-trophies-ca-1";
+const CACHE = "lenda-shell-v4-dev-sandbox-1";
 const SHELL = [
   "./",
   "./index.html",
@@ -7,6 +7,7 @@ const SHELL = [
   "./css/style.css",
   "./js/app.js",
   "./js/ui.js",
+  "./js/dev.js",
   "./js/data.js",
   "./js/engine.js",
   "./js/sim.js",
