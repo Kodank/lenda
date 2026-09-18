@@ -189,6 +189,8 @@ function developOvr(s, role, apps, games, inj) {
   if (s.form > 78) d += 0.3;
   if (s.form < 40) d -= 0.3;
   if ((role === "starter" || role === "star") && age <= 22 && room > 6 && rnd(s) < 0.14) d += 1.2;
+  /* faísca rara de pico se o potencial já foi aberto (eventos de salto) */
+  if (s.pot >= 94 && age >= 22 && age <= 30 && room > 2 && (role === "starter" || role === "star") && rnd(s) < 0.08) d += 1.6;
   return d;
 }
 

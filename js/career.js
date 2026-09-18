@@ -30,7 +30,7 @@ function academyOffers(s) {
 function signAcademy(s, clubId) {
   s.clubId = clubId;
   var club = clubOf(clubId);
-  s.pot = clamp(s.pot + Math.round((club.level - 3.2) * 1.2), 82, 96);
+  s.pot = clamp(s.pot + Math.round((club.level - 3.2) * 1.2), 82, OVR_CAP);
   s.role = roleOf(s, club);
   s.value = marketValue(s);
   s.clubs = [{ id: clubId, from: s.year }];
@@ -59,11 +59,24 @@ function pickEvent(s) {
   /* jovem engavetado em clube grande: janela quase certa (empréstimo/passo lateral) */
   var cur = s.clubId ? clubOf(s.clubId) : null;
   if (cur && s.age <= 21 && (s.role === "youth" || s.role === "bench") && cur.level >= 4.2) marketP = 0.92;
+
+  /* ~9% chance de evento raro de salto (não frequente; 1x cada id por carreira) */
+  var rarePool = [];
+  for (var ri = 0; ri < EVENTS.length; ri++) {
+    if (!EVENTS[ri].rare) continue;
+    if (!eventFits(s, EVENTS[ri])) continue;
+    rarePool.push(EVENTS[ri]);
+  }
+  if (rarePool.length && rnd(s) < 0.09) {
+    return rarePool[Math.floor(rnd(s) * rarePool.length)];
+  }
+
   if (rnd(s) < marketP) return buildTransferWindow(s);
 
   var pool = [];
   for (var i = 0; i < EVENTS.length; i++) {
     if (!eventFits(s, EVENTS[i])) continue;
+    if (EVENTS[i].rare) continue; /* raros só pelo gate acima */
     if (EVENTS[i].id === "europe" || EVENTS[i].id === "giant" || EVENTS[i].id === "midtable" || EVENTS[i].id === "loan" || EVENTS[i].id === "bench" || EVENTS[i].id === "rival") continue;
     pool.push(EVENTS[i]);
   }
@@ -253,9 +266,15 @@ function applyChoice(s, ev, side) {
   if (fx.confidence) s.confidence = clamp(s.confidence + fx.confidence, 15, 100);
   if (fx.coach) s.coach = clamp(s.coach + fx.coach, 10, 100);
   if (fx.injury) s.injuryWeeks = (s.injuryWeeks || 0) + fx.injury;
+  if (fx.pot) {
+    s.pot = clamp((s.pot || 88) + fx.pot, 82, OVR_CAP);
+  }
   if (fx.ovr) {
     applyDeltaToAttrs(s, fx.ovr);
     s.ovr = clamp(computeOvr(s.attrs, s.pos), 40, OVR_CAP);
+    /* soft-cap sobe junto se o salto passou do potencial antigo */
+    if (s.ovr > s.pot) s.pot = Math.min(OVR_CAP, s.ovr);
+    s.peakOvr = Math.max(s.peakOvr || s.ovr, s.ovr);
   }
   if (fx.ntNo) s.ntNoStreak = 2;
   if (fx.clubApps) s._clubAppsMod = true;

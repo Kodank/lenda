@@ -160,5 +160,18 @@ var EVENTS = [
   { id: "agentpush", title: "Pressão do agente", text: "Ele quer forçar uma saída barulhenta. Pode acelerar o sonho europeu — ou queimar a ponte.", when: { minAge: 19, maxAge: 26, minOvr: 72 },
     a: { label: "Deixar ele agir", hint: "Ambiente esfria · chance de salto", fx: { ambition: 8, coach: -6, risk: { p: 0.5, win: { transferEurope: 1 }, lose: { loyalty: -8, confidence: -4 }, winText: "Uma porta europeia se abriu de verdade.", loseText: "A briga vazou. Ninguém ligou." } } },
     b: { label: "Segurar a onda", hint: "Continuidade", fx: { loyalty: 6, discipline: 4 } } },
-  { id: "shift", title: "Mudança tática", text: "O novo esquema te empurra para uma função vizinha no campo.", when: { minAge: 18, maxAge: 30 }, a: { label: "Aceitar a nova função", hint: "Minutos, identidade nova", fx: { shiftPos: 1, resilience: 5 } }, b: { label: "Fincar pé na original", hint: "Pode perder lugar", fx: { coach: -5, confidence: 3 } } }
+  { id: "shift", title: "Mudança tática", text: "O novo esquema te empurra para uma função vizinha no campo.", when: { minAge: 18, maxAge: 30 }, a: { label: "Aceitar a nova função", hint: "Minutos, identidade nova", fx: { shiftPos: 1, resilience: 5 } }, b: { label: "Fincar pé na original", hint: "Pode perder lugar", fx: { coach: -5, confidence: 3 } } },
+  /* Saltos raros de overall — aparecem pouco, mas podem abrir caminho ao ápice */
+  { id: "breakthrough", rare: 1, title: "Janela de ouro", text: "O preparador diz que seu corpo respondeu a um protocolo novo. Duas semanas podem mudar o teto da carreira — ou te quebrar.", when: { minAge: 18, maxAge: 26, minOvr: 68, maxOvr: 88 },
+    a: { label: "Entrar de cabeça no protocolo", hint: "Raro: grande salto · risco alto", fx: { energy: -10, risk: { p: 0.58, win: { ovr: 3, pot: 3, form: 10, confidence: 8 }, lose: { injury: 12, energy: -14, form: -8 }, winText: "Você acordou outro jogador. O teto subiu.", loseText: "O corpo não aguentou a carga. Recuo forçado." } } },
+    b: { label: "Crescer no ritmo normal", hint: "Seguro, sem milagre", fx: { energy: 4, discipline: 4 } } },
+  { id: "masterclass", rare: 1, title: "Aula particular", text: "Um ídolo aposentado te oferece três meses de mentoria diária. Poucos aceitam — menos ainda aproveitam.", when: { minAge: 19, maxAge: 27, minOvr: 74, maxOvr: 90 },
+    a: { label: "Aceitar a mentoria", hint: "Salto acima do normal · cansaço", fx: { ovr: 2, pot: 2, energy: -8, discipline: 6, form: 6 } },
+    b: { label: "Seguir só com o clube", hint: "Rotina estável", fx: { energy: 5, loyalty: 3 } } },
+  { id: "worldstage", rare: 1, title: "Palco do mundo", text: "Uma sequência absurda em mata-mata continental. A imprensa já fala em outro nível. Você sente que pode estourar o teto — ou queimar.", when: { minAge: 21, maxAge: 29, minOvr: 80, maxOvr: 93 },
+    a: { label: "Buscar o impossível", hint: "Chance de ápice · risco de lesão", fx: { ambition: 8, risk: { p: 0.5, win: { ovr: 3, pot: 2, confidence: 12, form: 10 }, lose: { injury: 10, energy: -16, form: -10, confidence: -6 }, winText: "Você entrou no mapa dos melhores do mundo.", loseText: "O fogo apagou no hospital. Temporada comprometida." } } },
+    b: { label: "Gerir a carreira com cabeça", hint: "Longevidade", fx: { discipline: 8, energy: 6, resilience: 4 } } },
+  { id: "lab", rare: 1, title: "Laboratório secreto", text: "Um centro de performance elite abre uma vaga experimental. Quase ninguém recebe o convite duas vezes na vida.", when: { minAge: 20, maxAge: 28, minOvr: 76, maxOvr: 91 },
+    a: { label: "Topar o experimento", hint: "Potencial sobe · desgaste", fx: { pot: 4, ovr: 2, energy: -10, form: 4 } },
+    b: { label: "Recusar e seguir tradicional", hint: "Sem atalho", fx: { discipline: 5, energy: 4 } } }
 ];
