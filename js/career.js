@@ -56,6 +56,9 @@ function pickEvent(s) {
   var marketP = 0.72;
   if (s.age <= 22) marketP = 0.82;
   if (s.age >= 32) marketP = 0.5;
+  /* jovem engavetado em clube grande: janela quase certa (empréstimo/passo lateral) */
+  var cur = s.clubId ? clubOf(s.clubId) : null;
+  if (cur && s.age <= 21 && (s.role === "youth" || s.role === "bench") && cur.level >= 4.2) marketP = 0.92;
   if (rnd(s) < marketP) return buildTransferWindow(s);
 
   var pool = [];
@@ -69,9 +72,16 @@ function pickEvent(s) {
 }
 
 function reachableClub(s, c) {
+  /* Só oferece clube onde o jogador não seria ridiculamente abaixo do elenco. */
   var need = c.level * 18;
-  var slack = EURO_LEAGUES[c.leagueId] ? 20 : 14;
-  return s.ovr + slack >= need;
+  var gap = s.ovr - need;
+  /* elite europeia exige quase o nível; clubes menores aceitam mais slack */
+  var minGap = EURO_LEAGUES[c.leagueId] ? -8 : -12;
+  if (c.level >= 4.6) minGap = -5;
+  else if (c.level >= 4.2) minGap = -7;
+  if (s.age <= 20) minGap -= 2; /* promessa ganha um pouco de crédito */
+  if (s.age >= 33) minGap += 2;
+  return gap >= minGap;
 }
 
 function shuffled(arr, s) {
@@ -86,27 +96,72 @@ function shuffled(arr, s) {
 }
 
 function pickOffers(s, n) {
+  /* Estilo Copero: um passo à frente, um lateral — não dois gigantes aleatórios. */
   var cur = clubOf(s.clubId);
   var pool = CLUBS.filter(function (c) {
     return c.id !== cur.id && reachableClub(s, c);
   });
-  var euro = pool.filter(function (c) { return EURO_LEAGUES[c.leagueId]; });
-  euro.sort(function (a, b) { return b.level - a.level; });
-  euro = shuffled(euro.slice(0, Math.min(euro.length, 16)), s);
-  var rest = shuffled(pool.filter(function (c) { return !EURO_LEAGUES[c.leagueId]; }), s);
+  function expectedRole(c) {
+    return roleOf({ ovr: s.ovr, age: s.age, clubId: c.id }, c);
+  }
+  function playable(c) {
+    var r = expectedRole(c);
+    return r === "star" || r === "starter" || r === "rotation" || (s.age <= 21 && (r === "bench" || r === "youth"));
+  }
+  var playablePool = pool.filter(playable);
+  if (playablePool.length < 3) playablePool = pool.slice();
+
+  var stepUp = playablePool.filter(function (c) {
+    return c.level > cur.level + 0.12 && c.level <= cur.level + 0.85;
+  });
+  var bigStep = playablePool.filter(function (c) {
+    return c.level > cur.level + 0.85 && s.ovr >= c.level * 18 - 6;
+  });
+  var lateral = playablePool.filter(function (c) {
+    return Math.abs(c.level - cur.level) <= 0.35;
+  });
+  var safer = playablePool.filter(function (c) {
+    return c.level < cur.level - 0.15 && c.level >= cur.level - 0.9;
+  });
+  /* empréstimos naturais para jovens engavetados */
+  var loanish = [];
+  if (s.age <= 21 && (s.role === "youth" || s.role === "bench")) {
+    loanish = playablePool.filter(function (c) {
+      return c.level < cur.level - 0.2 && c.level >= 2.6;
+    });
+  }
+
+  stepUp = shuffled(stepUp, s);
+  bigStep = shuffled(bigStep, s);
+  lateral = shuffled(lateral, s);
+  safer = shuffled(safer, s);
+  loanish = shuffled(loanish, s);
+
   var out = [];
   var seen = {};
   function add(c) {
-    if (!c || seen[c.id]) return;
+    if (!c || seen[c.id] || out.length >= n) return;
     seen[c.id] = 1;
     out.push(c);
   }
-  if (euro[0]) add(euro[0]);
-  if (euro[1]) add(euro[1]);
-  var i = 0;
-  while (out.length < n && i < rest.length) add(rest[i++]);
-  i = 0;
-  while (out.length < n && i < euro.length) add(euro[i++]);
+
+  /* 1ª carta: passo à frente (ou big step raro se o OVR aguenta) */
+  if (s.ovr >= cur.level * 18 + 2 && bigStep[0] && rnd(s) < 0.28) add(bigStep[0]);
+  else if (stepUp[0]) add(stepUp[0]);
+  else if (loanish[0]) add(loanish[0]);
+  else if (lateral[0]) add(lateral[0]);
+
+  /* 2ª carta: lateral / outro país / empréstimo — contraste com a 1ª */
+  var secondWave = loanish.concat(lateral).concat(safer).concat(stepUp).concat(bigStep);
+  for (var i = 0; i < secondWave.length && out.length < n; i++) add(secondWave[i]);
+
+  /* fallback: qualquer jogável próximo do OVR */
+  if (out.length < n) {
+    var near = shuffled(playablePool.filter(function (c) {
+      return Math.abs(c.level * 18 - s.ovr) <= 14;
+    }), s);
+    for (var j = 0; j < near.length && out.length < n; j++) add(near[j]);
+  }
   return out.slice(0, n);
 }
 
@@ -116,14 +171,19 @@ function offerChoice(s, club) {
   var role = roleOf(ghost, club);
   var cur = clubOf(s.clubId);
   var loan = s.age <= 21 && (s.role === "youth" || s.role === "bench") && club.level < cur.level - 0.15;
+  var step = club.level - cur.level;
+  var tag = loan ? "Empréstimo · " : step >= 0.45 ? "Subir · " : step <= -0.35 ? "Mais minutos · " : "Mudar · ";
   var euro = EURO_LEAGUES[club.leagueId] ? "Europa · " : "";
   return {
-    label: (loan ? "Empréstimo · " : "") + club.name,
+    label: tag + club.name,
     hint: euro + lg.name + " · " + ROLE_NAME[role],
     crest: club.crest,
+    leagueId: club.leagueId,
+    nation: club.nation,
+    colors: club.colors,
     fx: loan
       ? { loanTo: club.id, resilience: 4, loyalty: -2 }
-      : { sign: club.id, ambition: 6, loyalty: -6 }
+      : { sign: club.id, ambition: step >= 0.3 ? 7 : 4, loyalty: step >= 0.3 ? -7 : -4 }
   };
 }
 
@@ -133,6 +193,9 @@ function stayChoice(s) {
     label: "Ficar no " + cur.name,
     hint: leagueOf(cur.leagueId).name + " · continuidade",
     crest: cur.crest,
+    leagueId: cur.leagueId,
+    nation: cur.nation,
+    colors: cur.colors,
     fx: { loyalty: 6, confidence: 3 }
   };
 }
@@ -163,7 +226,20 @@ function buildTransferWindow(s) {
 function applyChoice(s, ev, side) {
   var ch = ev[side];
   if (!ch) return;
-  var fx = ch.fx || {};
+  var fx = Object.assign({}, ch.fx || {});
+  /* Eventos com trade-off: rola o risco depois da escolha */
+  if (fx.risk) {
+    var r = fx.risk;
+    var roll = rnd(s);
+    if (roll < (r.p || 0.5)) {
+      if (r.win) for (var wk in r.win) fx[wk] = (fx[wk] || 0) + r.win[wk];
+      s._lastRisk = { ok: 1, text: r.winText || "Deu certo." };
+    } else {
+      if (r.lose) for (var lk in r.lose) fx[lk] = (fx[lk] || 0) + r.lose[lk];
+      s._lastRisk = { ok: 0, text: r.loseText || "Saiu pela culatra." };
+    }
+    delete fx.risk;
+  }
   s.usedEvents = s.usedEvents || [];
   if (ev.id && ev.id !== "market" && ev.id !== "quiet" && ev.id !== "muscle" && ev.id !== "formdip" && s.usedEvents.indexOf(ev.id) < 0) {
     s.usedEvents.push(ev.id);

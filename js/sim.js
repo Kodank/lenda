@@ -35,14 +35,15 @@ function simSeason(s) {
   var leaguePos = rankFromPower(power, league.size, s);
   var trophies = [];
   var awards = [];
-  if (leaguePos === 1) trophies.push(league.trophy || "premier");
+  if (leaguePos === 1) trophies.push(league.trophy || "brasileirao");
   var cupP = 0.04 + club.level * 0.03 + (role === "star" ? 0.06 : 0);
   if (rnd(s) < cupP) trophies.push("copa");
   if (s.contQual) {
     var cont = league.continental;
+    var contId = cont === "lib" ? "libertadores" : cont === "ucl" ? "ucl" : cont;
     var cP = 0.03 + club.level * 0.025 + (s.ovr >= 86 ? 0.08 : 0);
-    if (cont && rnd(s) < cP) {
-      trophies.push(cont);
+    if (contId && rnd(s) < cP) {
+      trophies.push(contId);
       if (rnd(s) < 0.28) trophies.push("clubworldcup");
     }
   }
@@ -66,6 +67,8 @@ function simSeason(s) {
   var prev = s.ovr;
   applyDeltaToAttrs(s, delta);
   s.ovr = clamp(prev + delta, 40, OVR_CAP);
+  /* potencial é teto mole: no máximo +2 acima, e só por forma absurda */
+  if (s.ovr > s.pot + 2) s.ovr = s.pot + 2;
   s.peakOvr = Math.max(s.peakOvr, s.ovr);
   s.energy = clamp(s.energy + rngInt(function () { return rnd(s); }, -6, 5) - (role === "star" ? 3 : 0) + (inj > 12 ? 4 : 0), 35, 96);
   s.form = clamp(s.form + rngInt(function () { return rnd(s); }, -8, 8) + (rating >= 7.4 ? 4 : -2), 30, 96);
@@ -132,23 +135,48 @@ function rankFromPower(power, size, s) {
 }
 
 function developOvr(s, role, apps, games, inj) {
-  var play = role === "star" || role === "starter" ? 1 : role === "rotation" ? 0.78 : 0.5;
+  /* Curva justa: base cresce mesmo sem minutos; jogos aceleram; potencial puxa o teto. */
   var age = s.age;
   var lo, hi;
-  if (age <= 19) { lo = 6.0; hi = 9.2; }
-  else if (age <= 22) { lo = 3.6; hi = 6.2; }
-  else if (age <= 26) { lo = 1.8; hi = 3.6; }
-  else if (age <= 29) { lo = 0.5; hi = 2.0; }
-  else if (age <= 32) { lo = -0.2; hi = 0.9; }
-  else if (age <= 34) { lo = -1.0; hi = -0.2; }
-  else { lo = -2.4; hi = -0.8; }
-  var d = (lo + rnd(s) * (hi - lo)) * play;
-  if (apps / Math.max(1, games) < 0.3) d *= 0.75;
-  if (s.ovr >= s.pot) d = Math.min(d, 0.8);
-  if (s.ovr > s.pot + 5) d = Math.min(d, 0.25);
-  if (inj >= 20) d -= 0.4;
-  if (s.form > 80) d += 0.5;
-  if (play >= 0.78 && age <= 21 && rnd(s) < 0.25) d += 2.5;
+  if (age <= 17) { lo = 2.8; hi = 4.4; }
+  else if (age <= 19) { lo = 3.0; hi = 4.8; }
+  else if (age <= 21) { lo = 2.2; hi = 3.8; }
+  else if (age <= 23) { lo = 1.5; hi = 2.9; }
+  else if (age <= 26) { lo = 0.8; hi = 2.0; }
+  else if (age <= 28) { lo = 0.25; hi = 1.25; }
+  else if (age <= 30) { lo = -0.25; hi = 0.75; }
+  else if (age <= 32) { lo = -0.7; hi = 0.35; }
+  else if (age <= 34) { lo = -1.3; hi = -0.25; }
+  else { lo = -2.1; hi = -0.7; }
+
+  var d = lo + rnd(s) * (hi - lo);
+
+  /* minutos: aceleram, mas a base (treino) existe para youth */
+  var share = apps / Math.max(1, games);
+  if (role === "youth") {
+    d *= 0.9; /* ainda cresce forte na base */
+    if (share < 0.15) d *= 0.92;
+  } else if (role === "bench") {
+    d *= 0.7 + share * 0.5;
+  } else if (role === "rotation") {
+    d *= 0.88 + share * 0.25;
+  } else {
+    d *= 0.95 + Math.min(0.2, share * 0.25);
+  }
+
+  /* longe do potencial = sobe mais; perto = freia */
+  var room = s.pot - s.ovr;
+  if (room > 12) d += 0.55;
+  else if (room > 8) d += 0.3;
+  else if (room <= 0) d = Math.min(d, 0.2);
+  else if (room <= 3) d = Math.min(d, 0.7);
+  else if (room <= 6) d = Math.min(d, 1.35);
+
+  if (inj >= 16) d -= 0.6;
+  else if (inj >= 8) d -= 0.25;
+  if (s.form > 78) d += 0.3;
+  if (s.form < 40) d -= 0.3;
+  if ((role === "starter" || role === "star") && age <= 22 && room > 6 && rnd(s) < 0.14) d += 1.2;
   return d;
 }
 
@@ -164,8 +192,8 @@ function applyDeltaToAttrs(s, delta) {
 
 function simNational(s) {
   var nat = nationOf(s.nation);
-  var cut = 76 + (nat.ntCut || 0);
-  var youthCut = 64 + (nat.ntCut || 0);
+  var cut = 74 + (nat.ntCut || 0);
+  var youthCut = 58 + (nat.ntCut || 0);
   var out = { apps: 0, goals: 0, cs: 0, trophies: [], youth: false, team: null };
   if (s.ntNoStreak > 0) {
     s.ntNoStreak--;
@@ -174,37 +202,44 @@ function simNational(s) {
   var year = s.year;
   var isWC = year % 4 === 2;
   var isCont = year % 2 === 0 && !isWC;
-  var youth = s.age <= 20 && s.ovr >= youthCut;
-  var senior = s.ovr >= cut || (s.youthCaps >= 6 && s.ovr >= cut - 6 && s.age >= 17);
+
+  var youth = s.age <= 20 && s.ovr >= youthCut && s.ovr < cut;
+  var fringe = s.ovr >= cut - 2 && s.ovr < cut + 3;
+  var senior = s.ovr >= cut || (s.youthCaps >= 6 && s.ovr >= cut - 4 && s.age >= 19);
+
   if (youth && !senior) {
     out.youth = true;
     out.team = "sub20";
-    out.apps = 4 + Math.floor(rnd(s) * 6);
-    if (s.pos !== "GOL") out.goals = poisson(out.apps * 0.18 * ((s.ovr - 40) / 50), function () { return rnd(s); });
-    else out.cs = poisson(out.apps * 0.3, function () { return rnd(s); });
-    if (year % 2 === 0 && rnd(s) < 0.22) out.trophies.push("youth");
+    out.apps = 4 + Math.floor(rnd(s) * 5);
+    if (s.pos !== "GOL") out.goals = poisson(out.apps * 0.16 * ((s.ovr - 40) / 50), function () { return rnd(s); });
+    else out.cs = poisson(out.apps * 0.28, function () { return rnd(s); });
+    if (year % 2 === 0 && rnd(s) < 0.2) out.trophies.push("youth");
     return out;
   }
-  if (!senior) return out;
+  if (!senior && !fringe) return out;
   out.team = "A";
-  var starter = s.ovr >= cut + 8;
-  out.apps = starter ? 6 + Math.floor(rnd(s) * 5) : 2 + Math.floor(rnd(s) * 4);
-  if (isWC) out.apps += starter ? 4 : 1;
-  if (isCont) out.apps += starter ? 3 : 1;
-  if (s.pos !== "GOL") out.goals = poisson(out.apps * (s.pos === "ATA" ? 0.35 : 0.14) * ((s.ovr - 50) / 45), function () { return rnd(s); });
-  else out.cs = poisson(out.apps * 0.32, function () { return rnd(s); });
-  if (isWC && starter && s.ovr >= 84 && rnd(s) < 0.18 + (s.ovr - 84) * 0.02) out.trophies.push("worldcup");
+  var starter = s.ovr >= cut + 6;
+  var regular = s.ovr >= cut + 2;
+  if (starter) out.apps = 7 + Math.floor(rnd(s) * 4);
+  else if (regular) out.apps = 4 + Math.floor(rnd(s) * 4);
+  else out.apps = 1 + Math.floor(rnd(s) * 3);
+  if (isWC) out.apps += starter ? 4 : regular ? 2 : (fringe ? 1 : 0);
+  if (isCont) out.apps += starter ? 3 : regular ? 1 : 0;
+  if (s.pos !== "GOL") out.goals = poisson(out.apps * (s.pos === "ATA" ? 0.32 : 0.12) * ((s.ovr - 50) / 45), function () { return rnd(s); });
+  else out.cs = poisson(out.apps * 0.3, function () { return rnd(s); });
+  if (isWC && starter && s.ovr >= 84 && rnd(s) < 0.16 + (s.ovr - 84) * 0.015) out.trophies.push("worldcup");
   if (isCont && starter && s.ovr >= 80) {
     var tid = nat.conf === "uefa" ? "euro" : nat.conf === "conmebol" ? "copaamerica" : null;
-    if (tid && rnd(s) < 0.2) out.trophies.push(tid);
+    if (tid && rnd(s) < 0.18) out.trophies.push(tid);
   }
   return out;
 }
 
 function shouldRetire(s) {
   if (s.retireForce) return true;
-  if (s.age >= 38) return true;
-  if (s.age >= 36 && s.ovr < 62) return true;
-  if (s.age >= 34 && s.extraYears <= 0 && s.ovr < 70) return true;
+  if (s.age >= 40) return true;
+  if (s.age >= 38 && s.ovr < 64) return true;
+  if (s.age >= 36 && s.extraYears <= 0 && s.ovr < 68) return true;
+  if (s.age >= 34 && s.extraYears <= 0 && s.ovr < 62 && rnd(s) < 0.35) return true;
   return false;
 }

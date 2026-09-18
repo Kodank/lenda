@@ -6,7 +6,7 @@ var NATIONS = [
     "adj": "Brasileiro",
     "conf": "conmebol",
     "ntCut": 0,
-    "flag": "img/flags/br.svg"
+    "flag": "img/flags/br.png"
   },
   {
     "id": "ar",
@@ -14,7 +14,7 @@ var NATIONS = [
     "adj": "Argentino",
     "conf": "conmebol",
     "ntCut": -1,
-    "flag": "img/flags/ar.svg"
+    "flag": "img/flags/ar.png"
   },
   {
     "id": "uy",
@@ -22,7 +22,7 @@ var NATIONS = [
     "adj": "Uruguaio",
     "conf": "conmebol",
     "ntCut": -4,
-    "flag": "img/flags/uy.svg"
+    "flag": "img/flags/uy.png"
   },
   {
     "id": "co",
@@ -30,7 +30,7 @@ var NATIONS = [
     "adj": "Colombiano",
     "conf": "conmebol",
     "ntCut": -3,
-    "flag": "img/flags/co.svg"
+    "flag": "img/flags/co.png"
   },
   {
     "id": "mx",
@@ -38,7 +38,7 @@ var NATIONS = [
     "adj": "Mexicano",
     "conf": "concacaf",
     "ntCut": -3,
-    "flag": "img/flags/mx.svg"
+    "flag": "img/flags/mx.png"
   },
   {
     "id": "pt",
@@ -46,7 +46,7 @@ var NATIONS = [
     "adj": "Português",
     "conf": "uefa",
     "ntCut": -2,
-    "flag": "img/flags/pt.svg"
+    "flag": "img/flags/pt.png"
   },
   {
     "id": "es",
@@ -54,7 +54,7 @@ var NATIONS = [
     "adj": "Espanhol",
     "conf": "uefa",
     "ntCut": 0,
-    "flag": "img/flags/es.svg"
+    "flag": "img/flags/es.png"
   },
   {
     "id": "en",
@@ -62,7 +62,7 @@ var NATIONS = [
     "adj": "Inglês",
     "conf": "uefa",
     "ntCut": 0,
-    "flag": "img/flags/en.svg"
+    "flag": "img/flags/en.png"
   },
   {
     "id": "fr",
@@ -70,7 +70,7 @@ var NATIONS = [
     "adj": "Francês",
     "conf": "uefa",
     "ntCut": -1,
-    "flag": "img/flags/fr.svg"
+    "flag": "img/flags/fr.png"
   },
   {
     "id": "it",
@@ -78,7 +78,7 @@ var NATIONS = [
     "adj": "Italiano",
     "conf": "uefa",
     "ntCut": 0,
-    "flag": "img/flags/it.svg"
+    "flag": "img/flags/it.png"
   },
   {
     "id": "de",
@@ -86,7 +86,7 @@ var NATIONS = [
     "adj": "Alemão",
     "conf": "uefa",
     "ntCut": 0,
-    "flag": "img/flags/de.svg"
+    "flag": "img/flags/de.png"
   },
   {
     "id": "nl",
@@ -94,7 +94,7 @@ var NATIONS = [
     "adj": "Neerlandês",
     "conf": "uefa",
     "ntCut": -2,
-    "flag": "img/flags/nl.svg"
+    "flag": "img/flags/nl.png"
   },
   {
     "id": "us",
@@ -102,7 +102,7 @@ var NATIONS = [
     "adj": "Americano",
     "conf": "concacaf",
     "ntCut": -6,
-    "flag": "img/flags/us.svg"
+    "flag": "img/flags/us.png"
   },
   {
     "id": "jp",
@@ -110,7 +110,7 @@ var NATIONS = [
     "adj": "Japonês",
     "conf": "afc",
     "ntCut": -5,
-    "flag": "img/flags/jp.svg"
+    "flag": "img/flags/jp.png"
   },
   {
     "id": "ng",
@@ -118,7 +118,7 @@ var NATIONS = [
     "adj": "Nigeriano",
     "conf": "caf",
     "ntCut": -7,
-    "flag": "img/flags/ng.svg"
+    "flag": "img/flags/ng.png"
   },
   {
     "id": "sn",
@@ -126,7 +126,7 @@ var NATIONS = [
     "adj": "Senegalês",
     "conf": "caf",
     "ntCut": -8,
-    "flag": "img/flags/sn.svg"
+    "flag": "img/flags/sn.png"
   }
 ];
 var LEAGUES = [

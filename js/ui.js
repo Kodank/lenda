@@ -7,6 +7,13 @@ var NATION_KIT = {
   sn: ["#00853F", "#E31C23"]
 };
 
+function crestSrc(path) {
+  return path || 'img/clubs/fla.png';
+}
+function imgCrest(path, cls) {
+  return '<img class="' + (cls || 'crest') + '" src="' + crestSrc(path) + '" alt="" onerror="this.style.opacity=.25">';
+}
+
 function esc(t) {
   return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
@@ -20,12 +27,98 @@ function onColor(hex) {
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62 ? "#12151a" : "#ffffff";
 }
 
-function shirtHtml(c1, c2, number, name, on) {
+var KIT_PATTERN = {
+  br: "hoops", ar: "stripes", uy: "stripes", co: "solid", mx: "solid",
+  pt: "solid", es: "solid", en: "solid", fr: "solid", it: "solid",
+  de: "solid", nl: "solid", us: "bars", jp: "solid", ng: "solid", sn: "solid"
+};
+
+function shirtHtml(c1, c2, number, name, on, nation) {
   on = on || onColor(c1);
-  return '<div class="shirt-stage"><div class="shirt" style="--c1:' + c1 + ";--c2:" + c2 + ";--on:" + on + '">' +
-    '<i class="shirt-sleeve l"></i><i class="shirt-sleeve r"></i>' +
-    '<div class="shirt-body"><div class="shirt-num">' + esc(number) + '</div>' +
-    '<div class="shirt-name">' + esc(name) + "</div></div></div></div>";
+  var pat = KIT_PATTERN[nation] || "solid";
+  var nm = esc((name || "SILVA").toUpperCase().slice(0, 12));
+  var num = esc(String(number == null ? 10 : number));
+  var uid = "k" + Math.random().toString(36).slice(2, 8);
+  var fillBody = "url(#" + uid + "body)";
+  var patternDefs = "";
+  if (pat === "stripes") {
+    patternDefs =
+      '<pattern id="' + uid + 'body" width="14" height="8" patternUnits="userSpaceOnUse">' +
+      '<rect width="14" height="8" fill="' + c1 + '"/>' +
+      '<rect x="0" width="7" height="8" fill="' + c2 + '"/>' +
+      "</pattern>";
+  } else if (pat === "hoops") {
+    patternDefs =
+      '<pattern id="' + uid + 'body" width="8" height="16" patternUnits="userSpaceOnUse">' +
+      '<rect width="8" height="16" fill="' + c1 + '"/>' +
+      '<rect y="0" width="8" height="8" fill="' + c2 + '"/>' +
+      "</pattern>";
+  } else if (pat === "bars") {
+    patternDefs =
+      '<pattern id="' + uid + 'body" width="8" height="18" patternUnits="userSpaceOnUse">' +
+      '<rect width="8" height="18" fill="' + c1 + '"/>' +
+      '<rect y="0" width="8" height="6" fill="' + c2 + '"/>' +
+      '<rect y="12" width="8" height="6" fill="' + c2 + '"/>' +
+      "</pattern>";
+  } else {
+    fillBody = c1;
+  }
+  return '<div class="shirt-stage" aria-hidden="true">' +
+    '<svg class="shirt-svg" viewBox="0 0 200 220" width="180" height="198">' +
+    "<defs>" +
+    '<linearGradient id="' + uid + 'sh" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0%" stop-color="#fff" stop-opacity=".18"/>' +
+    '<stop offset="55%" stop-color="#000" stop-opacity="0"/>' +
+    '<stop offset="100%" stop-color="#000" stop-opacity=".22"/>' +
+    "</linearGradient>" +
+    '<linearGradient id="' + uid + 'sl" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0%" stop-color="' + c2 + '"/>' +
+    '<stop offset="100%" stop-color="' + c1 + '"/>' +
+    "</linearGradient>" +
+    patternDefs +
+    "</defs>" +
+    /* shadow */
+    '<ellipse cx="100" cy="208" rx="52" ry="8" fill="#000" opacity=".28"/>' +
+    /* left sleeve */
+    '<path d="M46 52 L18 70 L28 118 L58 96 Z" fill="url(#' + uid + 'sl)" stroke="rgba(0,0,0,.25)" stroke-width="1"/>' +
+    /* right sleeve */
+    '<path d="M154 52 L182 70 L172 118 L142 96 Z" fill="url(#' + uid + 'sl)" stroke="rgba(0,0,0,.25)" stroke-width="1"/>' +
+    /* body */
+    '<path d="M62 48 C70 36 86 30 100 30 C114 30 130 36 138 48 L152 58 L148 200 L52 200 L48 58 Z" fill="' + fillBody + '" stroke="rgba(0,0,0,.3)" stroke-width="1.2"/>' +
+    /* shine */
+    '<path d="M62 48 C70 36 86 30 100 30 C114 30 130 36 138 48 L152 58 L148 200 L52 200 L48 58 Z" fill="url(#' + uid + 'sh)"/>' +
+    /* collar */
+    '<path d="M78 34 C88 28 112 28 122 34 L118 48 C110 42 90 42 82 48 Z" fill="' + c2 + '" stroke="rgba(0,0,0,.35)" stroke-width="1"/>' +
+    '<path d="M92 34 L100 46 L108 34" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="2"/>' +
+    /* cuffs */
+    '<path d="M18 70 L28 118 L36 114 L28 72 Z" fill="' + c2 + '" opacity=".9"/>' +
+    '<path d="M182 70 L172 118 L164 114 L172 72 Z" fill="' + c2 + '" opacity=".9"/>' +
+    /* name + number */
+    '<text x="100" y="92" text-anchor="middle" fill="' + on + '" font-family="Barlow Condensed, Arial Black, sans-serif" font-size="15" font-weight="700" letter-spacing="2">' + nm + "</text>" +
+    '<text x="100" y="148" text-anchor="middle" fill="' + on + '" font-family="Barlow Condensed, Arial Black, sans-serif" font-size="64" font-weight="800">' + num + "</text>" +
+    "</svg></div>";
+}
+
+
+function trophyCaseHtml(s) {
+  var ids = [];
+  var seen = {};
+  var list = (s.career && s.career.trophies) || [];
+  for (var i = 0; i < list.length; i++) {
+    var id = list[i];
+    if (seen[id]) { seen[id]++; continue; }
+    seen[id] = 1;
+    ids.push(id);
+  }
+  if (!ids.length) {
+    return '<div class="trophy-case empty-case"><div class="case-label">VITRINE VAZIA</div><div class="case-ghost">🏆</div></div>';
+  }
+  var cells = ids.map(function (id) {
+    var meta = trophyOf(id);
+    var n = seen[id];
+    return '<div class="case-item"><img src="' + meta.img + '" alt=""><span>' + esc(meta.name) + (n > 1 ? " ×" + n : "") + "</span></div>";
+  }).join("");
+  return '<div class="trophy-case"><div class="case-label">VITRINE</div><div class="case-grid">' + cells + "</div></div>";
 }
 
 function stripHtml(s) {
@@ -84,7 +177,7 @@ function viewCreate() {
     return '<button type="button" class="pace' + (d.pace === k ? " on" : "") + '" data-pace="' + k + '"><b>' + p.label + "</b><small>" + p.hint + "</small></button>";
   }).join("");
   return '<div class="top"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
-    shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA") +
+    shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA", null, d.nation) +
     '<div class="card"><div class="label">Nome na camisa</div>' +
     '<input id="nm" type="text" maxlength="12" value="' + esc(d.name) + '" placeholder="SOBRENOME"></div>' +
     '<div class="card"><h2>Nacionalidade</h2><div class="flags">' + flags + "</div></div>" +
@@ -105,7 +198,7 @@ function viewAcademy() {
       '<img class="crest" src="' + o.club.crest + '" alt="">' +
       "<div class='bars'><b>" + esc(o.club.name) + "</b>" +
       '<div style="display:flex;gap:8px;align-items:center;margin:6px 0 10px;color:var(--muted);font-size:12px">' +
-      '<span style="width:8px;height:8px;border-radius:50%;background:' + c1 + ';box-shadow:0 0 0 2px ' + c2 + '"></span>' +
+      '<img class="lg-logo" src="' + lg.logo + '" alt="">' +
       esc(lg.name) + (o.casa ? " · casa" : " · exterior") + "</div>" +
       '<div class="label">Formação</div><div class="bar"><i style="width:' + o.formacao + '%"></i></div>' +
       '<div class="label">Minutos</div><div class="bar"><i style="width:' + o.minutos + '%"></i></div>' +
@@ -118,9 +211,20 @@ function viewAcademy() {
 
 function choiceBtn(side, ch) {
   if (!ch) return "";
-  var img = ch.crest ? '<img src="' + ch.crest + '" alt="">' : "";
-  return '<button class="choice' + (ch.crest ? " with-crest" : "") + '" data-choice="' + side + '">' +
-    img + "<div><b>" + esc(ch.label) + "</b><small>" + esc(ch.hint) + "</small></div></button>";
+  if (ch.crest) {
+    var lg = ch.leagueId ? leagueOf(ch.leagueId) : null;
+    var nat = ch.nation ? nationOf(ch.nation) : null;
+    var cols = ch.colors || ["#222", "#111"];
+    return '<button class="choice transfer" data-choice="' + side + '" style="--c1:' + cols[0] + ";--c2:" + (cols[1] || cols[0]) + '">' +
+      '<img class="choice-crest" src="' + ch.crest + '" alt="">' +
+      "<div class='choice-body'><b>" + esc(ch.label) + "</b><small>" + esc(ch.hint) + "</small>" +
+      '<div class="choice-meta">' +
+      (lg ? '<img class="lg-logo" src="' + lg.logo + '" alt="">' + esc(lg.name) : "") +
+      (nat ? ' <img class="mini-flag" src="' + nat.flag + '" alt="">' : "") +
+      "</div></div></button>";
+  }
+  return '<button class="choice" data-choice="' + side + '">' +
+    "<div><b>" + esc(ch.label) + "</b><small>" + esc(ch.hint) + "</small></div></button>";
 }
 
 function careerLogHtml(s, hiN) {
@@ -135,16 +239,22 @@ function careerLogHtml(s, hiN) {
     var gLab = s.pos === "GOL" ? "CS" : "G";
     var aLab = s.pos === "GOL" ? "GS" : "A";
     var hi = hiN && i >= rows.length - hiN;
+    var lg = leagueOf(r.leagueId);
     var cups = (r.trophies || []).concat(r.awards || []).map(function (id) {
-      return '<img src="' + trophyOf(id).img + '" title="' + esc(trophyOf(id).name) + '">';
+      return '<img class="cup-lg" src="' + trophyOf(id).img + '" title="' + esc(trophyOf(id).name) + '">';
     }).join("");
     var dlt = r.delta != null
       ? '<span class="' + (r.delta >= 0 ? "up" : "dn") + '">' + fmtDelta(r.delta) + "</span>"
       : "";
-    html += '<article class="szn' + (hi ? " hi" : "") + '">' +
+    html += '<article class="szn' + (hi ? " hi" : "") + (cups ? " won" : "") + '">' +
+      '<div class="szn-agebadge">' + r.age + "</div>" +
       '<img class="szn-crest" src="' + club.crest + '" alt="">' +
-      '<div><div class="szn-top"><b>' + esc(club.name) + '</b><span class="szn-age">' + r.age + " anos</span></div>" +
-      '<div class="szn-stats">' + r.apps + " J · " + g + " " + gLab + " · " + a + " " + aLab + " · #" + r.leaguePos + cups + "</div></div>" +
+      '<div><div class="szn-top"><b>' + esc(club.name) + '</b>' +
+      (lg ? '<img class="szn-lg" src="' + lg.logo + '" title="' + esc(lg.name) + '" alt="">' : "") +
+      "</div>" +
+      '<div class="szn-stats">' + r.apps + " J · " + g + " " + gLab + " · " + a + " " + aLab + " · #" + r.leaguePos + "</div>" +
+      (cups ? '<div class="szn-cups">' + cups + "</div>" : "") +
+      "</div>" +
       '<div class="szn-ovr"><b>' + r.ovr + "</b>" + dlt + "</div></article>";
   }
   return html + "</div>";
@@ -154,7 +264,7 @@ function viewDecision() {
   var ev = UI.event;
   var s = S;
   return '<div class="top"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
-    stripHtml(s) +
+    stripHtml(s) + trophyCaseHtml(s) +
     '<div class="story"><div class="meta">' + esc(clubOf(s.clubId).name) + " · " + s.age + " anos · " + fmtMoney(s.value) + "</div>" +
     "<h2>" + esc(ev.title) + "</h2>" +
     "<p>" + esc(ev.text) + "</p></div>" +
@@ -176,12 +286,14 @@ function viewReport() {
     recap = '<p class="lead">' + esc(club.name) + " · OVR " + last.ovr + " (" + fmtDelta(last.delta) + ") · " +
       last.apps + " jogos · " + (s.pos === "GOL" ? last.cs + " CS" : last.goals + " gols / " + last.assists + " ast") +
       " · #" + last.leaguePos + nt +
-      (cups.length ? " · " + cups.map(function (id) { return trophyOf(id).name; }).join(", ") : "") +
-      "</p>";
+      "</p>" +
+      (cups.length ? '<div class="report-cups">' + cups.map(function (id) {
+        return '<div class="report-cup"><img src="' + trophyOf(id).img + '" alt=""><b>' + esc(trophyOf(id).name) + "</b></div>";
+      }).join("") + "</div>" : "");
   }
   var next = s.retired ? "legacy" : "decision";
   return '<div class="top"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
-    stripHtml(s) + recap + careerLogHtml(s, reps.length) +
+    stripHtml(s) + trophyCaseHtml(s) + recap + (S._lastRisk ? '<div class="risk-toast ' + (S._lastRisk.ok ? 'ok' : 'bad') + '">' + esc(S._lastRisk.text) + '</div>' : '') + careerLogHtml(s, reps.length) +
     '<button class="btn" data-go="' + next + '">' + (s.retired ? "Ver o quadro" : "Próxima decisão") + "</button>";
 }
 
@@ -217,7 +329,7 @@ function viewLegacy() {
       (countTrophy(s, "worldcup") ? " · campeão do mundo" : "") + "</div>"
     : '<div class="empty">Não chegou à seleção principal</div>';
   var clubCups = uniqueTrophies(s).map(function (id) {
-    return '<img src="' + trophyOf(id).img + '" title="' + esc(trophyOf(id).name) + '" alt="">';
+    return '<div class="vitrine-item"><img src="' + trophyOf(id).img + '" alt=""><span>' + esc(trophyOf(id).name) + '</span></div>';
   }).join("");
   var path = clubAppsMap(s).map(function (c, i) {
     return (i ? "<span>→</span>" : "") + '<img src="' + clubOf(c.id).crest + '" title="' + esc(clubOf(c.id).name) + '">';
@@ -250,6 +362,7 @@ function viewLegacy() {
 }
 
 function nextDecision() {
+  if (S) S._lastRisk = null;
   if (shouldRetire(S)) {
     S.retired = true;
     UI.screen = "legacy";
