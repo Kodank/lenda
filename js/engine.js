@@ -65,14 +65,44 @@ function roleOf(s, club) {
 }
 
 function marketValue(s) {
+  /* OVR-driven curve: 70s–80s tens of mi; 90–94 hundreds; 95–98 deep hundreds; 99 = €1B+. */
   var club = clubOf(s.clubId);
-  var ageF = s.age <= 23 ? 1.35 : s.age <= 28 ? 1.1 : s.age <= 32 ? 0.65 : 0.32;
-  var base = Math.pow(Math.max(0, s.ovr - 44), 2.15) * 90000;
-  var v = base * ageF * (0.75 + club.level * 0.09);
+  var level = club && club.level != null ? club.level : 3;
+  var age = s.age || 25;
+  var ageF =
+    age <= 21 ? 1.22 :
+    age <= 24 ? 1.32 :
+    age <= 28 ? 1.15 :
+    age <= 31 ? 0.78 :
+    age <= 34 ? 0.48 : 0.3;
+  var posFMap = {
+    ATA: 1.08, PE: 1.05, PD: 1.05, MEI: 1.04, MC: 1.0,
+    VOL: 0.96, LE: 0.93, LD: 0.93, ZAG: 0.9, GOL: 0.82
+  };
+  var posF = posFMap[s.pos] || 1.0;
+  var clubF = 0.85 + level * 0.055;
+  var ovr = s.ovr || 50;
+  var x = Math.max(0, ovr - 52);
+  var base = Math.pow(x, 2.55) * 8800;
+  var high = 0;
+  if (ovr >= 87) {
+    var t = Math.min(1, (ovr - 87) / 7);
+    high += Math.pow(t, 2.2) * 105000000;
+  }
+  if (ovr >= 94) {
+    var u = (ovr - 94) / 4;
+    high += Math.pow(Math.max(0, u), 1.45) * 375000000;
+  }
+  if (ovr >= 99) high += 275000000;
+  var v = (base + high) * ageF * clubF * posF;
   return Math.round(v / 50000) * 50000;
 }
 
 function fmtMoney(n) {
+  if (n >= 1e9) {
+    var bi = n / 1e9;
+    return "€" + bi.toFixed(bi >= 10 ? 1 : 2).replace(".", ",") + " bi";
+  }
   if (n >= 1e6) return "€" + (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(".", ",") + " mi";
   if (n >= 1e3) return "€" + Math.round(n / 1e3) + " mil";
   return "€" + n;
