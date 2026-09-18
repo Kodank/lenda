@@ -311,6 +311,42 @@ function createProgress(step) {
   }).join('<span class="step-line"></span>') + "</div>";
 }
 
+
+function pitchMarkingsSvg() {
+  /* FIFA-ish vertical full pitch (metres). ATA top, GOL bottom. */
+  var s = "rgba(255,255,255,.55)";
+  var sw = "0.5";
+  return (
+    '<svg class="pitch-markings" viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true">' +
+    '<g fill="none" stroke="' + s + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round">' +
+    /* outer touchlines + goal lines */
+    '<rect x="1" y="1" width="66" height="103"/>' +
+    /* halfway line */
+    '<line x1="1" y1="52.5" x2="67" y2="52.5"/>' +
+    /* center circle + spot */
+    '<circle cx="34" cy="52.5" r="9.15"/>' +
+    '<circle cx="34" cy="52.5" r="0.4" fill="' + s + '" stroke="none"/>' +
+    /* top (ATA) penalty area, goal area, spot, arc, goal mouth */
+    '<rect x="13.84" y="1" width="40.32" height="16.5"/>' +
+    '<rect x="24.84" y="1" width="18.32" height="5.5"/>' +
+    '<circle cx="34" cy="12" r="0.4" fill="' + s + '" stroke="none"/>' +
+    '<path d="M26.69 17.5 A 9.15 9.15 0 0 1 41.31 17.5"/>' +
+    '<rect x="30.34" y="0.2" width="7.32" height="0.8"/>' +
+    /* bottom (GOL) penalty area, goal area, spot, arc, goal mouth */
+    '<rect x="13.84" y="87.5" width="40.32" height="16.5"/>' +
+    '<rect x="24.84" y="98.5" width="18.32" height="5.5"/>' +
+    '<circle cx="34" cy="93" r="0.4" fill="' + s + '" stroke="none"/>' +
+    '<path d="M26.69 87.5 A 9.15 9.15 0 0 0 41.31 87.5"/>' +
+    '<rect x="30.34" y="104" width="7.32" height="0.8"/>' +
+    /* corner arcs (escanteios) */
+    '<path d="M1 2.5 A 1.5 1.5 0 0 0 2.5 1"/>' +
+    '<path d="M65.5 1 A 1.5 1.5 0 0 0 67 2.5"/>' +
+    '<path d="M1 102.5 A 1.5 1.5 0 0 1 2.5 104"/>' +
+    '<path d="M65.5 104 A 1.5 1.5 0 0 1 67 102.5"/>' +
+    "</g></svg>"
+  );
+}
+
 function viewCreate() {
   var d = UI.draft;
   var step = d.step || 0;
@@ -389,7 +425,7 @@ function viewCreate() {
     '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA", d.nation) + "</div>" +
     '<div class="pos-now"><span class="label">Posição</span><b>' + POS[d.pos].name + "</b>" +
     "<small>" + POS[d.pos].short + "</small></div></div>" +
-    '<div class="pitch-wrap compact"><div class="pitch"></div>' + slots + "</div>" +
+    '<div class="pitch-wrap compact"><div class="pitch">' + pitchMarkingsSvg() + '</div>' + slots + "</div>" +
     "</div>" +
     '<div class="goals-pick-block">' +
     '<div class="label">Metas da carreira <span class="goals-count">' + gCount + "/2</span></div>" +
