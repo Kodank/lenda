@@ -58,3 +58,10 @@ Ver tabela completa em [`tools/TROPHY_SOURCES.md`](tools/TROPHY_SOURCES.md).
 
 Smoke: `python3 tools/smoke_trophies.py` (garante hashes únicos entre IDs diferentes).
 
+
+
+## Online (celular sem PC)
+
+Site: **https://kodank.github.io/lenda/**
+
+No celular: abra o link → menu do navegador → **Adicionar à tela inicial** / Instalar app.
