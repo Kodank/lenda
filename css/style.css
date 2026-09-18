@@ -403,7 +403,33 @@ input[type="text"] {
   padding: 12px;
   box-shadow: var(--shadow);
   display: flex; flex-direction: column; gap: 8px;
-  min-height: 0; overflow: auto;
+  min-height: 0; overflow: hidden;
+}
+/* Header chips never compete with story/choices for leftover height */
+.career-head {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+  min-height: min-content;
+  max-height: none;
+}
+.career-head > .id-strip,
+.career-head > .trophy-case,
+.career-head > .juice-hype-bar,
+.career-head > .rival-chip,
+.career-head > .juice-streak-chip,
+.career-head > .goals-strip {
+  flex: 0 0 auto;
+}
+.career-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
 }
 .timeline-panel {
   background: var(--paper);
@@ -1311,6 +1337,12 @@ input[type="text"] {
     overflow: visible;
     max-height: none;
   }
+  .career-head { flex: 0 0 auto; }
+  .career-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: visible;
+  }
   .timeline-panel {
     max-height: min(52vh, 440px);
     height: min(52vh, 440px);
@@ -1711,7 +1743,17 @@ input[type="text"] {
   gap: 6px;
   padding: 10px;
 }
-/* Header chips must not flex-shrink under dense vitrine/hype/metas */
+/* Header block is flex:0 0 auto — chips never share leftover height with Q/choices */
+#app.screen-decision .career-head,
+#app.screen-report .career-head {
+  flex: 0 0 auto;
+}
+#app.screen-decision .career-body,
+#app.screen-report .career-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
 #app.screen-decision .juice-hype-bar,
 #app.screen-report .juice-hype-bar,
 #app.screen-decision .rival-chip,
@@ -1719,7 +1761,10 @@ input[type="text"] {
 #app.screen-decision .juice-streak-chip,
 #app.screen-report .juice-streak-chip,
 #app.screen-decision .goals-strip,
-#app.screen-report .goals-strip {
+#app.screen-report .goals-strip,
+#app.screen-decision .id-strip,
+#app.screen-report .id-strip {
+  flex: 0 0 auto;
   flex-shrink: 0;
 }
 #app.screen-decision .juice-hype-bar,
@@ -1736,6 +1781,7 @@ input[type="text"] {
   max-height: 112px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  flex: 0 0 auto;
   flex-shrink: 0;
 }
 #app.screen-decision .trophy-case.empty-case {
@@ -1768,8 +1814,13 @@ input[type="text"] {
   .story h2 { font-size: 18px; margin: 2px 0 2px; }
   .story.compact p { -webkit-line-clamp: 2; font-size: 12px; }
   #app.screen-decision .career-left { gap: 5px; padding: 8px; }
-  /* Keep rival readable on short viewports — never max-height/line-clamp the chip */
-  .rival-chip { flex-shrink: 0; min-height: 32px; overflow: visible; }
+  /* Rival lives in career-head — never squash on short viewports */
+  .rival-chip {
+    flex: 0 0 auto !important;
+    min-height: 2.5em;
+    height: auto !important;
+    max-height: none !important;
+  }
   #app.screen-decision .trophy-case:not(.empty-case),
   #app.screen-report .trophy-case:not(.empty-case) { max-height: 88px; }
 }
@@ -1873,10 +1924,13 @@ input[type="text"] {
   margin: 4px 0 2px;
   max-width: 100%;
   min-width: 0;
-  /* overflow:hidden zeroes flex auto min-size → parent column squashes this chip */
+  /* Outside shrinking body; overflow:hidden on THIS box zeros flex min-size — ellipsis only on b */
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 2.5em;
   overflow: visible;
-  flex-shrink: 0;
-  min-height: 32px;
   box-sizing: border-box;
   box-shadow: 0 0 0 1px rgba(124, 58, 237, .15);
 }

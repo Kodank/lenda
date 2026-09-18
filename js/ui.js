@@ -754,12 +754,15 @@ function viewDecision() {
   return topBarHtml("LENDA", true) +
     '<div class="career-dash">' +
     '<div class="career-left">' +
+    '<div class="career-head">' +
     identityStrip(s) +
     trophyCaseHtml(s) +
     (typeof JUICE !== "undefined" ? JUICE.hypeBarHtml(s) : "") +
     rivalChipHtml(s) +
     (typeof JUICE !== "undefined" ? JUICE.streakChipHtml(s) : "") +
     goalsStripHtml(s) +
+    "</div>" +
+    '<div class="career-body">' +
     '<div class="story compact">' +
     '<div class="event-hero"><img src="' + hero + '" alt="" loading="lazy" onerror="this.src=\'img/choices/default.png\'"></div>' +
     '<div class="meta">' + esc(clubOf(s.clubId).name) + " · " + s.age + " anos</div>" +
@@ -767,6 +770,7 @@ function viewDecision() {
     "<p>" + esc(ev.text) + "</p></div>" +
     '<div class="choices-grid">' + choices + "</div>" +
     retireBtnHtml(s) +
+    "</div>" +
     "</div>" +
     timelineHtml(s, 0, true) +
     "</div>";
@@ -811,14 +815,17 @@ function viewReport() {
   return topBarHtml("LENDA", true) +
     '<div class="career-dash">' +
     '<div class="career-left">' +
+    '<div class="career-head">' +
     identityStrip(s) +
     trophyCaseHtml(s) +
     (typeof JUICE !== "undefined" ? JUICE.hypeBarHtml(s) : "") +
-    recap +
-    (typeof JUICE !== "undefined" && last ? JUICE.seasonSurpriseHtml(last) : "") +
     rivalChipHtml(s) +
     (typeof JUICE !== "undefined" ? JUICE.streakChipHtml(s) : "") +
     goalsStripHtml(s) +
+    "</div>" +
+    '<div class="career-body">' +
+    recap +
+    (typeof JUICE !== "undefined" && last ? JUICE.seasonSurpriseHtml(last) : "") +
     (S._goalToast ? '<div class="goal-toast">Meta: ' + esc(S._goalToast) + "</div>" : "") +
     (S._lastRisk ? '<div class="risk-toast ' + (S._lastRisk.ok ? "ok" : "bad") + '">' + esc(S._lastRisk.text) + "</div>" : "") +
     (S._lastOutcome && S._lastOutcome.relato
@@ -827,6 +834,7 @@ function viewReport() {
     '<div class="report-actions">' +
     '<button class="btn" data-go="' + next + '">' + (s.retired ? "Ver o quadro" : "Próxima decisão") + "</button>" +
     retireBtnHtml(s) +
+    "</div>" +
     "</div>" +
     "</div>" +
     timelineHtml(s, reps.length, false) +
