@@ -129,6 +129,8 @@ var NATIONS = [
     "flag": "img/flags/sn.png"
   }
 ];
+/* Club league placements synced to real-world seasons (see also more_clubs.js). */
+var LEAGUE_SEASON = "2026"; // Brasileirão 2026 + EUR 2026/27
 var LEAGUES = [
   {
     "id": "bra",
@@ -333,6 +335,54 @@ var LEAGUES = [
     "trophy": "youth",
     "logo": "img/leagues/sen.png",
     "color": "#00853F"
+  },
+  {
+    "id": "brc",
+    "name": "Série C",
+    "nation": "br",
+    "tier": 3,
+    "level": 1.8,
+    "continental": null,
+    "size": 20,
+    "trophy": "copa",
+    "logo": "img/leagues/brb.png",
+    "color": "#5B8C5A"
+  },
+  {
+    "id": "eng2",
+    "name": "Championship",
+    "nation": "en",
+    "tier": 2,
+    "level": 3.2,
+    "continental": null,
+    "size": 24,
+    "trophy": "copa",
+    "logo": "img/leagues/eng.png",
+    "color": "#6C1D45"
+  },
+  {
+    "id": "ger2",
+    "name": "2. Bundesliga",
+    "nation": "de",
+    "tier": 2,
+    "level": 3.0,
+    "continental": null,
+    "size": 18,
+    "trophy": "copa",
+    "logo": "img/leagues/ger.png",
+    "color": "#D20515"
+  },
+  {
+    "id": "fra2",
+    "name": "Ligue 2",
+    "nation": "fr",
+    "tier": 2,
+    "level": 2.8,
+    "continental": null,
+    "size": 18,
+    "trophy": "copa",
+    "logo": "img/leagues/fra.png",
+    "color": "#091C3E"
   }
 ];
 var CLUBS = [
@@ -525,7 +575,7 @@ var CLUBS = [
   },
   {
     "id": "cap",
-    "name": "Athletico",
+    "name": "Athletico-PR",
     "city": "Curitiba",
     "nation": "br",
     "leagueId": "bra",
@@ -562,8 +612,8 @@ var CLUBS = [
     "name": "Fortaleza",
     "city": "Fortaleza",
     "nation": "br",
-    "leagueId": "bra",
-    "level": 3.5,
+    "leagueId": "brb",
+    "level": 3.0,
     "colors": [
       "#E31837",
       "#0062A8",
@@ -593,7 +643,7 @@ var CLUBS = [
   },
   {
     "id": "rbb",
-    "name": "Bragantino",
+    "name": "Red Bull Bragantino",
     "city": "Bragança Paulista",
     "nation": "br",
     "leagueId": "bra",
@@ -664,7 +714,7 @@ var CLUBS = [
     "name": "Guarani",
     "city": "Campinas",
     "nation": "br",
-    "leagueId": "brb",
+    "leagueId": "brc",
     "level": 2.5,
     "colors": [
       "#007A33",
