@@ -214,7 +214,7 @@ function drawCareerCompleteCanvas(s) {
           ctx.save();
           ctx.globalAlpha = 0.14;
           var bw = Math.min(clubW * 1.15, 220);
-          ctx.drawImage(crestImg, x + clubW * 0.2, y - 8, bw, bw);
+          drawImageContain(ctx, crestImg, x + clubW * 0.2, y - 8, bw, bw);
           ctx.restore();
         }
 
@@ -227,7 +227,7 @@ function drawCareerCompleteCanvas(s) {
         ctx.fill();
 
         if (crestImg) {
-          try { ctx.drawImage(crestImg, x + (clubW - 56) / 2, y + 14, 56, 56); } catch (e) {}
+          try { drawImageContain(ctx, crestImg, x + (clubW - 56) / 2, y + 14, 56, 56); } catch (e) {}
         } else {
           roundRect(ctx, x + (clubW - 56) / 2, y + 14, 56, 56, 12);
           ctx.fillStyle = "rgba(0,0,0,.25)";
@@ -394,6 +394,24 @@ function wrapTrophyLabel(ctx, text, maxW, maxLines) {
   return lines.slice(0, maxLines);
 }
 
+
+/** object-fit: contain — center img in box without stretching (transparent pad). */
+function drawImageContain(ctx, img, x, y, boxW, boxH) {
+  if (!img) return;
+  var nw = img.naturalWidth || img.width || 0;
+  var nh = img.naturalHeight || img.height || 0;
+  if (!nw || !nh) {
+    try { ctx.drawImage(img, x, y, boxW, boxH); } catch (e) {}
+    return;
+  }
+  var scale = Math.min(boxW / nw, boxH / nh);
+  var dw = nw * scale;
+  var dh = nh * scale;
+  var dx = x + (boxW - dw) / 2;
+  var dy = y + (boxH - dh) / 2;
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+
 function drawTrophyRow(ctx, loaded, startIdx, items, x, y, w, size, opts) {
   if (!items || !items.length) return;
   opts = opts || {};
@@ -419,7 +437,7 @@ function drawTrophyRow(ctx, loaded, startIdx, items, x, y, w, size, opts) {
     var ix = tx + (cellW - size) / 2;
     var im = loaded[startIdx + i];
     if (im) {
-      try { ctx.drawImage(im, ix, y, size, size); } catch (e) {}
+      try { drawImageContain(ctx, im, ix, y, size, size); } catch (e) {}
     }
     if (it.n > 1) {
       roundRect(ctx, ix + size - 18, y + size - 14, 22, 14, 7);
@@ -585,7 +603,7 @@ function drawSeasonCardCanvas(s, season) {
     var crest = loaded[0];
     var flag = loaded[1];
     if (crest) {
-      try { ctx.drawImage(crest, pad + 20, pad + 168, 56, 56); } catch (e) {}
+      try { drawImageContain(ctx, crest, pad + 20, pad + 168, 56, 56); } catch (e) {}
     }
     ctx.fillStyle = "#f4f6f8";
     ctx.font = "700 18px DM Sans, sans-serif";
