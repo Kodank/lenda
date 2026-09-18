@@ -35,7 +35,7 @@ CLUBS = {
     "mon": ("AS Monaco", "France"),
     "lil": ("Lille", "France"),
     "nic": ("OGC Nice", "France"),
-    "intm": ("Inter", "Italy"),
+    "intm": ("Inter Milan", "Italy"),
     "miln": ("Milan", "Italy"),
     "juv": ("Juventus", "Italy"),
     "nap": ("Napoli", "Italy"),
