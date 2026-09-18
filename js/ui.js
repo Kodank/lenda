@@ -298,7 +298,7 @@ function identityStrip(s) {
   return '<div class="id-strip" data-ovr-tier="' + ovrTier(showOvr) + '">' +
     ovrBadgeHtml(showOvr) +
     (temp
-      ? '<div class="temp-ovr-tag ' + (temp < 0 ? "dn" : "up") + '">OVR temporário ' + (temp > 0 ? "+" : "") + temp + "</div>"
+      ? '<div class="temp-ovr-tag ' + (temp < 0 ? "dn" : "up") + '">OVR tmp ' + (temp > 0 ? "+" : "") + temp + "</div>"
       : "") +
     '<div class="id-meta">' +
     '<div class="id-line">' +
@@ -737,7 +737,7 @@ function viewReport() {
       '<div class="outcome-label">Resultado da escolha</div>' +
       pillsHtml(S._lastOutcome.pills || [], "landed") +
       (S._lastOutcome.temp
-        ? '<div class="temp-ovr-tag ' + (S._lastOutcome.temp < 0 ? "dn" : "up") + '">OVR temporário ' +
+        ? '<div class="temp-ovr-tag ' + (S._lastOutcome.temp < 0 ? "dn" : "up") + '">OVR tmp ' +
           (S._lastOutcome.temp > 0 ? "+" : "") + S._lastOutcome.temp + "</div>"
         : "") +
       "</div>" : "") +

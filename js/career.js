@@ -466,38 +466,82 @@ function humanPillText(t) {
   return t;
 }
 
-function summarizeLandedPills(fx) {
-  var pills = [];
-  function push(kind, text) {
+/* Signed number helper: +5 / -3 */
+function signedNum(n) {
+  return (n > 0 ? "+" : "") + n;
+}
+
+/* One short fact per pill — never pipe-join mega labels */
+function collectFxPillParts(fx) {
+  var parts = [];
+  if (!fx) return parts;
+  function add(kind, text) {
     text = humanPillText(text);
     if (!text) return;
-    pills.push({ kind: kind, text: text, landed: 1 });
+    parts.push({ kind: kind, text: text });
   }
-  if (!fx) { push("neutral", "Nada acontece"); return pills; }
-  if (typeof fx.ovr === "number" && fx.ovr) push(fx.ovr >= 0 ? "good" : "bad", (fx.ovr > 0 ? "+" : "") + fx.ovr + " OVR");
+  if (typeof fx.ovr === "number" && fx.ovr) add(fx.ovr >= 0 ? "good" : "bad", signedNum(fx.ovr) + " OVR");
   if (fx.tempOvr) {
     var td = typeof fx.tempOvr === "number" ? fx.tempOvr : fx.tempOvr.delta;
     var ts = typeof fx.tempOvr === "number" ? 2 : (fx.tempOvr.seasons || 2);
     if (typeof td === "number" && td) {
-      push(td >= 0 ? "temp-good" : "temp-bad", "OVR temporário " + (td > 0 ? "+" : "") + td + " · " + ts + " temp.");
+      add(td >= 0 ? "temp-good" : "temp-bad", signedNum(td) + " OVR·" + ts + "t");
     }
   }
-  if (typeof fx.pot === "number" && fx.pot) push(fx.pot >= 0 ? "good" : "bad", (fx.pot > 0 ? "+" : "") + fx.pot + " potencial");
-  if (typeof fx.form === "number" && fx.form) push(fx.form >= 0 ? "good" : "bad", (fx.form > 0 ? "+" : "") + fx.form + " forma");
-  if (typeof fx.energy === "number" && fx.energy) push(fx.energy >= 0 ? "good" : "bad", (fx.energy > 0 ? "+" : "") + fx.energy + " energia");
-  if (typeof fx.injury === "number" && fx.injury) push("bad", "+" + fx.injury + " sem. lesão");
-  if (typeof fx.confidence === "number" && fx.confidence) push(fx.confidence >= 0 ? "good" : "bad", (fx.confidence > 0 ? "+" : "") + fx.confidence + " confiança");
-  if (typeof fx.loyalty === "number" && fx.loyalty) push(fx.loyalty >= 0 ? "good" : "bad", (fx.loyalty > 0 ? "+" : "") + fx.loyalty + " lealdade");
-  if (typeof fx.ambition === "number" && fx.ambition) push(fx.ambition >= 0 ? "good" : "bad", (fx.ambition > 0 ? "+" : "") + fx.ambition + " ambição");
-  if (typeof fx.discipline === "number" && fx.discipline) push(fx.discipline >= 0 ? "good" : "bad", (fx.discipline > 0 ? "+" : "") + fx.discipline + " disciplina");
-  if (typeof fx.resilience === "number" && fx.resilience) push("good", "+" + fx.resilience + " resiliência");
-  if (typeof fx.coach === "number" && fx.coach) push(fx.coach >= 0 ? "good" : "bad", (fx.coach > 0 ? "+" : "") + fx.coach + " técnico");
-  if (typeof fx.wage === "number" && fx.wage) push(fx.wage > 0 ? "good" : "bad", fx.wage > 0 ? "salário ↑" : "salário ↓");
-  if (fx.retire) push("neutral", "aposentadoria");
-  if (fx.transferElite || fx.transferEurope || fx.transferPeer || fx.transferHome || fx.transferDown || fx.transferRival || fx.sign || fx.loan || fx.loanTo) push("good", "transferência");
-  if (fx.shiftPos) push("neutral", "nova posição");
-  if (!pills.length) push("neutral", "Nada acontece");
+  if (typeof fx.pot === "number" && fx.pot) add(fx.pot >= 0 ? "good" : "bad", signedNum(fx.pot) + " pot.");
+  if (typeof fx.form === "number" && fx.form) add(fx.form >= 0 ? "good" : "bad", signedNum(fx.form) + " form");
+  if (typeof fx.energy === "number" && fx.energy) add(fx.energy >= 0 ? "good" : "bad", signedNum(fx.energy) + " energia");
+  if (typeof fx.injury === "number" && fx.injury) add("bad", "+" + fx.injury + " lesão");
+  if (typeof fx.confidence === "number" && fx.confidence) add(fx.confidence >= 0 ? "good" : "bad", signedNum(fx.confidence) + " conf.");
+  if (typeof fx.loyalty === "number" && fx.loyalty) add(fx.loyalty >= 0 ? "good" : "bad", signedNum(fx.loyalty) + " leal.");
+  if (typeof fx.ambition === "number" && fx.ambition) add(fx.ambition >= 0 ? "good" : "bad", signedNum(fx.ambition) + " amb.");
+  if (typeof fx.discipline === "number" && fx.discipline) add(fx.discipline >= 0 ? "good" : "bad", signedNum(fx.discipline) + " disc.");
+  if (typeof fx.resilience === "number" && fx.resilience) add("good", "+" + fx.resilience + " resil.");
+  if (typeof fx.coach === "number" && fx.coach) add(fx.coach >= 0 ? "good" : "bad", signedNum(fx.coach) + " téc.");
+  if (typeof fx.wage === "number" && fx.wage) add(fx.wage > 0 ? "good" : "bad", fx.wage > 0 ? "salário ↑" : "salário ↓");
+  if (fx.retire) add("neutral", "aposent.");
+  if (fx.transferElite || fx.transferEurope || fx.transferPeer || fx.transferHome || fx.transferDown || fx.transferRival || fx.sign || fx.loan || fx.loanTo) add("good", "transf.");
+  if (fx.shiftPos) add("neutral", "nova pos.");
+  return parts;
+}
+
+function summarizeLandedPills(fx) {
+  var parts = collectFxPillParts(fx);
+  var pills = [];
+  if (!parts.length) {
+    pills.push({ kind: "neutral", text: "Nada acontece", landed: 1 });
+    return pills;
+  }
+  for (var i = 0; i < parts.length; i++) {
+    pills.push({ kind: parts[i].kind, text: parts[i].text, landed: 1 });
+  }
   return pills;
+}
+
+/* Rewrite legacy/long custom pill strings into short facts; split A | B mega-pills */
+function shortenPillText(t) {
+  t = String(t == null ? "" : t).trim();
+  if (!t) return "";
+  t = t.replace(/\s*\|\s*/g, " · "); /* keep split handled upstream */
+  t = t.replace(/OVR temporário\s*/gi, "");
+  t = t.replace(/(\+|\-)?(\d+)\s*·\s*(\d+)\s*temp\.?/gi, function (_, s, d, n) {
+    return (s || (String(d).indexOf("-") === 0 ? "" : "+")) + d + " OVR·" + n + "t";
+  });
+  t = t.replace(/(\d+)%\s*de chance:?\s*/gi, "$1% ");
+  t = t.replace(/\blealdade\b/gi, "leal.");
+  t = t.replace(/\bconfiança\b/gi, "conf.");
+  t = t.replace(/\bambi[cç]ão\b/gi, "amb.");
+  t = t.replace(/\bdisciplina\b/gi, "disc.");
+  t = t.replace(/\bresili[eê]ncia\b/gi, "resil.");
+  t = t.replace(/\bt[eé]cnico\b/gi, "téc.");
+  t = t.replace(/\bpotencial\b/gi, "pot.");
+  t = t.replace(/\bforma\b/gi, "form");
+  t = t.replace(/\btransfer[eê]ncia\b/gi, "transf.");
+  t = t.replace(/\bnova posi[cç]ão\b/gi, "nova pos.");
+  t = t.replace(/\baposentadoria\b/gi, "aposent.");
+  t = t.replace(/\+(\d+)\s*sem\.?\s*les[aã]o/gi, "+$1 lesão");
+  t = t.replace(/\s{2,}/g, " ").trim();
+  return t;
 }
 
 function sanitizePillsList(list) {
@@ -507,13 +551,23 @@ function sanitizePillsList(list) {
     var p = list[i];
     if (p == null) continue;
     if (typeof p === "string") {
-      var s = humanPillText(p);
-      if (s) out.push({ kind: "neutral", text: s });
+      var raw = humanPillText(p);
+      if (!raw) continue;
+      /* Split pipe-joined mega-pills into separate facts */
+      var chunks = raw.split(/\s*\|\s*/);
+      for (var c = 0; c < chunks.length; c++) {
+        var s = shortenPillText(chunks[c]);
+        if (s) out.push({ kind: "neutral", text: s });
+      }
       continue;
     }
     var text = humanPillText(p.text != null ? p.text : p.label);
     if (!text) continue;
-    out.push({ kind: p.kind || "neutral", text: text, landed: p.landed });
+    var bits = text.split(/\s*\|\s*/);
+    for (var b = 0; b < bits.length; b++) {
+      var st = shortenPillText(bits[b]);
+      if (st) out.push({ kind: p.kind || "neutral", text: st, landed: p.landed });
+    }
   }
   return out;
 }
@@ -535,29 +589,27 @@ function buildChoicePills(ch) {
     var r = fx.risk;
     var pWin = Math.round((r.p || 0.5) * 100);
     var pLose = 100 - pWin;
-    function headline(branch, fallback) {
-      if (!branch) return fallback;
-      if (typeof branch.ovr === "number" && branch.ovr) return (branch.ovr > 0 ? "+" : "") + branch.ovr + " OVR";
-      if (branch.tempOvr) {
-        var d = typeof branch.tempOvr === "number" ? branch.tempOvr : branch.tempOvr.delta;
-        if (typeof d === "number" && d) return "OVR temp " + (d > 0 ? "+" : "") + d;
+    function pushBranch(branch, pct, fallbackKind, fallbackText) {
+      var parts = collectFxPillParts(branch || {});
+      if (!parts.length) {
+        push(fallbackKind, pct + "% " + fallbackText);
+        return;
       }
-      if (typeof branch.form === "number" && branch.form) return (branch.form > 0 ? "+" : "") + branch.form + " forma";
-      if (typeof branch.injury === "number" && branch.injury) return "lesão";
-      if (typeof branch.energy === "number" && branch.energy) return (branch.energy > 0 ? "+" : "") + branch.energy + " energia";
-      if (typeof branch.confidence === "number" && branch.confidence) return (branch.confidence > 0 ? "+" : "") + branch.confidence + " conf.";
-      if (branch.transferEurope || branch.transferElite || branch.transferPeer) return "salto de clube";
-      return fallback;
+      for (var i = 0; i < parts.length; i++) {
+        push(parts[i].kind, pct + "% " + parts[i].text);
+      }
     }
-    push("good", headline(r.win, "deu certo") + " / " + pWin + "%");
-    push("bad", headline(r.lose, "deu errado") + " / " + pLose + "%");
+    pushBranch(r.win, pWin, "good", "ok");
+    pushBranch(r.lose, pLose, "bad", "risco");
     var base = Object.assign({}, fx);
     delete base.risk;
-    var baseP = summarizeLandedPills(base).filter(function (p) { return p.text !== "Nada acontece"; });
+    var baseP = collectFxPillParts(base);
     for (var i = 0; i < baseP.length; i++) pills.push({ kind: baseP[i].kind, text: baseP[i].text });
     return pills.length ? pills : [{ kind: "neutral", text: "Nada acontece" }];
   }
-  return summarizeLandedPills(fx);
+  return summarizeLandedPills(fx).map(function (p) {
+    return { kind: p.kind, text: p.text };
+  });
 }
 
 function neighborPos(pos) {

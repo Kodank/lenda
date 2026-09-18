@@ -86,7 +86,7 @@ function tickTempOvr(s) {
 function tempOvrLabel(s) {
   var d = tempOvrTotal(s);
   if (!d) return "";
-  return "OVR temporário " + (d > 0 ? "+" : "") + d;
+  return "OVR tmp " + (d > 0 ? "+" : "") + d;
 }
 
 function roleOf(s, club) {
