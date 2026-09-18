@@ -489,7 +489,7 @@ function viewAcademy() {
 
 function pillsHtml(pills, mode) {
   pills = (typeof sanitizePillsList === "function") ? sanitizePillsList(pills) : (pills || []);
-  if (!pills.length) return '<div class="choice-pills"><span class="fx-pill neutral">Nada acontece</span></div>';
+  if (!pills.length) return '<div class="choice-pills"><span class="fx-pill neutral">Nada</span></div>';
   return '<div class="choice-pills' + (mode === "landed" ? " resolved" : "") + '">' + pills.map(function (p) {
     var kind = p.kind || "neutral";
     var text = String(p.text || "").trim();

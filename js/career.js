@@ -471,7 +471,14 @@ function signedNum(n) {
   return (n > 0 ? "+" : "") + n;
 }
 
-/* One short fact per pill — never pipe-join mega labels */
+/* Visible pills: OVR up/down (+ temporary) only. Other fx still apply in applyChoiceFx. */
+function isOvrPillText(t) {
+  t = String(t == null ? "" : t).trim();
+  if (!t) return false;
+  if (/^([—–\-]|Nada)\b/i.test(t) || /^Nada acontece$/i.test(t)) return true;
+  return /\bOVR\b/i.test(t);
+}
+
 function collectFxPillParts(fx) {
   var parts = [];
   if (!fx) return parts;
@@ -488,20 +495,6 @@ function collectFxPillParts(fx) {
       add(td >= 0 ? "temp-good" : "temp-bad", signedNum(td) + " OVR·" + ts + "t");
     }
   }
-  if (typeof fx.pot === "number" && fx.pot) add(fx.pot >= 0 ? "good" : "bad", signedNum(fx.pot) + " pot.");
-  if (typeof fx.form === "number" && fx.form) add(fx.form >= 0 ? "good" : "bad", signedNum(fx.form) + " form");
-  if (typeof fx.energy === "number" && fx.energy) add(fx.energy >= 0 ? "good" : "bad", signedNum(fx.energy) + " energia");
-  if (typeof fx.injury === "number" && fx.injury) add("bad", "+" + fx.injury + " lesão");
-  if (typeof fx.confidence === "number" && fx.confidence) add(fx.confidence >= 0 ? "good" : "bad", signedNum(fx.confidence) + " conf.");
-  if (typeof fx.loyalty === "number" && fx.loyalty) add(fx.loyalty >= 0 ? "good" : "bad", signedNum(fx.loyalty) + " leal.");
-  if (typeof fx.ambition === "number" && fx.ambition) add(fx.ambition >= 0 ? "good" : "bad", signedNum(fx.ambition) + " amb.");
-  if (typeof fx.discipline === "number" && fx.discipline) add(fx.discipline >= 0 ? "good" : "bad", signedNum(fx.discipline) + " disc.");
-  if (typeof fx.resilience === "number" && fx.resilience) add("good", "+" + fx.resilience + " resil.");
-  if (typeof fx.coach === "number" && fx.coach) add(fx.coach >= 0 ? "good" : "bad", signedNum(fx.coach) + " téc.");
-  if (typeof fx.wage === "number" && fx.wage) add(fx.wage > 0 ? "good" : "bad", fx.wage > 0 ? "salário ↑" : "salário ↓");
-  if (fx.retire) add("neutral", "aposent.");
-  if (fx.transferElite || fx.transferEurope || fx.transferPeer || fx.transferHome || fx.transferDown || fx.transferRival || fx.sign || fx.loan || fx.loanTo) add("good", "transf.");
-  if (fx.shiftPos) add("neutral", "nova pos.");
   return parts;
 }
 
@@ -509,7 +502,7 @@ function summarizeLandedPills(fx) {
   var parts = collectFxPillParts(fx);
   var pills = [];
   if (!parts.length) {
-    pills.push({ kind: "neutral", text: "Nada acontece", landed: 1 });
+    pills.push({ kind: "neutral", text: "Nada", landed: 1 });
     return pills;
   }
   for (var i = 0; i < parts.length; i++) {
@@ -557,7 +550,7 @@ function sanitizePillsList(list) {
       var chunks = raw.split(/\s*\|\s*/);
       for (var c = 0; c < chunks.length; c++) {
         var s = shortenPillText(chunks[c]);
-        if (s) out.push({ kind: "neutral", text: s });
+        if (s && isOvrPillText(s)) out.push({ kind: "neutral", text: s });
       }
       continue;
     }
@@ -566,14 +559,14 @@ function sanitizePillsList(list) {
     var bits = text.split(/\s*\|\s*/);
     for (var b = 0; b < bits.length; b++) {
       var st = shortenPillText(bits[b]);
-      if (st) out.push({ kind: p.kind || "neutral", text: st, landed: p.landed });
+      if (st && isOvrPillText(st)) out.push({ kind: p.kind || "neutral", text: st, landed: p.landed });
     }
   }
   return out;
 }
 
 function buildChoicePills(ch) {
-  if (!ch) return [{ kind: "neutral", text: "Nada acontece" }];
+  if (!ch) return [{ kind: "neutral", text: "Nada" }];
   if (ch.pills && ch.pills.length) {
     var custom = sanitizePillsList(ch.pills);
     if (custom.length) return custom;
@@ -589,23 +582,20 @@ function buildChoicePills(ch) {
     var r = fx.risk;
     var pWin = Math.round((r.p || 0.5) * 100);
     var pLose = 100 - pWin;
-    function pushBranch(branch, pct, fallbackKind, fallbackText) {
+    /* Only render risk branches that carry OVR; skip energy/form/etc. */
+    function pushBranch(branch, pct) {
       var parts = collectFxPillParts(branch || {});
-      if (!parts.length) {
-        push(fallbackKind, pct + "% " + fallbackText);
-        return;
-      }
       for (var i = 0; i < parts.length; i++) {
         push(parts[i].kind, pct + "% " + parts[i].text);
       }
     }
-    pushBranch(r.win, pWin, "good", "ok");
-    pushBranch(r.lose, pLose, "bad", "risco");
+    pushBranch(r.win, pWin);
+    pushBranch(r.lose, pLose);
     var base = Object.assign({}, fx);
     delete base.risk;
     var baseP = collectFxPillParts(base);
     for (var i = 0; i < baseP.length; i++) pills.push({ kind: baseP[i].kind, text: baseP[i].text });
-    return pills.length ? pills : [{ kind: "neutral", text: "Nada acontece" }];
+    return pills.length ? pills : [{ kind: "neutral", text: "Nada" }];
   }
   return summarizeLandedPills(fx).map(function (p) {
     return { kind: p.kind, text: p.text };
