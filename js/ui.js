@@ -133,15 +133,21 @@ function ovrTlHtml(ovr, deltaHtml) {
 }
 function clubNameHtml(name, cls) {
   cls = cls || "club-name";
-  return '<span class="' + cls + '" style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important">' +
+  /* inline + chip: readable even if Brave auto-dark inverts fill */
+  return '<span class="' + cls + '" style="color:#f4f6f8 !important;-webkit-text-fill-color:#f4f6f8 !important;' +
+    'forced-color-adjust:none;filter:none;opacity:1;display:inline-block;' +
+    'font-weight:700;font-size:15px;line-height:1.25;letter-spacing:.01em">' +
     esc(name) + "</span>";
 }
 
 function enforceLightInk() {
   var sel = ".offer-name,.club-name,.tl-name,.tl-club b,.choice.transfer b,.choice .club-label,h2.club-title,.report .club-title";
   document.querySelectorAll(sel).forEach(function (el) {
-    el.style.setProperty("color", "#ffffff", "important");
-    el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
+    el.style.setProperty("color", "#f4f6f8", "important");
+    el.style.setProperty("-webkit-text-fill-color", "#f4f6f8", "important");
+    el.style.setProperty("forced-color-adjust", "none", "important");
+    el.style.setProperty("filter", "none", "important");
+    el.style.setProperty("opacity", "1", "important");
   });
 }
 

@@ -1,4 +1,23 @@
 
+/* Brave/Chrome auto-dark can invert light text to black — lock dark scheme */
+html {
+  color-scheme: dark only;
+  background: #070809;
+}
+html, body, #app, .card, .offer, .step-card, .choice, button, input {
+  forced-color-adjust: none !important;
+}
+.offer-name,
+.club-name,
+.tl-name,
+.club-title {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  forced-color-adjust: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
 /* GLOBAL: club names always light on dark UI */
 .offer-name,
 .club-name,
