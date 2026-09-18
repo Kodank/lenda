@@ -133,7 +133,7 @@ function drawCareerCompleteCanvas(s) {
   ctx.textAlign = "right";
   ctx.fillStyle = "#a8b0bc";
   ctx.font = "700 10px DM Sans, sans-serif";
-  ctx.fillText("VALUE", xPlayer + wPlayer - 86, y0 + 50);
+  ctx.fillText("VALOR", xPlayer + wPlayer - 86, y0 + 50);
   ctx.fillStyle = "#f4f6f8";
   ctx.font = "800 22px Barlow Condensed, sans-serif";
   ctx.fillText(fmtMoney(s.value), xPlayer + wPlayer - 86, y0 + 74);
@@ -334,7 +334,7 @@ function drawStatsBar(ctx, x, y, w, apps, goals, assists, fontSize) {
   ctx.fillStyle = "rgba(0,0,0,.28)";
   ctx.fill();
   var vals = [apps, goals, assists];
-  var labs = ["APPS", "GOLS", "ASS"];
+  var labs = ["JOGOS", "GOLS", "ASS"];
   for (var i = 0; i < 3; i++) {
     var cx = x + i * cell;
     ctx.fillStyle = i === 1 ? "rgba(0,0,0,.22)" : "rgba(0,0,0,.18)";
@@ -615,7 +615,7 @@ function drawSeasonCardCanvas(s, season) {
     if (flag) {
       try { ctx.drawImage(flag, pad + 20, pad + 244, 28, 18); } catch (e) {}
     }
-    var gLab = s.pos === "GOL" ? "CS" : "G";
+    var gLab = s.pos === "GOL" ? "SG" : "G";
     var aLab = s.pos === "GOL" ? "GS" : "A";
     var g = s.pos === "GOL" ? season.cs : season.goals;
     var a = s.pos === "GOL" ? season.ga : season.assists;

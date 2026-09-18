@@ -291,8 +291,8 @@ function identityStrip(s) {
   var apps = last ? last.apps : 0;
   var goals = last ? (s.pos === "GOL" ? last.cs : last.goals) : 0;
   var ast = last ? (s.pos === "GOL" ? last.ga : last.assists) : 0;
-  var gLab = s.pos === "GOL" ? "CS" : "GOLS";
-  var aLab = s.pos === "GOL" ? "GS" : "AST";
+  var gLab = s.pos === "GOL" ? "SG" : "GOLS";
+  var aLab = s.pos === "GOL" ? "GS" : "ASS";
   var temp = tempOvrTotal(s);
   var showOvr = temp ? effectiveOvr(s) : s.ovr;
   return '<div class="id-strip" data-ovr-tier="' + ovrTier(showOvr) + '">' +
@@ -308,7 +308,7 @@ function identityStrip(s) {
     imgCrest(club.crest, 'crest sm', club.name) +
     "</div>" +
     '<div class="id-kpis">' +
-    "<div><b>" + apps + "</b><span>APPS</span></div>" +
+    "<div><b>" + apps + "</b><span>JOGOS</span></div>" +
     "<div><b>" + goals + "</b><span>" + gLab + "</span></div>" +
     "<div><b>" + ast + "</b><span>" + aLab + "</span></div>" +
     "</div></div>" +
@@ -641,7 +641,7 @@ function timelineHtml(s, hiN, choosing) {
   var nat = nationOf(s.nation);
   html += '</div><div class="nt-row"><img class="mini-flag" src="' + nat.flag + '" alt="">' +
     "<b>" + esc(nat.name) + "</b><span>" + (s.caps || 0) + " J · " +
-    (s.pos === "GOL" ? (s.ntCs || 0) + " CS" : (s.ntGoals || 0) + " G") +
+    (s.pos === "GOL" ? (s.ntCs || 0) + " SG" : (s.ntGoals || 0) + " G") +
     "</span></div></div>";
   return html;
 }
@@ -866,7 +866,7 @@ function uniqueTrophies(s) {
 
 function ccStatsBar(apps, goals, assists) {
   return '<div class="cc-stats">' +
-    "<div><span>APPS</span><b>" + apps + "</b></div>" +
+    "<div><span>JOGOS</span><b>" + apps + "</b></div>" +
     "<div><span>GOLS</span><b>" + goals + "</b></div>" +
     "<div><span>ASS</span><b>" + assists + "</b></div></div>";
 }
@@ -930,7 +930,7 @@ function viewLegacy() {
     '<span class="cc-pill pos">' + esc(pos.short) + "</span>" +
     "</div></div>" +
     '<div class="cc-player-right">' +
-    '<div class="cc-value"><span>VALUE</span><b>' + fmtMoney(s.value) + "</b></div>" +
+    '<div class="cc-value"><span>VALOR</span><b>' + fmtMoney(s.value) + "</b></div>" +
     ovrBadgeHtml(s.peakOvr, "OVR") +
     "</div></div>" +
     ccStatsBar(s.career.apps, s.career.goals, s.career.assists) +

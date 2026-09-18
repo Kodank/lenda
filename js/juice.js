@@ -484,7 +484,7 @@
       var g = s.pos === "GOL" ? (season.cs || 0) : (season.goals || 0);
       if (g > 0) {
         j.firsts.goal = 1;
-        msgs.push(s.pos === "GOL" ? "Primeiro clean sheet" : "Primeiro gol");
+        msgs.push(s.pos === "GOL" ? "Primeira SG" : "Primeiro gol");
       }
     }
     if (!j.firsts.title) {
