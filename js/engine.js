@@ -51,9 +51,47 @@ function makeAttrs(pos, foot, rnd) {
   return attrs;
 }
 
+
+function tempOvrTotal(s) {
+  var t = 0;
+  var list = (s && s.tempOvr) || [];
+  for (var i = 0; i < list.length; i++) t += list[i].delta || 0;
+  return t;
+}
+
+function effectiveOvr(s) {
+  return clamp((s.ovr || 0) + tempOvrTotal(s), 40, OVR_CAP);
+}
+
+function addTempOvr(s, spec) {
+  if (!spec) return;
+  var delta = typeof spec === "number" ? spec : (spec.delta || 0);
+  var seasons = typeof spec === "number" ? 2 : (spec.seasons || 2);
+  if (!delta || seasons <= 0) return;
+  s.tempOvr = s.tempOvr || [];
+  s.tempOvr.push({ delta: delta, left: seasons });
+}
+
+function tickTempOvr(s) {
+  if (!s.tempOvr || !s.tempOvr.length) return;
+  var next = [];
+  for (var i = 0; i < s.tempOvr.length; i++) {
+    var e = s.tempOvr[i];
+    var left = (e.left || 1) - 1;
+    if (left > 0) next.push({ delta: e.delta, left: left });
+  }
+  s.tempOvr = next;
+}
+
+function tempOvrLabel(s) {
+  var d = tempOvrTotal(s);
+  if (!d) return "";
+  return "OVR temporário " + (d > 0 ? "+" : "") + d;
+}
+
 function roleOf(s, club) {
   club = club || clubOf(s.clubId);
-  var gap = s.ovr - club.level * 18;
+  var gap = effectiveOvr(s) - club.level * 18;
   /* na base de gigante você é youth; em clube menor o mesmo OVR joga */
   if (s.age <= 18 && gap < -6) return "youth";
   if (s.age <= 20 && gap < -10) return "youth";
@@ -145,6 +183,7 @@ function newCareer(draft) {
     loanYears: 0,
     role: "youth",
     injuryWeeks: 0,
+    tempOvr: [],
     contQual: false,
     ntNoStreak: 0,
     youthCaps: 0,

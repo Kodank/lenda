@@ -291,8 +291,13 @@ function identityStrip(s) {
   var ast = last ? (s.pos === "GOL" ? last.ga : last.assists) : 0;
   var gLab = s.pos === "GOL" ? "CS" : "GOLS";
   var aLab = s.pos === "GOL" ? "GS" : "AST";
-  return '<div class="id-strip" data-ovr-tier="' + ovrTier(s.ovr) + '">' +
-    ovrBadgeHtml(s.ovr) +
+  var temp = tempOvrTotal(s);
+  var showOvr = temp ? effectiveOvr(s) : s.ovr;
+  return '<div class="id-strip" data-ovr-tier="' + ovrTier(showOvr) + '">' +
+    ovrBadgeHtml(showOvr) +
+    (temp
+      ? '<div class="temp-ovr-tag ' + (temp < 0 ? "dn" : "up") + '">OVR temporário ' + (temp > 0 ? "+" : "") + temp + "</div>"
+      : "") +
     '<div class="id-meta">' +
     '<div class="id-line">' +
     '<img class="mini-flag" src="' + nat.flag + '" alt="">' +
@@ -480,23 +485,39 @@ function viewAcademy() {
     viewDevAcademyPicker();
 }
 
-function choiceBtn(side, ch) {
+function pillsHtml(pills, mode) {
+  pills = (typeof sanitizePillsList === "function") ? sanitizePillsList(pills) : (pills || []);
+  if (!pills.length) return '<div class="choice-pills"><span class="fx-pill neutral">Nada acontece</span></div>';
+  return '<div class="choice-pills' + (mode === "landed" ? " resolved" : "") + '">' + pills.map(function (p) {
+    var kind = p.kind || "neutral";
+    var text = String(p.text || "").trim();
+    if (!text || (typeof isAssetPathLabel === "function" && isAssetPathLabel(text))) return "";
+    var cls = "fx-pill " + kind + (mode === "landed" && p.landed ? " landed" : "");
+    return '<span class="' + cls + '">' + esc(text) + "</span>";
+  }).join("") + "</div>";
+}
+
+function choiceBtn(side, ch, ev, sideIdx) {
   if (!ch) return "";
   if (ch.crest) {
     var lg = ch.leagueId ? leagueOf(ch.leagueId) : null;
     var nat = ch.nation ? nationOf(ch.nation) : null;
     var cols = ch.colors || ["#222", "#111"];
-    var on = onColor(cols[0]);
     return '<button class="choice transfer" data-choice="' + side + '" style="--c1:' + cols[0] + ";--c2:" + (cols[1] || cols[0]) + ';--on:#ffffff">' +
       imgCrest(ch.crest, 'choice-crest', ch.label) +
       "<div class='choice-body'>" + clubNameHtml(ch.label, "club-name") + "<small>" + esc(ch.hint) + "</small>" +
       '<div class="choice-meta">' +
       (lg ? '<img class="lg-logo" src="' + lg.logo + '" alt="">' + esc(lg.name) : "") +
       (nat ? ' <img class="mini-flag" src="' + nat.flag + '" alt="">' : "") +
-      "</div></div></button>";
+      "</div>" + pillsHtml(buildChoicePills(ch)) + "</div></button>";
   }
-  return '<button class="choice" data-choice="' + side + '">' +
-    "<div><b>" + esc(ch.label) + "</b><small>" + esc(ch.hint) + "</small></div></button>";
+  var img = (typeof resolveChoiceImg === "function") ? resolveChoiceImg(ch, ev, sideIdx || 0) : "img/choices/default.png";
+  return '<button class="choice photo" data-choice="' + side + '">' +
+    '<div class="choice-photo"><img src="' + img + '" alt="" loading="lazy" onerror="this.src=\'img/choices/default.png\'"></div>' +
+    '<div class="choice-body"><b>' + esc(ch.label) + "</b>" +
+    (ch.hint ? "<small>" + esc(ch.hint) + "</small>" : "") +
+    pillsHtml(buildChoicePills(ch)) +
+    "</div></button>";
 }
 
 function timelineHtml(s, hiN, choosing) {
@@ -663,7 +684,7 @@ function retireBtnHtml(s) {
 function viewDecision() {
   var ev = UI.event;
   var s = S;
-  var choices = [choiceBtn("a", ev.a), choiceBtn("b", ev.b), choiceBtn("c", ev.c)].filter(Boolean).join("");
+  var choices = [choiceBtn("a", ev.a, ev, 0), choiceBtn("b", ev.b, ev, 1), choiceBtn("c", ev.c, ev, 2)].filter(Boolean).join("");
   return '<div class="top slim"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
     '<div class="career-dash">' +
     '<div class="career-left">' +
@@ -708,6 +729,14 @@ function viewReport() {
     trophyCaseHtml(s) +
     recap +
     (S._lastRisk ? '<div class="risk-toast ' + (S._lastRisk.ok ? "ok" : "bad") + '">' + esc(S._lastRisk.text) + "</div>" : "") +
+    (S._lastOutcome ? '<div class="outcome-board">' +
+      '<div class="outcome-label">Resultado da escolha</div>' +
+      pillsHtml(S._lastOutcome.pills || [], "landed") +
+      (S._lastOutcome.temp
+        ? '<div class="temp-ovr-tag ' + (S._lastOutcome.temp < 0 ? "dn" : "up") + '">OVR temporário ' +
+          (S._lastOutcome.temp > 0 ? "+" : "") + S._lastOutcome.temp + "</div>"
+        : "") +
+      "</div>" : "") +
     '<div class="report-actions">' +
     '<button class="btn" data-go="' + next + '">' + (s.retired ? "Ver o quadro" : "Próxima decisão") + "</button>" +
     retireBtnHtml(s) +
@@ -839,7 +868,7 @@ function viewLegacy() {
 }
 
 function nextDecision() {
-  if (S) S._lastRisk = null;
+  if (S) { S._lastRisk = null; S._lastOutcome = null; }
   if (shouldRetire(S)) {
     S.retired = true;
     UI.screen = "legacy";
@@ -928,12 +957,30 @@ function bind() {
   });
   document.querySelectorAll("[data-choice]").forEach(function (b) {
     b.onclick = function () {
-      applyChoice(S, UI.event, b.getAttribute("data-choice"));
-      UI.reports = advance(S);
-      UI.screen = "report";
-      save();
-      render();
-      startTrophyQueue(trophiesFromReports(UI.reports));
+      if (UI._picking) return;
+      UI._picking = true;
+      var side = b.getAttribute("data-choice");
+      var grid = document.querySelector(".choices-grid");
+      if (grid) grid.classList.add("resolving");
+      b.classList.add("selected");
+      document.querySelectorAll("[data-choice]").forEach(function (other) {
+        if (other !== b) other.classList.add("dimmed");
+      });
+      applyChoice(S, UI.event, side);
+      var out = S._lastOutcome;
+      var wrap = b.querySelector(".choice-pills");
+      if (wrap && out && out.pills) {
+        wrap.outerHTML = pillsHtml(out.pills, "landed");
+      }
+      b.classList.add("landed-pulse");
+      setTimeout(function () {
+        UI._picking = false;
+        UI.reports = advance(S);
+        UI.screen = "report";
+        save();
+        render();
+        startTrophyQueue(trophiesFromReports(UI.reports));
+      }, 980);
     };
   });
   var dl = document.getElementById("dl");

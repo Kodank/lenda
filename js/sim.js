@@ -15,7 +15,7 @@ function simSeason(s) {
     s._clubAppsMod = false;
   }
 
-  var ovrF = clamp((s.ovr - 18) / 62, 0.35, 1.4);
+  var ovrF = clamp((effectiveOvr(s) - 18) / 62, 0.35, 1.4);
   var formF = 0.82 + s.form / 280;
   var pr = PROD[s.pos] || PROD.MC;
   var goals = poisson(apps * pr.g * ovrF * formF, function () { return rnd(s); });
@@ -138,6 +138,7 @@ function simSeason(s) {
   s.value = marketValue(s);
   s.year++;
   s.age++;
+  tickTempOvr(s);
   return season;
 }
 
