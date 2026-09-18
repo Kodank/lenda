@@ -333,8 +333,8 @@ function viewAcademy() {
     var lg = leagueOf(o.club.leagueId);
     return '<button class="card offer" data-sign="' + o.club.id + '">' +
       imgCrest(o.club.crest, 'crest', o.club.name) +
-      "<div class='bars'><b>" + esc(o.club.name) + "</b>" +
-      '<div style="display:flex;gap:8px;align-items:center;margin:6px 0 10px;color:var(--muted);font-size:12px">' +
+      "<div class='bars'><span class='offer-name'>" + esc(o.club.name) + "</span>" +
+      '<div class="offer-meta" style="display:flex;gap:8px;align-items:center;margin:6px 0 10px;font-size:12px">' +
       '<img class="lg-logo" src="' + lg.logo + '" alt="">' +
       esc(lg.name) + (o.casa ? " · casa" : " · exterior") + "</div>" +
       '<div class="label">Formação</div><div class="bar"><i style="width:' + o.formacao + '%"></i></div>' +

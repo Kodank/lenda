@@ -233,10 +233,17 @@ input[type="text"] {
 .academy-grid { display: grid; gap: 10px; }
 .offer {
   display: flex; gap: 14px; align-items: center; text-align: left;
-  width: 100%; border: 0; background: var(--paper); color: var(--ink);
+  width: 100%; border: 0; background: var(--paper);
+  color: #f4f6f8 !important; /* never UA black on dark offer cards */
 }
-.offer b { color: var(--ink); font-size: 15px; }
-.offer .label { color: var(--muted); }
+.offer .bars { color: #f4f6f8 !important; }
+.offer-name, .offer b {
+  color: #f4f6f8 !important;
+  font-size: 15px;
+  font-weight: 700;
+}
+.offer .label { color: #a8b0bc !important; }
+.offer .offer-meta { color: #a8b0bc !important; }
 .offer img.crest { width: 58px; height: 58px; object-fit: contain; }
 .crest-fallback {
   display: inline-flex; align-items: center; justify-content: center;
