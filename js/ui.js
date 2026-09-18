@@ -1,10 +1,31 @@
 var NATION_KIT = {
-  br: ["#009B3A", "#FEDF00"], ar: ["#74ACDF", "#ffffff"], uy: ["#0038A8", "#ffffff"],
-  co: ["#FCD116", "#CE1126"], mx: ["#006847", "#ffffff"], pt: ["#006600", "#FF0000"],
-  es: ["#AA151B", "#F1BF00"], en: ["#ffffff", "#CE1126"], fr: ["#002395", "#ED2939"],
-  it: ["#009246", "#CE2B37"], de: ["#000000", "#FFCE00"], nl: ["#AE1C28", "#21468B"],
-  us: ["#002868", "#BF0A30"], jp: ["#ffffff", "#BC002D"], ng: ["#008751", "#ffffff"],
+  /* [body, trim] — flat illustrated NT kits (Copero-like) */
+  br: ["#FFDF00", "#009B3A"], ar: ["#74ACDF", "#FFFFFF"], uy: ["#0038A8", "#FFFFFF"],
+  co: ["#FCD116", "#CE1126"], mx: ["#006847", "#FFFFFF"], pt: ["#006600", "#FF0000"],
+  es: ["#AA151B", "#F1BF00"], en: ["#FFFFFF", "#CE1126"], fr: ["#002395", "#ED2939"],
+  it: ["#0066B3", "#FFFFFF"], de: ["#FFFFFF", "#000000"], nl: ["#F36C21", "#FFFFFF"],
+  us: ["#FFFFFF", "#BF0A30"], jp: ["#FFFFFF", "#BC002D"], ng: ["#008751", "#FFFFFF"],
   sn: ["#00853F", "#E31C23"]
+};
+
+/* Pattern / ink overrides by nationality */
+var NATION_STYLE = {
+  ar: { pattern: "stripes", stripe: "#FFFFFF", ink: "#12151a" },
+  uy: { pattern: "stripes", stripe: "#FFFFFF", ink: "#12151a" },
+  br: { pattern: "solid", ink: "#009B3A" },
+  fr: { pattern: "solid", ink: "#FFFFFF" },
+  it: { pattern: "solid", ink: "#FFFFFF" },
+  es: { pattern: "solid", ink: "#FFFFFF" },
+  en: { pattern: "solid", ink: "#CE1126" },
+  de: { pattern: "solid", ink: "#12151a" },
+  pt: { pattern: "solid", ink: "#FFFFFF" },
+  nl: { pattern: "solid", ink: "#FFFFFF" },
+  co: { pattern: "solid", ink: "#CE1126" },
+  mx: { pattern: "solid", ink: "#FFFFFF" },
+  us: { pattern: "solid", ink: "#002868" },
+  jp: { pattern: "solid", ink: "#BC002D" },
+  ng: { pattern: "solid", ink: "#FFFFFF" },
+  sn: { pattern: "solid", ink: "#FFFFFF" }
 };
 
 function crestSrc(path) {
@@ -48,95 +69,85 @@ function mixHex(a, b, t) {
   return "#" + ch(0) + ch(1) + ch(2);
 }
 
-function kitPalette(c1, c2) {
-  /* Copero-like white kit + dark trim; soft nation tint only */
-  var body = mixHex("#f6f6f4", c1, 0.07);
-  var bodyShade = mixHex("#deded9", c1, 0.10);
-  var bodyHi = "#ffffff";
-  var trim = "#1a1d24";
-  if (hexLum(c2) < 0.35) trim = c2;
-  else if (hexLum(c1) < 0.35) trim = mixHex("#12151a", c1, 0.55);
-  var ink = "#12151a";
-  return { body: body, bodyShade: bodyShade, bodyHi: bodyHi, trim: trim, ink: ink, accent: c1 };
+function kitPalette(c1, c2, nation) {
+  var st = (nation && NATION_STYLE[nation]) || {};
+  var body = c1 || "#f6f6f4";
+  var trim = c2 || "#1a1d24";
+  var ink = st.ink || onColor(body);
+  var crease = mixHex(body, "#000000", hexLum(body) > 0.55 ? 0.14 : 0.22);
+  var shade = mixHex(body, "#000000", 0.12);
+  var hi = mixHex(body, "#ffffff", 0.18);
+  return {
+    body: body, trim: trim, ink: ink, crease: crease, shade: shade, hi: hi,
+    pattern: st.pattern || "solid",
+    stripe: st.stripe || c2 || "#ffffff"
+  };
 }
 
-/** Polished back-of-shirt preview — gradients, folds, collar, sleeve trim */
-function shirtHtml(c1, c2, number, name) {
-  var pal = kitPalette(c1 || "#f7f7f5", c2 || "#1a1d24");
+/** Flat illustrated back-of-shirt (Copero-like): solid NT fills, stripes, subtle creases */
+function shirtHtml(c1, c2, number, name, nation) {
+  var pal = kitPalette(c1 || "#f7f7f5", c2 || "#1a1d24", nation);
   var nm = esc((name || "SILVA").toUpperCase().slice(0, 12));
   var num = esc(String(number == null ? 10 : number));
   var uid = "k" + Math.random().toString(36).slice(2, 8);
+  var bodyPath = "M78 58 C88 36 102 28 120 28 C138 28 152 36 162 58 L178 72 C180 80 182 96 180 210 C180 224 158 236 120 236 C82 236 60 224 60 210 C58 96 60 80 62 72 Z";
+  var sleeveL = "M78 58 C64 66 40 78 30 96 C24 112 30 138 42 148 C52 138 62 118 72 100 Z";
+  var sleeveR = "M162 58 C176 66 200 78 210 96 C216 112 210 138 198 148 C188 138 178 118 168 100 Z";
+  var clip = uid + "clip";
+
+  var patternLayer = "";
+  if (pal.pattern === "stripes") {
+    /* vertical sky-blue/white NT stripes clipped to torso */
+    patternLayer =
+      '<g clip-path="url(#' + clip + ')">' +
+      '<rect x="56" y="28" width="128" height="210" fill="' + pal.stripe + '"/>' +
+      '<rect x="56" y="28" width="18" height="210" fill="' + pal.body + '"/>' +
+      '<rect x="92" y="28" width="18" height="210" fill="' + pal.body + '"/>' +
+      '<rect x="128" y="28" width="18" height="210" fill="' + pal.body + '"/>' +
+      '<rect x="164" y="28" width="18" height="210" fill="' + pal.body + '"/>' +
+      "</g>";
+  }
+
   return '<div class="shirt-stage" aria-hidden="true">' +
-    '<svg class="shirt-svg" viewBox="0 0 240 270" width="210" height="236">' +
+    '<svg class="shirt-svg" viewBox="0 0 240 270" width="220" height="248">' +
     "<defs>" +
-    '<linearGradient id="' + uid + 'body" x1="0" y1="0" x2="0" y2="1">' +
-    '<stop offset="0%" stop-color="' + pal.bodyHi + '"/>' +
-    '<stop offset="38%" stop-color="' + pal.body + '"/>' +
-    '<stop offset="100%" stop-color="' + pal.bodyShade + '"/>' +
-    "</linearGradient>" +
-    '<linearGradient id="' + uid + 'sleeve" x1="0" y1="0" x2="1" y2="1">' +
-    '<stop offset="0%" stop-color="' + pal.bodyHi + '"/>' +
-    '<stop offset="55%" stop-color="' + pal.body + '"/>' +
-    '<stop offset="100%" stop-color="' + pal.bodyShade + '"/>' +
-    "</linearGradient>" +
-    '<linearGradient id="' + uid + 'side" x1="0" y1="0" x2="1" y2="0">' +
-    '<stop offset="0%" stop-color="#000" stop-opacity=".14"/>' +
-    '<stop offset="18%" stop-color="#000" stop-opacity="0"/>' +
-    '<stop offset="82%" stop-color="#000" stop-opacity="0"/>' +
+    '<clipPath id="' + clip + '"><path d="' + bodyPath + '"/></clipPath>' +
+    '<linearGradient id="' + uid + 'soft" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0%" stop-color="#fff" stop-opacity=".16"/>' +
+    '<stop offset="45%" stop-color="#fff" stop-opacity="0"/>' +
     '<stop offset="100%" stop-color="#000" stop-opacity=".14"/>' +
     "</linearGradient>" +
-    '<linearGradient id="' + uid + 'foldL" x1="0" y1="0" x2="1" y2="0">' +
-    '<stop offset="0%" stop-color="#000" stop-opacity="0"/>' +
-    '<stop offset="50%" stop-color="#000" stop-opacity=".11"/>' +
-    '<stop offset="100%" stop-color="#fff" stop-opacity=".08"/>' +
-    "</linearGradient>" +
-    '<linearGradient id="' + uid + 'foldR" x1="1" y1="0" x2="0" y2="0">' +
-    '<stop offset="0%" stop-color="#000" stop-opacity="0"/>' +
-    '<stop offset="50%" stop-color="#000" stop-opacity=".09"/>' +
-    '<stop offset="100%" stop-color="#fff" stop-opacity=".1"/>' +
-    "</linearGradient>" +
-    '<radialGradient id="' + uid + 'soft" cx="48%" cy="28%" r="70%">' +
-    '<stop offset="0%" stop-color="#fff" stop-opacity=".28"/>' +
-    '<stop offset="45%" stop-color="#fff" stop-opacity=".05"/>' +
-    '<stop offset="100%" stop-color="#000" stop-opacity=".16"/>' +
-    "</radialGradient>" +
-    '<filter id="' + uid + 'blur" x="-30%" y="-30%" width="160%" height="160%">' +
-    '<feGaussianBlur stdDeviation="1.6"/>' +
-    "</filter>" +
-    '<linearGradient id="' + uid + 'trim" x1="0" y1="0" x2="0" y2="1">' +
-    '<stop offset="0%" stop-color="' + mixHex(pal.trim, "#ffffff", 0.12) + '"/>' +
-    '<stop offset="100%" stop-color="' + pal.trim + '"/>' +
+    '<linearGradient id="' + uid + 'side" x1="0" y1="0" x2="1" y2="0">' +
+    '<stop offset="0%" stop-color="#000" stop-opacity=".10"/>' +
+    '<stop offset="18%" stop-color="#000" stop-opacity="0"/>' +
+    '<stop offset="82%" stop-color="#000" stop-opacity="0"/>' +
+    '<stop offset="100%" stop-color="#000" stop-opacity=".10"/>' +
     "</linearGradient>" +
     "</defs>" +
-    '<ellipse cx="120" cy="255" rx="62" ry="10" fill="#000" opacity=".34"/>' +
-    /* sleeves behind torso */
-    '<path d="M66 62 C52 68 30 78 22 94 C16 108 24 142 38 152 C48 144 58 128 68 112 Z" fill="url(#' + uid + 'sleeve)" stroke="rgba(0,0,0,.14)" stroke-width="1"/>' +
-    '<path d="M174 62 C188 68 210 78 218 94 C224 108 216 142 202 152 C192 144 182 128 172 112 Z" fill="url(#' + uid + 'sleeve)" stroke="rgba(0,0,0,.14)" stroke-width="1"/>' +
+    /* soft ground shadow */
+    '<ellipse cx="120" cy="256" rx="58" ry="8" fill="#000" opacity=".28"/>' +
+    /* sleeves */
+    '<path d="' + sleeveL + '" fill="' + (pal.pattern === "stripes" ? pal.stripe : pal.body) + '"/>' +
+    '<path d="' + sleeveR + '" fill="' + (pal.pattern === "stripes" ? pal.stripe : pal.body) + '"/>' +
     /* torso */
-    '<path d="M76 56 C86 38 100 30 120 30 C140 30 154 38 164 56 L182 70 C184 76 186 88 184 214 C184 226 162 236 120 236 C78 236 56 226 56 214 C54 88 56 76 58 70 Z" fill="url(#' + uid + 'body)" stroke="rgba(0,0,0,.16)" stroke-width="1.1"/>' +
-    '<path d="M76 56 C86 38 100 30 120 30 C140 30 154 38 164 56 L182 70 C184 76 186 88 184 214 C184 226 162 236 120 236 C78 236 56 226 56 214 C54 88 56 76 58 70 Z" fill="url(#' + uid + 'soft)"/>' +
-    '<path d="M76 56 C86 38 100 30 120 30 C140 30 154 38 164 56 L182 70 C184 76 186 88 184 214 C184 226 162 236 120 236 C78 236 56 226 56 214 C54 88 56 76 58 70 Z" fill="url(#' + uid + 'side)"/>' +
-    /* fabric folds */
-    '<path d="M96 78 C100 130 98 175 102 220" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="9" stroke-linecap="round" filter="url(#' + uid + 'blur)"/>' +
-    '<path d="M144 78 C140 130 142 175 138 220" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="8" stroke-linecap="round" filter="url(#' + uid + 'blur)"/>' +
-    '<path d="M120 74 C118 130 122 175 120 224" fill="none" stroke="rgba(0,0,0,.07)" stroke-width="14" stroke-linecap="round" filter="url(#' + uid + 'blur)"/>' +
-    '<rect x="84" y="86" width="28" height="120" fill="url(#' + uid + 'foldL)" opacity=".7"/>' +
-    '<rect x="128" y="86" width="28" height="120" fill="url(#' + uid + 'foldR)" opacity=".7"/>' +
-    /* waist crease */
-    '<path d="M70 198 C100 192 140 192 170 198" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="4" filter="url(#' + uid + 'blur)"/>' +
-    /* thick collar */
-    '<path d="M94 38 C106 28 134 28 146 38 L138 64 C130 54 110 54 102 64 Z" fill="url(#' + uid + 'trim)"/>' +
-    '<path d="M108 40 L120 62 L132 40" fill="none" stroke="rgba(0,0,0,.4)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M96 40 C108 32 132 32 144 40" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.6"/>' +
-    /* sleeve cuffs */
-    '<path d="M22 94 C18 110 26 140 38 152 L48 142 C38 130 32 110 34 98 Z" fill="url(#' + uid + 'trim)"/>' +
-    '<path d="M218 94 C222 110 214 140 202 152 L192 142 C202 130 208 110 206 98 Z" fill="url(#' + uid + 'trim)"/>' +
-    /* side piping tint */
-    '<path d="M64 78 L68 210" fill="none" stroke="' + pal.accent + '" stroke-opacity=".18" stroke-width="3"/>' +
-    '<path d="M176 78 L172 210" fill="none" stroke="' + pal.accent + '" stroke-opacity=".18" stroke-width="3"/>' +
+    '<path d="' + bodyPath + '" fill="' + pal.body + '"/>' +
+    patternLayer +
+    /* soft volume */
+    '<path d="' + bodyPath + '" fill="url(#' + uid + 'soft)"/>' +
+    '<path d="' + bodyPath + '" fill="url(#' + uid + 'side)"/>' +
+    /* fabric creases — flat illustrated, not photoreal */
+    '<path d="M96 70 C100 110 98 150 102 200" fill="none" stroke="' + pal.crease + '" stroke-width="2.2" stroke-linecap="round" opacity=".55"/>' +
+    '<path d="M144 70 C140 110 142 150 138 200" fill="none" stroke="' + pal.crease + '" stroke-width="2.2" stroke-linecap="round" opacity=".45"/>' +
+    '<path d="M86 64 C104 52 136 52 154 64" fill="none" stroke="' + pal.crease + '" stroke-width="1.8" stroke-linecap="round" opacity=".4"/>' +
+    '<path d="M74 198 C100 190 140 190 166 198" fill="none" stroke="' + pal.crease + '" stroke-width="2" stroke-linecap="round" opacity=".35"/>' +
+    '<path d="M80 214 C110 206 130 206 160 214" fill="none" stroke="' + pal.crease + '" stroke-width="1.6" stroke-linecap="round" opacity=".28"/>' +
+    /* collar + cuffs (trim) */
+    '<path d="M98 36 C110 26 130 26 142 36 L136 58 C128 50 112 50 104 58 Z" fill="' + pal.trim + '"/>' +
+    '<path d="M30 96 C26 112 32 136 42 148 L50 138 C42 126 38 110 40 100 Z" fill="' + pal.trim + '"/>' +
+    '<path d="M210 96 C214 112 208 136 198 148 L190 138 C198 126 202 110 200 100 Z" fill="' + pal.trim + '"/>' +
     /* name + number */
-    '<text class="shirt-name" x="120" y="104" text-anchor="middle" fill="' + pal.ink + '" font-family="Barlow Condensed, Arial Black, sans-serif" font-size="18" font-weight="800" letter-spacing="3.5">' + nm + "</text>" +
-    '<text class="shirt-num" x="120" y="178" text-anchor="middle" fill="' + pal.ink + '" font-family="Barlow Condensed, Arial Black, sans-serif" font-size="78" font-weight="800">' + num + "</text>" +
+    '<text class="shirt-name" x="120" y="102" text-anchor="middle" fill="' + pal.ink + '" font-family="Barlow Condensed, Arial Black, sans-serif" font-size="20" font-weight="800" letter-spacing="4">' + nm + "</text>" +
+    '<text class="shirt-num" x="120" y="176" text-anchor="middle" fill="' + pal.ink + '" font-family="Barlow Condensed, Arial Black, sans-serif" font-size="82" font-weight="800">' + num + "</text>" +
     "</svg></div>";
 }
 
@@ -242,7 +253,7 @@ function viewCreate() {
       '<div class="step-card focus-shirt">' +
       "<h2>Define a camisa</h2>" +
       '<p class="lead tight">Nome, número e perna — o resto vem depois.</p>' +
-      '<div class="shirt-panel">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA") + "</div>" +
+      '<div class="shirt-panel">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA", d.nation) + "</div>" +
       '<div class="field-grid">' +
       '<div><div class="label">Sobrenome</div><input id="nm" type="text" maxlength="12" value="' + esc(d.name) + '" placeholder="SOBRENOME"></div>' +
       '<div><div class="label">Número</div><div class="dorsal compact"><button type="button" class="chip" data-num="-1">−</button><b class="num">' + d.number + '</b><button type="button" class="chip" data-num="1">+</button></div></div>' +
@@ -265,7 +276,7 @@ function viewCreate() {
       "<h2>Nacionalidade</h2>" +
       '<p class="lead tight">Escolhe o país. A camisa ganha as cores da seleção.</p>' +
       '<div class="nation-split">' +
-      '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA") + "</div>" +
+      '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA", d.nation) + "</div>" +
       '<div class="nation-panel"><input id="nat-search" type="text" placeholder="Buscar país…" autocomplete="off">' +
       '<div class="flag-list" id="flag-list">' + flags + "</div></div>" +
       "</div>" +
@@ -286,7 +297,7 @@ function viewCreate() {
     '<p class="lead tight">16 anos · OVR 50 · toca no campo para escolher.</p>' +
     '<div class="pos-split">' +
     '<div class="pos-summary">' +
-    '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA") + "</div>" +
+    '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA", d.nation) + "</div>" +
     '<div class="pos-now"><span class="label">Posição</span><b>' + POS[d.pos].name + "</b>" +
     "<small>" + POS[d.pos].short + "</small></div></div>" +
     '<div class="pitch-wrap compact"><div class="pitch"></div>' + slots + "</div>" +
@@ -339,51 +350,144 @@ function choiceBtn(side, ch) {
 
 function timelineHtml(s, hiN, choosing) {
   var rows = s.seasons || [];
-  var html = '<div class="timeline-panel"><div class="feed-h">Carreira</div><div class="timeline-scroll">';
-  for (var i = 0; i < rows.length; i++) {
-    var r = rows[i];
-    var club = clubOf(r.clubId);
-    var g = s.pos === "GOL" ? r.cs : r.goals;
-    var a = s.pos === "GOL" ? r.ga : r.assists;
-    var gLab = s.pos === "GOL" ? "CS" : "G";
-    var aLab = s.pos === "GOL" ? "GS" : "A";
-    var hi = hiN && i >= rows.length - hiN;
-    var lg = leagueOf(r.leagueId);
-    var cups = (r.trophies || []).concat(r.awards || []).map(function (id) {
-      return '<img class="cup-lg" src="' + trophyOf(id).img + '" title="' + esc(trophyOf(id).name) + '">';
-    }).join("");
-    var dlt = r.delta != null
-      ? '<span class="' + (r.delta >= 0 ? "up" : "dn") + '">' + fmtDelta(r.delta) + "</span>"
-      : "";
-    html += '<article class="szn' + (hi ? " hi" : "") + (cups ? " won" : "") + '">' +
-      '<div class="szn-agebadge">' + r.age + "</div>" +
-      '<img class="szn-crest" src="' + club.crest + '" alt="">' +
-      '<div class="szn-mid"><div class="szn-top"><b>' + esc(club.name) + '</b>' +
-      (lg ? '<img class="szn-lg" src="' + lg.logo + '" title="' + esc(lg.name) + '" alt="">' : "") +
-      "</div>" +
-      '<div class="szn-stats">' + r.apps + " J · " + g + " " + gLab + " · " + a + " " + aLab + "</div>" +
-      (cups ? '<div class="szn-cups">' + cups + "</div>" : "") +
-      "</div>" +
-      '<div class="szn-ovr"><b>' + r.ovr + "</b>" + dlt + "</div></article>";
+  var byAge = {};
+  for (var i = 0; i < rows.length; i++) byAge[rows[i].age] = { row: rows[i], idx: i };
+  var lastAge = rows.length ? rows[rows.length - 1].age : (START_AGE - 1);
+  var html = '<div class="timeline-panel">' +
+    '<div class="tl-head"><span>IDADE</span><span>CLUBE</span><span>OVR</span><span>J</span><span>G</span><span>A</span></div>' +
+    '<div class="timeline-scroll">';
+
+  for (var age = START_AGE; age < START_AGE + 24; age++) {
+    var hit = byAge[age];
+    var isFuture = age > lastAge && !(choosing && age === s.age);
+    var isChoosing = choosing && age === s.age && !hit;
+    var hi = hit && hiN && hit.idx >= rows.length - hiN;
+
+    if (hit) {
+      var r = hit.row;
+      var club = clubOf(r.clubId);
+      var g = s.pos === "GOL" ? r.cs : r.goals;
+      var a = s.pos === "GOL" ? r.ga : r.assists;
+      var cups = (r.trophies || []).concat(r.awards || []);
+      var cupDot = cups.length ? '<i class="tl-cup" title="' + esc(cups.map(function (id) { return trophyOf(id).name; }).join(", ")) + '">🏆</i>' : "";
+      var dlt = r.delta != null
+        ? '<em class="' + (r.delta >= 0 ? "up" : "dn") + '">' + fmtDelta(r.delta) + "</em>"
+        : "";
+      html += '<div class="tl-row filled' + (hi ? " hi" : "") + (cups.length ? " won" : "") + '">' +
+        '<span class="tl-age">' + age + "</span>" +
+        '<span class="tl-club"><img src="' + club.crest + '" alt=""><b>' + esc(club.name) + "</b>" + cupDot + "</span>" +
+        '<span class="tl-ovr">' + r.ovr + dlt + "</span>" +
+        '<span class="tl-n">' + r.apps + "</span>" +
+        '<span class="tl-n">' + g + "</span>" +
+        '<span class="tl-n">' + a + "</span>" +
+        "</div>";
+    } else if (isChoosing) {
+      html += '<div class="tl-row choosing">' +
+        '<span class="tl-age">' + age + "</span>" +
+        '<span class="tl-club choosing-lab"><span class="tl-q">?</span><b>Escolhendo clube…</b></span>' +
+        '<span class="tl-ovr">' + s.ovr + "</span>" +
+        '<span class="tl-n">—</span><span class="tl-n">—</span><span class="tl-n">—</span>' +
+        "</div>";
+    } else {
+      /* future / empty rail — always present so the board stays 24 slots */
+      var label = (age % 2 === 0 || age === START_AGE + 23) ? String(age) : "";
+      html += '<div class="tl-row future' + (isFuture ? "" : " gap") + '">' +
+        '<span class="tl-age dim">' + (isFuture ? label : age) + "</span>" +
+        '<span class="tl-club"></span><span class="tl-ovr"></span>' +
+        '<span class="tl-n"></span><span class="tl-n"></span><span class="tl-n"></span>' +
+        "</div>";
+    }
   }
-  if (choosing) {
-    html += '<article class="szn choosing"><div class="szn-agebadge">' + s.age + '</div>' +
-      '<div class="szn-q">?</div><div class="szn-mid"><b>Escolhendo clube…</b>' +
-      '<div class="szn-stats">OVR ' + s.ovr + "</div></div></article>";
-  }
-  /* future age markers — compact */
-  var lastAge = choosing ? s.age : (rows.length ? rows[rows.length - 1].age : s.age);
-  var future = "";
-  for (var age = lastAge + 2; age <= 38 && age <= lastAge + 8; age += 2) {
-    future += '<div class="szn future"><div class="szn-agebadge dim">' + age + '</div><div class="szn-mid muted-line">-</div></div>';
-  }
-  html += future;
+
   var nat = nationOf(s.nation);
   html += '</div><div class="nt-row"><img class="mini-flag" src="' + nat.flag + '" alt="">' +
-    "<b>Seleção</b><span>" + (s.caps || 0) + " J · " +
+    "<b>" + esc(nat.name) + "</b><span>" + (s.caps || 0) + " J · " +
     (s.pos === "GOL" ? (s.ntCs || 0) + " CS" : (s.ntGoals || 0) + " G") +
     "</span></div></div>";
   return html;
+}
+
+
+
+function trophyKindLabel(kind) {
+  return ({
+    league: "Campeão da liga",
+    cup: "Campeão da copa",
+    continental: "Título continental",
+    nt: "Seleção",
+    indiv: "Prêmio individual"
+  })[kind] || "Conquista";
+}
+
+function trophiesFromReports(reps) {
+  var ids = [];
+  for (var i = 0; i < (reps || []).length; i++) {
+    var r = reps[i];
+    var list = (r.trophies || []).concat(r.awards || []);
+    for (var j = 0; j < list.length; j++) ids.push(list[j]);
+  }
+  return ids;
+}
+
+function ensureTrophyPopRoot() {
+  var el = document.getElementById("trophy-pop-root");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "trophy-pop-root";
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+function clearTrophyPop() {
+  if (UI._trophyTimer) { clearTimeout(UI._trophyTimer); UI._trophyTimer = null; }
+  var el = document.getElementById("trophy-pop-root");
+  if (el) el.innerHTML = "";
+}
+
+function showNextTrophyPop() {
+  if (!UI.trophyQueue || !UI.trophyQueue.length) {
+    clearTrophyPop();
+    return;
+  }
+  var id = UI.trophyQueue.shift();
+  var meta = trophyOf(id);
+  var root = ensureTrophyPopRoot();
+  root.innerHTML =
+    '<div class="trophy-pop-backdrop" id="trophy-pop-bd">' +
+    '<div class="trophy-pop" role="dialog" aria-label="' + esc(meta.name) + '">' +
+    '<div class="trophy-pop-kind">' + esc(trophyKindLabel(meta.kind)) + "</div>" +
+    '<img class="trophy-pop-img" src="' + meta.img + '" alt="">' +
+    '<h2 class="trophy-pop-name">' + esc(meta.name) + "</h2>" +
+    '<p class="trophy-pop-hint">toque para continuar</p>' +
+    "</div></div>";
+  var bd = document.getElementById("trophy-pop-bd");
+  requestAnimationFrame(function () {
+    if (bd) bd.classList.add("on");
+  });
+  function advancePop() {
+    if (UI._trophyTimer) { clearTimeout(UI._trophyTimer); UI._trophyTimer = null; }
+    if (bd) {
+      bd.classList.remove("on");
+      bd.classList.add("out");
+      setTimeout(showNextTrophyPop, 180);
+    } else {
+      showNextTrophyPop();
+    }
+  }
+  root.onclick = function (e) { e.preventDefault(); advancePop(); };
+  UI._trophyTimer = setTimeout(advancePop, 2200);
+}
+
+function startTrophyQueue(ids) {
+  clearTrophyPop();
+  UI.trophyQueue = (ids || []).slice();
+  if (UI.trophyQueue.length) showNextTrophyPop();
+}
+
+function retireBtnHtml(s) {
+  if (!s || s.retired || s.age < 35) return "";
+  return '<button class="btn alt retire-btn" data-go="retire" type="button">Aposentar</button>';
 }
 
 function viewDecision() {
@@ -399,6 +503,7 @@ function viewDecision() {
     "<h2>" + esc(ev.title) + "</h2>" +
     "<p>" + esc(ev.text) + "</p></div>" +
     '<div class="choices-grid">' + choices + "</div>" +
+    retireBtnHtml(s) +
     "</div>" +
     timelineHtml(s, 0, true) +
     "</div>";
@@ -433,7 +538,10 @@ function viewReport() {
     trophyCaseHtml(s) +
     recap +
     (S._lastRisk ? '<div class="risk-toast ' + (S._lastRisk.ok ? "ok" : "bad") + '">' + esc(S._lastRisk.text) + "</div>" : "") +
+    '<div class="report-actions">' +
     '<button class="btn" data-go="' + next + '">' + (s.retired ? "Ver o quadro" : "Próxima decisão") + "</button>" +
+    retireBtnHtml(s) +
+    "</div>" +
     "</div>" +
     timelineHtml(s, reps.length, false) +
     "</div>";
@@ -588,6 +696,7 @@ function bind() {
       UI.screen = "report";
       save();
       render();
+      startTrophyQueue(trophiesFromReports(UI.reports));
     };
   });
   var dl = document.getElementById("dl");
@@ -614,8 +723,18 @@ function go(to) {
     UI.offers = academyOffers(S);
     UI.screen = "academy";
   } else if (to === "decision") nextDecision();
-  else if (to === "legacy") UI.screen = "legacy";
+  else if (to === "retire") {
+    if (!S || S.age < 35) return;
+    if (!window.confirm("Pendurar as chuteiras agora? A carreira será encerrada.")) return;
+    S.retireForce = true;
+    S.retired = true;
+    UI.screen = "legacy";
+    save();
+    render();
+    return;
+  } else if (to === "legacy") UI.screen = "legacy";
   else if (to === "new") {
+    clearTrophyPop();
     clearSave();
     S = null;
     UI.event = null;
@@ -625,6 +744,7 @@ function go(to) {
     UI.screen = "create";
   } else if (to === "reset") {
     if (!window.confirm("Apagar a carreira salva e recomeçar do zero?")) return;
+    clearTrophyPop();
     clearSave();
     S = null;
     UI.event = null;

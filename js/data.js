@@ -66,13 +66,42 @@ var ROLE_MINS = { youth: 0.16, bench: 0.3, rotation: 0.55, starter: 0.86, star: 
 var ROLE_NAME = { youth: "base", bench: "banco", rotation: "rodízio", starter: "titular", star: "estrela" };
 
 var TROPHIES = {
+  /* Ligas */
   brasileirao: { name: "Brasileirão", img: "img/trophies/brasileirao.png", kind: "league", w: 6 },
-  premier: { name: "Liga nacional", img: "img/trophies/premier.png", kind: "league", w: 8 },
+  serie_b: { name: "Série B", img: "img/trophies/serie_b.png", kind: "league", w: 3 },
+  premier: { name: "Premier League", img: "img/trophies/premier.png", kind: "league", w: 8 },
+  laliga: { name: "La Liga", img: "img/trophies/laliga.png", kind: "league", w: 8 },
+  seriea: { name: "Serie A", img: "img/trophies/seriea.png", kind: "league", w: 8 },
+  bundesliga: { name: "Bundesliga", img: "img/trophies/bundesliga.jpg", kind: "league", w: 8 },
+  ligue1: { name: "Ligue 1", img: "img/trophies/ligue1.png", kind: "league", w: 8 },
+  primerliga: { name: "Primeira Liga", img: "img/trophies/primerliga.png", kind: "league", w: 6 },
+  ligapro: { name: "Liga Profesional", img: "img/trophies/ligapro.png", kind: "league", w: 5 },
+  eredivisie: { name: "Eredivisie", img: "img/trophies/eredivisie.png", kind: "league", w: 5 },
+  liga_mx: { name: "Liga MX", img: "img/trophies/liga_mx.png", kind: "league", w: 5 },
+  mls: { name: "MLS Cup", img: "img/trophies/mls.png", kind: "league", w: 4 },
+  j1: { name: "J1 League", img: "img/trophies/j1.png", kind: "league", w: 4 },
+  uruprimera: { name: "Primera División", img: "img/trophies/uruprimera.png", kind: "league", w: 4 },
+  colbetplay: { name: "Liga BetPlay", img: "img/trophies/colbetplay.png", kind: "league", w: 4 },
+  npfl: { name: "NPFL", img: "img/trophies/npfl.png", kind: "league", w: 3 },
+  senliga: { name: "Ligue 1 Sénégal", img: "img/trophies/senliga.png", kind: "league", w: 3 },
+  proleague: { name: "Pro League", img: "img/trophies/proleague.png", kind: "league", w: 5 },
+  superlig: { name: "Süper Lig", img: "img/trophies/superlig.png", kind: "league", w: 5 },
+  scottish: { name: "Premiership", img: "img/trophies/scottish.png", kind: "league", w: 4 },
+  /* Copas nacionais */
   copa: { name: "Copa nacional", img: "img/trophies/copa.png", kind: "cup", w: 4 },
+  copa_br: { name: "Copa do Brasil", img: "img/trophies/copa_br.png", kind: "cup", w: 4 },
+  fa_cup: { name: "FA Cup", img: "img/trophies/fa_cup.jpg", kind: "cup", w: 5 },
+  copa_rey: { name: "Copa del Rey", img: "img/trophies/copa_rey.png", kind: "cup", w: 5 },
+  coppa_ita: { name: "Coppa Italia", img: "img/trophies/coppa_ita.jpg", kind: "cup", w: 5 },
+  dfb_pokal: { name: "DFB-Pokal", img: "img/trophies/dfb_pokal.png", kind: "cup", w: 5 },
+  coupe_fr: { name: "Coupe de France", img: "img/trophies/coupe_fr.png", kind: "cup", w: 5 },
+  taca_pt: { name: "Taça de Portugal", img: "img/trophies/taca_pt.png", kind: "cup", w: 4 },
+  copa_arg: { name: "Copa Argentina", img: "img/trophies/copa_arg.png", kind: "cup", w: 4 },
+  /* Continentais / seleção */
   libertadores: { name: "Libertadores", img: "img/trophies/libertadores.png", kind: "continental", w: 10 },
   ucl: { name: "Champions League", img: "img/trophies/ucl.png", kind: "continental", w: 12 },
   clubworldcup: { name: "Mundial de Clubes", img: "img/trophies/clubworldcup.png", kind: "continental", w: 8 },
-  worldcup: { name: "Copa do Mundo", img: "img/trophies/worldcup.png", kind: "nt", w: 16 },
+  worldcup: { name: "Copa do Mundo", img: "img/trophies/worldcup.jpg", kind: "nt", w: 16 },
   copaamerica: { name: "Copa América", img: "img/trophies/copaamerica.png", kind: "nt", w: 9 },
   euro: { name: "Eurocopa", img: "img/trophies/euro.png", kind: "nt", w: 9 },
   youth: { name: "Título Sub-20", img: "img/trophies/youth.png", kind: "nt", w: 2 },
@@ -80,6 +109,13 @@ var TROPHIES = {
   bota: { name: "Chuteira de Ouro", img: "img/trophies/bota.jpg", kind: "indiv", w: 5 },
   luva: { name: "Luva de Ouro", img: "img/trophies/luva.jpg", kind: "indiv", w: 5 },
   mvp: { name: "Melhor do campeonato", img: "img/trophies/mvp.png", kind: "indiv", w: 4 }
+};
+
+/* Copa nacional por país (fallback: copa) */
+var NATION_CUP = {
+  br: "copa_br", en: "fa_cup", es: "copa_rey", it: "coppa_ita", de: "dfb_pokal",
+  fr: "coupe_fr", pt: "taca_pt", ar: "copa_arg", uy: "copa", co: "copa", mx: "copa",
+  nl: "copa", us: "copa", jp: "copa", ng: "copa", sn: "copa", be: "copa", tr: "copa", sct: "copa"
 };
 
 var EVENTS = [

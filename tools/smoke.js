@@ -7,7 +7,7 @@ const ctx = {
   localStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} }
 };
 vm.createContext(ctx);
-["world", "data", "rng", "engine", "sim", "career"].forEach(function (f) {
+["world", "more_clubs", "data", "rng", "engine", "sim", "career"].forEach(function (f) {
   vm.runInContext(fs.readFileSync(path.join(root, "js", f + ".js"), "utf8"), ctx);
 });
 
@@ -44,4 +44,34 @@ const rows = [
   run("ZAG", "san", "a"),
   run("GOL", "cea", "a")
 ];
+
+/* Academy offers: always home nation, distinct, random across seeds */
+function assertAcademy(nation) {
+  const s1 = ctx.newCareer({ name: "A", number: 9, foot: "D", nation: nation, pos: "ATA", pace: "normal" });
+  const s2 = ctx.newCareer({ name: "B", number: 9, foot: "D", nation: nation, pos: "ATA", pace: "normal" });
+  // force different seeds if newCareer uses same seed from name/nation
+  s2.seed = (s1.seed + 7919) >>> 0;
+  s2.rndI = 0;
+  const a = ctx.academyOffers(s1);
+  const b = ctx.academyOffers(s2);
+  if (!a.length) throw new Error("no offers for " + nation);
+  a.forEach(function (o) {
+    if (o.club.nation !== nation) throw new Error("foreign academy offer " + o.club.id + " for " + nation);
+  });
+  const ids = a.map(function (o) { return o.club.id; });
+  if (new Set(ids).size !== ids.length) throw new Error("duplicate academy clubs " + ids);
+  if (a.length > 3) throw new Error("too many offers");
+  const byNation = ctx.CLUBS.filter(function (c) { return c.nation === nation; });
+  if (byNation.length >= 3 && a.length !== 3) throw new Error("expected 3 offers for " + nation + " got " + a.length);
+  console.log("academy", nation, "n=" + a.length, ids.join(","), "alt=", b.map(function (o) { return o.club.id; }).join(","));
+}
+["br","ar","en","ng","sn","uy","jp"].forEach(assertAcademy);
+
+/* Trophy names not generic for major leagues */
+["premier","laliga","seriea","bundesliga","ligue1","brasileirao","fa_cup","copa_br","copa_rey"].forEach(function (id) {
+  const m = ctx.trophyOf(id);
+  if (/Liga nacional|Copa nacional/.test(m.name) && id !== "copa") throw new Error("generic trophy name for " + id + ": " + m.name);
+  console.log("trophy", id, m.name, m.img);
+});
+
 console.log(JSON.stringify(rows, null, 2));

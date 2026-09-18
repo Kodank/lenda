@@ -48,3 +48,57 @@ CLUBS = CLUBS.concat([
   _xc("cel", "Celtic", "Glasgow", "sct", "sco", 3.6, "#018749", "#FFFFFF"),
   _xc("ran", "Rangers", "Glasgow", "sct", "sco", 3.6, "#054C9E", "#FFFFFF")
 ]);
+
+/* League trophy / cup mapping — proper names via TROPHIES ids */
+(function patchLeagueTrophies() {
+  var map = {
+    bra: { trophy: "brasileirao", cupTrophy: "copa_br" },
+    brb: { trophy: "serie_b", cupTrophy: "copa_br" },
+    arg: { trophy: "ligapro", cupTrophy: "copa_arg" },
+    uru: { trophy: "uruprimera", cupTrophy: "copa" },
+    col: { trophy: "colbetplay", cupTrophy: "copa" },
+    mex: { trophy: "liga_mx", cupTrophy: "copa" },
+    por: { trophy: "primerliga", cupTrophy: "taca_pt" },
+    esp: { trophy: "laliga", cupTrophy: "copa_rey" },
+    eng: { trophy: "premier", cupTrophy: "fa_cup" },
+    fra: { trophy: "ligue1", cupTrophy: "coupe_fr" },
+    ita: { trophy: "seriea", cupTrophy: "coppa_ita" },
+    ger: { trophy: "bundesliga", cupTrophy: "dfb_pokal" },
+    ned: { trophy: "eredivisie", cupTrophy: "copa" },
+    usa: { trophy: "mls", cupTrophy: "copa" },
+    jpn: { trophy: "j1", cupTrophy: "copa" },
+    nga: { trophy: "npfl", cupTrophy: "copa" },
+    sen: { trophy: "senliga", cupTrophy: "copa" },
+    bel: { trophy: "proleague", cupTrophy: "copa" },
+    tur: { trophy: "superlig", cupTrophy: "copa" },
+    sco: { trophy: "scottish", cupTrophy: "copa" }
+  };
+  for (var i = 0; i < LEAGUES.length; i++) {
+    var m = map[LEAGUES[i].id];
+    if (!m) continue;
+    LEAGUES[i].trophy = m.trophy;
+    LEAGUES[i].cupTrophy = m.cupTrophy;
+  }
+})();
+
+/* Lower-tier / extra clubs so thin nations always have ≥3 academy options */
+CLUBS = CLUBS.concat([
+  _xc("dan", "Danubio", "Montevidéu", "uy", "uru", 2.6, "#000000", "#FFFFFF"),
+  _xc("rivu", "River Plate UY", "Montevidéu", "uy", "uru", 2.5, "#CE1126", "#FFFFFF"),
+  _xc("jun", "Junior", "Barranquilla", "co", "col", 3.0, "#CE1126", "#FFFFFF"),
+  _xc("dep", "Deportivo Cali", "Cali", "co", "col", 2.9, "#007A33", "#FFFFFF"),
+  _xc("tol", "Toluca", "Toluca", "mx", "mex", 3.4, "#CE1126", "#FFFFFF"),
+  _xc("paz", "Cruz Azul", "Cidade do México", "mx", "mex", 3.5, "#0033A0", "#FFFFFF"),
+  _xc("sea", "Seattle Sounders", "Seattle", "us", "usa", 3.1, "#5D9732", "#0033A0"),
+  _xc("nyc", "NYCFC", "Nova York", "us", "usa", 3.0, "#6CACE4", "#00285E"),
+  _xc("kaw", "Kawasaki Frontale", "Kawasaki", "jp", "jpn", 3.0, "#87CEEB", "#000080"),
+  _xc("cer", "Cerezo Osaka", "Osaka", "jp", "jpn", 2.8, "#CE1126", "#FF69B4"),
+  _xc("rvs", "Rivers United", "Port Harcourt", "ng", "nga", 2.2, "#0033A0", "#FFFFFF"),
+  _xc("ranfc", "Rangers Int'l", "Enugu", "ng", "nga", 2.1, "#FFD700", "#0033A0"),
+  _xc("gen", "Génération Foot", "Dakar", "sn", "sen", 2.0, "#00853F", "#E31C23"),
+  _xc("ouc", "US Ouakam", "Dakar", "sn", "sen", 1.9, "#FFFFFF", "#00853F"),
+  _xc("hur", "Huracán", "Buenos Aires", "ar", "arg", 3.2, "#FFFFFF", "#CE1126"),
+  _xc("vel", "Vélez", "Buenos Aires", "ar", "arg", 3.4, "#FFFFFF", "#0033A0"),
+  _xc("gio", "Náutico", "Recife", "br", "brb", 2.3, "#0033A0", "#FFFFFF"),
+  _xc("csa", "CSA", "Maceió", "br", "brb", 2.4, "#0033A0", "#FFFFFF")
+]);

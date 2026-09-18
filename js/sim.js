@@ -37,7 +37,10 @@ function simSeason(s) {
   var awards = [];
   if (leaguePos === 1) trophies.push(league.trophy || "brasileirao");
   var cupP = 0.04 + club.level * 0.03 + (role === "star" ? 0.06 : 0);
-  if (rnd(s) < cupP) trophies.push("copa");
+  if (rnd(s) < cupP) {
+    var cupId = league.cupTrophy || (typeof NATION_CUP !== "undefined" && NATION_CUP[club.nation]) || "copa";
+    trophies.push(cupId);
+  }
   if (s.contQual) {
     var cont = league.continental;
     var contId = cont === "lib" ? "libertadores" : cont === "ucl" ? "ucl" : cont;
@@ -236,10 +239,8 @@ function simNational(s) {
 }
 
 function shouldRetire(s) {
+  /* Hard stop at 40. Before that, player can choose "Aposentar" (35+) or the retire event. */
   if (s.retireForce) return true;
   if (s.age >= 40) return true;
-  if (s.age >= 38 && s.ovr < 64) return true;
-  if (s.age >= 36 && s.extraYears <= 0 && s.ovr < 68) return true;
-  if (s.age >= 34 && s.extraYears <= 0 && s.ovr < 62 && rnd(s) < 0.35) return true;
   return false;
 }

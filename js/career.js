@@ -1,30 +1,30 @@
 function academyOffers(s) {
-  var home = CLUBS.filter(function (c) { return c.nation === s.nation; });
-  home.sort(function (a, b) { return b.level - a.level; });
-  var picks = [];
-  if (home.length >= 3) {
-    picks = [home[0], home[Math.min(2, home.length - 1)], home[home.length - 1]];
-  } else {
-    picks = home.slice();
-    var foreign = CLUBS.filter(function (c) { return c.nation !== s.nation && c.level >= 3.2 && c.level <= 4.4; });
-    foreign.sort(function () { return rnd(s) - 0.5; });
-    while (picks.length < 3 && foreign.length) picks.push(foreign.pop());
+  /* Pool = ALL clubs of the player's nation (any level). Never foreign. */
+  var pool = CLUBS.filter(function (c) { return c.nation === s.nation; });
+  /* Fisher–Yates shuffle seeded by career RNG */
+  var shuffled = pool.slice();
+  for (var i = shuffled.length - 1; i > 0; i--) {
+    var j = Math.floor(rnd(s) * (i + 1));
+    var tmp = shuffled[i];
+    shuffled[i] = shuffled[j];
+    shuffled[j] = tmp;
   }
+  var picks = shuffled.slice(0, Math.min(3, shuffled.length));
   var seen = {};
   var out = [];
-  for (var i = 0; i < picks.length; i++) {
-    if (!picks[i] || seen[picks[i].id]) continue;
-    seen[picks[i].id] = 1;
-    var c = picks[i];
+  for (var k = 0; k < picks.length; k++) {
+    if (!picks[k] || seen[picks[k].id]) continue;
+    seen[picks[k].id] = 1;
+    var c = picks[k];
     out.push({
       club: c,
       formacao: Math.round(40 + c.level * 12),
       minutos: Math.round(100 - c.level * 14),
       pressao: Math.round(20 + c.level * 14),
-      casa: c.nation === s.nation
+      casa: true
     });
   }
-  return out.slice(0, 3);
+  return out;
 }
 
 function signAcademy(s, clubId) {
