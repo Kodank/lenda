@@ -91,10 +91,20 @@ function tempOvrLabel(s) {
 
 function roleOf(s, club) {
   club = club || clubOf(s.clubId);
-  var gap = effectiveOvr(s) - club.level * 18;
+  var ovr = effectiveOvr(s);
+  var gap = ovr - club.level * 18;
   /* na base de gigante você é youth; em clube menor o mesmo OVR joga */
   if (s.age <= 18 && gap < -6) return "youth";
   if (s.age <= 20 && gap < -10) return "youth";
+  /* Elite floor: 88+ starts somewhere; 92+ titular; 95+ estrela; 99 sempre estrela */
+  if (ovr >= 99) return "star";
+  if (ovr >= 95) return gap >= -6 ? "star" : "starter";
+  if (ovr >= 92) return gap >= 4 ? "star" : "starter";
+  if (ovr >= 88) {
+    if (gap >= 6) return "star";
+    if (gap >= -2.5) return "starter";
+    return "rotation";
+  }
   if (gap >= 7) return "star";
   if (gap >= 1.5) return "starter";
   if (gap >= -3.5) return "rotation";
