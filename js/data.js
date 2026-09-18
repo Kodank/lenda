@@ -119,6 +119,28 @@ var NATION_CUP = {
   nl: "copa", us: "copa", jp: "copa", ng: "copa", sn: "copa", be: "copa", tr: "copa", sct: "copa"
 };
 
+/* NT photo shirts + real home-kit lettering ink (name/number) */
+var NATION_SHIRT = {
+  br: { shirt: "img/shirts/br.png", ink: "#186531", inkShadow: "rgba(0,0,0,.22)" },
+  ar: { shirt: "img/shirts/ar.png", ink: "#111111", inkShadow: "rgba(255,255,255,.18)" },
+  uy: { shirt: "img/shirts/uy.png", ink: "#111111", inkShadow: "rgba(255,255,255,.15)" },
+  co: { shirt: "img/shirts/co.png", ink: "#0D1B2A", inkShadow: "rgba(255,255,255,.12)" },
+  mx: { shirt: "img/shirts/mx.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  pt: { shirt: "img/shirts/pt.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  es: { shirt: "img/shirts/es.png", ink: "#F1BF00", inkShadow: "rgba(0,0,0,.35)" },
+  en: { shirt: "img/shirts/en.png", ink: "#0A1E46", inkShadow: "rgba(255,255,255,.2)" },
+  fr: { shirt: "img/shirts/fr.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  it: { shirt: "img/shirts/it.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  de: { shirt: "img/shirts/de.png", ink: "#111111", inkShadow: "rgba(255,255,255,.2)" },
+  nl: { shirt: "img/shirts/nl.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.3)" },
+  us: { shirt: "img/shirts/us.png", ink: "#002868", inkShadow: "rgba(255,255,255,.2)" },
+  jp: { shirt: "img/shirts/jp.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  ng: { shirt: "img/shirts/ng.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  sn: { shirt: "img/shirts/sn.png", ink: "#00853F", inkShadow: "rgba(255,255,255,.2)" }
+};
+
+
+
 var EVENTS = [
   { id: "giant", title: "O gigante ligou", text: "Um clube da elite europeia oferece contrato. O salário explode. Os minutos, ninguém garante.", when: { minOvr: 78, minAge: 19, maxAge: 29 }, a: { label: "Assinar com o gigante", hint: "Holofote e títulos, risco de banco", fx: { transferElite: 1, ambition: 8, loyalty: -10 } }, b: { label: "Ficar e crescer aqui", hint: "Minutos e lealdade", fx: { loyalty: 10, confidence: 6 } } },
   { id: "europe", title: "Primeira Europa", text: "Uma equipe de meio de tabela europeu quer o menino da base. Menos palco, mais jogo.", when: { minOvr: 70, maxAge: 23, home: 1 }, a: { label: "Cruzar o oceano", hint: "Salto de liga, adaptação", fx: { transferEurope: 1, ambition: 6 } }, b: { label: "Mais um ano em casa", hint: "Continuidade", fx: { loyalty: 7, energy: 4 } } },

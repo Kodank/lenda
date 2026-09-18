@@ -1,31 +1,11 @@
 var NATION_KIT = {
-  /* [body, trim] — flat illustrated NT kits (Copero-like) */
-  br: ["#FFDF00", "#009B3A"], ar: ["#74ACDF", "#FFFFFF"], uy: ["#0038A8", "#FFFFFF"],
-  co: ["#FCD116", "#CE1126"], mx: ["#006847", "#FFFFFF"], pt: ["#006600", "#FF0000"],
-  es: ["#AA151B", "#F1BF00"], en: ["#FFFFFF", "#CE1126"], fr: ["#002395", "#ED2939"],
+  /* [body, trim] — fallback accents; lettering comes from NATION_SHIRT.ink */
+  br: ["#FFDF00", "#186531"], ar: ["#74ACDF", "#FFFFFF"], uy: ["#0038A8", "#FFFFFF"],
+  co: ["#FCD116", "#0D1B2A"], mx: ["#006847", "#FFFFFF"], pt: ["#006600", "#FF0000"],
+  es: ["#AA151B", "#F1BF00"], en: ["#FFFFFF", "#0A1E46"], fr: ["#002395", "#ED2939"],
   it: ["#0066B3", "#FFFFFF"], de: ["#FFFFFF", "#000000"], nl: ["#F36C21", "#FFFFFF"],
-  us: ["#FFFFFF", "#BF0A30"], jp: ["#FFFFFF", "#BC002D"], ng: ["#008751", "#FFFFFF"],
-  sn: ["#00853F", "#E31C23"]
-};
-
-/* Pattern / ink overrides by nationality */
-var NATION_STYLE = {
-  ar: { pattern: "stripes", stripe: "#FFFFFF", ink: "#12151a" },
-  uy: { pattern: "stripes", stripe: "#FFFFFF", ink: "#12151a" },
-  br: { pattern: "solid", ink: "#009B3A" },
-  fr: { pattern: "solid", ink: "#FFFFFF" },
-  it: { pattern: "solid", ink: "#FFFFFF" },
-  es: { pattern: "solid", ink: "#FFFFFF" },
-  en: { pattern: "solid", ink: "#CE1126" },
-  de: { pattern: "solid", ink: "#12151a" },
-  pt: { pattern: "solid", ink: "#FFFFFF" },
-  nl: { pattern: "solid", ink: "#FFFFFF" },
-  co: { pattern: "solid", ink: "#CE1126" },
-  mx: { pattern: "solid", ink: "#FFFFFF" },
-  us: { pattern: "solid", ink: "#002868" },
-  jp: { pattern: "solid", ink: "#BC002D" },
-  ng: { pattern: "solid", ink: "#FFFFFF" },
-  sn: { pattern: "solid", ink: "#FFFFFF" }
+  us: ["#FFFFFF", "#BF0A30"], jp: ["#1B2A4A", "#BC002D"], ng: ["#008751", "#FFFFFF"],
+  sn: ["#F5F5F5", "#00853F"]
 };
 
 function crestSrc(path) {
@@ -181,86 +161,30 @@ function mixHex(a, b, t) {
   return "#" + ch(0) + ch(1) + ch(2);
 }
 
-function kitPalette(c1, c2, nation) {
-  var st = (nation && NATION_STYLE[nation]) || {};
-  var body = c1 || "#f6f6f4";
-  var trim = c2 || "#1a1d24";
-  var ink = st.ink || onColor(body);
-  var crease = mixHex(body, "#000000", hexLum(body) > 0.55 ? 0.14 : 0.22);
-  var shade = mixHex(body, "#000000", 0.12);
-  var hi = mixHex(body, "#ffffff", 0.18);
+function nationShirt(nation) {
+  var map = (typeof NATION_SHIRT !== "undefined" && NATION_SHIRT) || {};
+  var base = map[nation] || { shirt: "img/shirts/br.png", ink: "#186531", inkShadow: "rgba(0,0,0,.22)" };
   return {
-    body: body, trim: trim, ink: ink, crease: crease, shade: shade, hi: hi,
-    pattern: st.pattern || "solid",
-    stripe: st.stripe || c2 || "#ffffff"
+    shirt: base.shirt + (base.shirt.indexOf("?") >= 0 ? "&" : "?") + "v=shirts-png-1",
+    ink: base.ink || "#111111",
+    inkShadow: base.inkShadow || "rgba(0,0,0,.25)"
   };
 }
 
-/** Flat illustrated back-of-shirt (Copero-like): solid NT fills, stripes, subtle creases */
+/** Photo NT shirt + editable name/number overlay (Barlow Condensed) */
 function shirtHtml(c1, c2, number, name, nation) {
-  var pal = kitPalette(c1 || "#f7f7f5", c2 || "#1a1d24", nation);
+  var kit = nationShirt(nation);
   var nm = esc((name || "SILVA").toUpperCase().slice(0, 12));
   var num = esc(String(number == null ? 10 : number));
-  var uid = "k" + Math.random().toString(36).slice(2, 8);
-  var bodyPath = "M78 58 C88 36 102 28 120 28 C138 28 152 36 162 58 L178 72 C180 80 182 96 180 210 C180 224 158 236 120 236 C82 236 60 224 60 210 C58 96 60 80 62 72 Z";
-  var sleeveL = "M78 58 C64 66 40 78 30 96 C24 112 30 138 42 148 C52 138 62 118 72 100 Z";
-  var sleeveR = "M162 58 C176 66 200 78 210 96 C216 112 210 138 198 148 C188 138 178 118 168 100 Z";
-  var clip = uid + "clip";
-
-  var patternLayer = "";
-  if (pal.pattern === "stripes") {
-    /* vertical sky-blue/white NT stripes clipped to torso */
-    patternLayer =
-      '<g clip-path="url(#' + clip + ')">' +
-      '<rect x="56" y="28" width="128" height="210" fill="' + pal.stripe + '"/>' +
-      '<rect x="56" y="28" width="18" height="210" fill="' + pal.body + '"/>' +
-      '<rect x="92" y="28" width="18" height="210" fill="' + pal.body + '"/>' +
-      '<rect x="128" y="28" width="18" height="210" fill="' + pal.body + '"/>' +
-      '<rect x="164" y="28" width="18" height="210" fill="' + pal.body + '"/>' +
-      "</g>";
-  }
-
+  var ink = kit.ink;
+  var sh = kit.inkShadow;
   return '<div class="shirt-stage" aria-hidden="true">' +
-    '<svg class="shirt-svg" viewBox="0 0 240 270" width="220" height="248">' +
-    "<defs>" +
-    '<clipPath id="' + clip + '"><path d="' + bodyPath + '"/></clipPath>' +
-    '<linearGradient id="' + uid + 'soft" x1="0" y1="0" x2="0" y2="1">' +
-    '<stop offset="0%" stop-color="#fff" stop-opacity=".16"/>' +
-    '<stop offset="45%" stop-color="#fff" stop-opacity="0"/>' +
-    '<stop offset="100%" stop-color="#000" stop-opacity=".14"/>' +
-    "</linearGradient>" +
-    '<linearGradient id="' + uid + 'side" x1="0" y1="0" x2="1" y2="0">' +
-    '<stop offset="0%" stop-color="#000" stop-opacity=".10"/>' +
-    '<stop offset="18%" stop-color="#000" stop-opacity="0"/>' +
-    '<stop offset="82%" stop-color="#000" stop-opacity="0"/>' +
-    '<stop offset="100%" stop-color="#000" stop-opacity=".10"/>' +
-    "</linearGradient>" +
-    "</defs>" +
-    /* soft ground shadow */
-    '<ellipse cx="120" cy="256" rx="58" ry="8" fill="#000" opacity=".28"/>' +
-    /* sleeves */
-    '<path d="' + sleeveL + '" fill="' + (pal.pattern === "stripes" ? pal.stripe : pal.body) + '"/>' +
-    '<path d="' + sleeveR + '" fill="' + (pal.pattern === "stripes" ? pal.stripe : pal.body) + '"/>' +
-    /* torso */
-    '<path d="' + bodyPath + '" fill="' + pal.body + '"/>' +
-    patternLayer +
-    /* soft volume */
-    '<path d="' + bodyPath + '" fill="url(#' + uid + 'soft)"/>' +
-    '<path d="' + bodyPath + '" fill="url(#' + uid + 'side)"/>' +
-    /* fabric creases — flat illustrated, not photoreal */
-    '<path d="M96 70 C100 110 98 150 102 200" fill="none" stroke="' + pal.crease + '" stroke-width="2.2" stroke-linecap="round" opacity=".55"/>' +
-    '<path d="M144 70 C140 110 142 150 138 200" fill="none" stroke="' + pal.crease + '" stroke-width="2.2" stroke-linecap="round" opacity=".45"/>' +
-    '<path d="M86 64 C104 52 136 52 154 64" fill="none" stroke="' + pal.crease + '" stroke-width="1.8" stroke-linecap="round" opacity=".4"/>' +
-    '<path d="M74 198 C100 190 140 190 166 198" fill="none" stroke="' + pal.crease + '" stroke-width="2" stroke-linecap="round" opacity=".35"/>' +
-    '<path d="M80 214 C110 206 130 206 160 214" fill="none" stroke="' + pal.crease + '" stroke-width="1.6" stroke-linecap="round" opacity=".28"/>' +
-    /* collar + cuffs (trim) */
-    '<path d="M98 36 C110 26 130 26 142 36 L136 58 C128 50 112 50 104 58 Z" fill="' + pal.trim + '"/>' +
-    '<path d="M30 96 C26 112 32 136 42 148 L50 138 C42 126 38 110 40 100 Z" fill="' + pal.trim + '"/>' +
-    '<path d="M210 96 C214 112 208 136 198 148 L190 138 C198 126 202 110 200 100 Z" fill="' + pal.trim + '"/>' +
-    /* name + number */
-    '<text class="shirt-name" x="120" y="102" text-anchor="middle" fill="' + pal.ink + '" font-family="Barlow Condensed, Arial Black, sans-serif" font-size="20" font-weight="800" letter-spacing="4">' + nm + "</text>" +
-    '<text class="shirt-num" x="120" y="176" text-anchor="middle" fill="' + pal.ink + '" font-family="Barlow Condensed, Arial Black, sans-serif" font-size="82" font-weight="800">' + num + "</text>" +
-    "</svg></div>";
+    '<div class="shirt-photo">' +
+    '<img class="shirt-img" src="' + kit.shirt + '" alt="" draggable="false">' +
+    '<div class="shirt-lettering" style="color:' + ink + ';text-shadow:0 1px 2px ' + sh + '">' +
+    '<span class="shirt-name">' + nm + "</span>" +
+    '<span class="shirt-num">' + num + "</span>" +
+    "</div></div></div>";
 }
 
 function trophyCaseHtml(s) {
