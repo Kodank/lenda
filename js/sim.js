@@ -97,6 +97,7 @@ function simSeason(s) {
   s.career.ga += ga;
   s.caps += nt.apps;
   s.ntGoals += nt.goals;
+  s.ntAssists = (s.ntAssists || 0) + (nt.assists || 0);
   s.ntCs += nt.cs;
   if (nt.youth) s.youthCaps += nt.apps;
 
@@ -208,7 +209,7 @@ function simNational(s) {
   var nat = nationOf(s.nation);
   var cut = 74 + (nat.ntCut || 0);
   var youthCut = 58 + (nat.ntCut || 0);
-  var out = { apps: 0, goals: 0, cs: 0, trophies: [], youth: false, team: null };
+  var out = { apps: 0, goals: 0, assists: 0, cs: 0, trophies: [], youth: false, team: null };
   if (s.ntNoStreak > 0) {
     s.ntNoStreak--;
     return out;
@@ -225,8 +226,10 @@ function simNational(s) {
     out.youth = true;
     out.team = "sub20";
     out.apps = 4 + Math.floor(rnd(s) * 5);
-    if (s.pos !== "GOL") out.goals = poisson(out.apps * 0.16 * ((s.ovr - 40) / 50), function () { return rnd(s); });
-    else out.cs = poisson(out.apps * 0.28, function () { return rnd(s); });
+    if (s.pos !== "GOL") {
+      out.goals = poisson(out.apps * 0.16 * ((s.ovr - 40) / 50), function () { return rnd(s); });
+      out.assists = poisson(out.apps * 0.1 * ((s.ovr - 40) / 50), function () { return rnd(s); });
+    } else out.cs = poisson(out.apps * 0.28, function () { return rnd(s); });
     if (year % 2 === 0 && rnd(s) < 0.2) out.trophies.push("youth");
     return out;
   }
@@ -239,8 +242,10 @@ function simNational(s) {
   else out.apps = 1 + Math.floor(rnd(s) * 3);
   if (isWC) out.apps += starter ? 4 : regular ? 2 : (fringe ? 1 : 0);
   if (isCont) out.apps += starter ? 3 : regular ? 1 : 0;
-  if (s.pos !== "GOL") out.goals = poisson(out.apps * (s.pos === "ATA" ? 0.32 : 0.12) * ((s.ovr - 50) / 45), function () { return rnd(s); });
-  else out.cs = poisson(out.apps * 0.3, function () { return rnd(s); });
+  if (s.pos !== "GOL") {
+    out.goals = poisson(out.apps * (s.pos === "ATA" ? 0.32 : 0.12) * ((s.ovr - 50) / 45), function () { return rnd(s); });
+    out.assists = poisson(out.apps * (s.pos === "ATA" ? 0.12 : 0.14) * ((s.ovr - 50) / 45), function () { return rnd(s); });
+  } else out.cs = poisson(out.apps * 0.3, function () { return rnd(s); });
   if (isWC && starter && s.ovr >= 84 && rnd(s) < 0.16 + (s.ovr - 84) * 0.015) out.trophies.push("worldcup");
   if (isCont && starter && s.ovr >= 80) {
     var tid = nat.conf === "uefa" ? "euro" : nat.conf === "conmebol" ? "copaamerica" : null;

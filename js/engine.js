@@ -123,6 +123,7 @@ function newCareer(draft) {
     retireForce: false,
     caps: 0,
     ntGoals: 0,
+    ntAssists: 0,
     ntCs: 0,
     career: { apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, trophies: [] },
     awards: [],
@@ -211,4 +212,67 @@ function addTrophy(s, id) {
 
 function touchTrait(obj, k, d) {
   obj[k] = clamp((obj[k] || 50) + d, 0, 100);
+}
+
+function clubStintsCareer(s) {
+  /* Career-order club stints with aggregated apps/goals/assists and club trophies. */
+  var order = [];
+  var map = {};
+  var seasons = (s && s.seasons) || [];
+  for (var i = 0; i < seasons.length; i++) {
+    var se = seasons[i];
+    var id = se.clubId;
+    if (!id) continue;
+    if (!map[id]) {
+      map[id] = { id: id, apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, trophies: [] };
+      order.push(map[id]);
+    }
+    var st = map[id];
+    st.apps += se.apps || 0;
+    st.goals += se.goals || 0;
+    st.assists += se.assists || 0;
+    st.cs += se.cs || 0;
+    st.ga += se.ga || 0;
+    var cups = se.trophies || [];
+    for (var t = 0; t < cups.length; t++) {
+      var tid = cups[t];
+      var meta = trophyOf(tid);
+      if (!meta || meta.kind === "nt" || meta.kind === "indiv") continue;
+      st.trophies.push(tid);
+    }
+  }
+  return order;
+}
+
+function ntTrophiesList(s) {
+  var out = [];
+  var seen = {};
+  var list = (s.career && s.career.trophies) || [];
+  for (var i = 0; i < list.length; i++) {
+    var id = list[i];
+    var meta = trophyOf(id);
+    if (!meta || meta.kind !== "nt") continue;
+    if (seen[id]) { seen[id].n++; continue; }
+    seen[id] = { id: id, n: 1, meta: meta };
+    out.push(seen[id]);
+  }
+  return out;
+}
+
+function showcaseIndivAwards(s) {
+  /* Bola de Ouro + Chuteira (outfield) or Luva (GK); also MVP if won. */
+  var allow = { balon: 1, mvp: 1 };
+  if (s.pos === "GOL") allow.luva = 1;
+  else allow.bota = 1;
+  var out = [];
+  var seen = {};
+  var list = s.awards || [];
+  for (var i = 0; i < list.length; i++) {
+    var id = list[i];
+    if (!allow[id]) continue;
+    if (seen[id]) { seen[id].n++; continue; }
+    seen[id] = { id: id, n: 1, meta: trophyOf(id) };
+    out.push(seen[id]);
+  }
+  return out;
 }

@@ -687,62 +687,114 @@ function uniqueTrophies(s) {
   return out;
 }
 
+function ccStatsBar(apps, goals, assists) {
+  return '<div class="cc-stats">' +
+    "<div><span>APPS</span><b>" + apps + "</b></div>" +
+    "<div><span>GOLS</span><b>" + goals + "</b></div>" +
+    "<div><span>ASS</span><b>" + assists + "</b></div></div>";
+}
+
+function ccTrophyStrip(items) {
+  /* items: [{id,n,meta}] or raw trophy id list */
+  if (!items || !items.length) {
+    return '<div class="cc-empty">Vitrine vazia</div>';
+  }
+  var html = '<div class="cc-cups">';
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    var id, n, meta;
+    if (typeof it === "string") {
+      id = it; n = 1; meta = trophyOf(id);
+    } else {
+      id = it.id; n = it.n || 1; meta = it.meta || trophyOf(id);
+    }
+    html += '<div class="cc-cup" title="' + esc(meta.name) + (n > 1 ? " ×" + n : "") + '">' +
+      '<img src="' + meta.img + '" alt="">' +
+      (n > 1 ? '<i>×' + n + "</i>" : "") +
+      "</div>";
+  }
+  return html + "</div>";
+}
+
+function ccUniqueTrophyItems(ids) {
+  var seen = {};
+  var out = [];
+  for (var i = 0; i < (ids || []).length; i++) {
+    var id = ids[i];
+    if (seen[id]) { seen[id].n++; continue; }
+    seen[id] = { id: id, n: 1, meta: trophyOf(id) };
+    out.push(seen[id]);
+  }
+  return out;
+}
+
 function viewLegacy() {
   var s = S;
-  var club = iconClub(s);
   var nat = nationOf(s.nation);
+  var pos = POS[s.pos] || { short: s.pos, name: s.pos };
+  var awards = showcaseIndivAwards(s);
+  var ntCups = ntTrophiesList(s);
+  var stints = clubStintsCareer(s);
   var sc = finalScore(s);
   var ver = verdict(s, sc);
-  var c1 = club.colors[0], c2 = club.colors[1];
-  var on = onColor(c1);
-  var years = s.seasons.length ? (s.seasons[0].year + " — " + s.seasons[s.seasons.length - 1].year) : "";
-  var gols = s.pos === "GOL" ? s.career.cs : s.career.goals;
-  var ast = s.pos === "GOL" ? s.career.ga : s.career.assists;
-  var gLab = s.pos === "GOL" ? "Clean sheets" : "Gols";
-  var aLab = s.pos === "GOL" ? "Sofridos" : "Assistências";
-  var awards = indivAwards(s);
-  var awHtml = awards.length
-    ? awards.map(function (a) {
-      return '<img src="' + a.meta.img + '" title="' + esc(a.meta.name) + (a.n > 1 ? " ×" + a.n : "") + '" alt="">';
-    }).join("")
-    : '<div class="empty">Nenhum prêmio individual</div>';
-  var ntHtml = s.caps
-    ? '<div class="big">' + s.caps + '</div><div class="muted">jogos pela seleção</div>' +
-      '<div class="muted">' + (s.pos === "GOL" ? s.ntCs + " clean sheets" : s.ntGoals + " gols") +
-      (countTrophy(s, "worldcup") ? " · campeão do mundo" : "") + "</div>"
-    : '<div class="empty">Não chegou à seleção principal</div>';
-  var clubCups = uniqueTrophies(s).map(function (id) {
-    return '<div class="vitrine-item"><img src="' + trophyOf(id).img + '" alt=""><span>' + esc(trophyOf(id).name) + "</span></div>";
-  }).join("");
-  var path = clubAppsMap(s).map(function (c, i) {
-    var pc = clubOf(c.id);
-    return (i ? "<span>→</span>" : "") + '<img class="path-crest" src="' + crestSrc(pc.crest) + '" title="' + esc(pc.name) + '" data-fb="' + esc(crestInitials(pc.name)) + '" onerror="crestBroken(this)">';
-  }).join("");
-  var heroBg = "background:linear-gradient(145deg," + c1 + " 0%," + c2 + " 100%)";
-  return '<div class="top"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
-    '<article class="quadro" id="quadro" style="--c1:' + c1 + ";--c2:" + c2 + ";--on:" + on + ";" + heroBg + '">' +
-    '<div class="quadro-hero" style="' + heroBg + '">' +
-    imgCrest(club.crest, 'quadro-crest', club.name) +
-    '<div class="quadro-id"><img class="flag" src="' + nat.flag + '" alt=""><h1>' + esc(s.name) + "</h1>" +
-    "<p>" + s.number + " · " + POS[s.pos].name + " · " + esc(nat.name) + "</p>" +
-    "<p>" + years + " · " + esc(club.name) + "</p></div>" +
-    '<div class="quadro-ovr">' + ovrBadgeHtml(s.peakOvr, "PICO") + "</div></div>" +
-    '<div class="quadro-stats">' +
-    "<div><b>" + s.career.apps + "</b><span>Jogos</span></div>" +
-    "<div><b>" + gols + "</b><span>" + gLab + "</span></div>" +
-    "<div><b>" + ast + "</b><span>" + aLab + "</span></div></div>" +
-    '<div class="quadro-squares">' +
-    '<div class="sq"><header><img src="' + nat.flag + '" alt="">Seleção</header>' + ntHtml + "</div>" +
-    '<div class="sq"><header>Prêmios individuais</header><div class="aw">' + awHtml + "</div>" +
-    (awards.length ? '<div class="muted">' + awards.map(function (a) { return a.meta.name + (a.n > 1 ? " ×" + a.n : ""); }).join(" · ") + "</div>" : "") +
+
+  var playerCard =
+    '<section class="cc-card cc-player">' +
+    '<div class="cc-kicker">Carreira completa</div>' +
+    '<div class="cc-player-top">' +
+    '<div class="cc-player-id">' +
+    "<h1>" + esc(s.name) + "</h1>" +
+    '<div class="cc-pills">' +
+    '<span class="cc-pill">#' + s.number + "</span>" +
+    '<span class="cc-pill pos">' + esc(pos.short) + "</span>" +
     "</div></div>" +
-    (clubCups ? '<div class="quadro-vitrine"><h3>Títulos</h3><div class="vitrine">' + clubCups + "</div></div>" : "") +
-    '<div class="quadro-path">' + path + "</div>" +
-    '<div class="quadro-verdict">' + esc(ver) + "</div></article>" +
-    '<div class="legacy-timeline">' + timelineHtml(s, 0, false) + "</div>" +
-    '<button class="btn" id="dl">Baixar quadro</button>' +
-    '<button class="btn alt" data-go="new">Outra carreira</button>' +
-    '<button class="btn danger" data-go="reset">Reiniciar tudo</button>';
+    '<div class="cc-player-right">' +
+    '<div class="cc-value"><span>VALUE</span><b>' + fmtMoney(s.value) + "</b></div>" +
+    ovrBadgeHtml(s.peakOvr, "OVR") +
+    "</div></div>" +
+    ccStatsBar(s.career.apps, s.career.goals, s.career.assists) +
+    "</section>";
+
+  var ntCard =
+    '<section class="cc-card cc-nt">' +
+    '<div class="cc-kicker">Seleção</div>' +
+    '<div class="cc-nt-head">' +
+    '<img class="cc-flag" src="' + nat.flag + '" alt="">' +
+    "<b>" + esc(nat.name) + "</b></div>" +
+    ccStatsBar(s.caps || 0, s.ntGoals || 0, s.ntAssists || 0) +
+    '<div class="cc-vitrine">' + ccTrophyStrip(ntCups) + "</div>" +
+    "</section>";
+
+  var awCard =
+    '<section class="cc-card cc-awards">' +
+    '<div class="cc-kicker gold">Prêmios</div>' +
+    '<div class="cc-vitrine awards">' + ccTrophyStrip(awards) + "</div>" +
+    "</section>";
+
+  var clubsHtml = stints.map(function (st) {
+    var club = clubOf(st.id);
+    var c1 = (club.colors && club.colors[0]) || club.color || "#1a1d26";
+    var c2 = (club.colors && club.colors[1]) || c1;
+    var cups = ccUniqueTrophyItems(st.trophies);
+    return '<article class="cc-club" style="--c1:' + c1 + ";--c2:" + c2 + ";background:" + c1 + '">' +
+      '<div class="cc-club-bg" style="background-image:url(\'' + crestSrc(club.crest) + '\')"></div>' +
+      '<div class="cc-club-body">' +
+      imgCrest(club.crest, "cc-club-crest", club.name) +
+      "<h3>" + esc(club.name) + "</h3>" +
+      ccStatsBar(st.apps, st.goals, st.assists) +
+      '<div class="cc-club-cups">' + (cups.length ? ccTrophyStrip(cups) : "") + "</div>" +
+      "</div></article>";
+  }).join("");
+
+  return '<div class="top"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
+    '<div class="cc-wrap">' +
+    '<div class="cc-top">' + playerCard + ntCard + awCard + "</div>" +
+    '<div class="cc-clubs">' + (clubsHtml || '<div class="cc-empty wide">Nenhum clube na carreira</div>') + "</div>" +
+    '<div class="cc-verdict">' + esc(ver) + "</div>" +
+    '<div class="cc-actions">' +
+    '<button class="btn alt" id="dl" type="button">Baixar quadro</button>' +
+    '<button class="btn" data-go="new" type="button">Jogar de novo</button>' +
+    "</div></div>";
 }
 
 function nextDecision() {
