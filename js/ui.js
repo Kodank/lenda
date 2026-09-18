@@ -264,15 +264,27 @@ function shirtHtml(c1, c2, number, name, nation) {
 }
 
 function trophyCaseHtml(s) {
+  /* Club/NT cups live in career.trophies; Bola/Chuteira/Luva/MVP live in s.awards — show both. */
   var ids = [];
   var seen = {};
-  var list = (s.career && s.career.trophies) || [];
-  for (var i = 0; i < list.length; i++) {
-    var id = list[i];
-    if (seen[id]) { seen[id]++; continue; }
-    seen[id] = 1;
-    ids.push(id);
+  function addList(list) {
+    for (var i = 0; i < (list || []).length; i++) {
+      var id = list[i];
+      if (!id) continue;
+      if (seen[id]) { seen[id]++; continue; }
+      seen[id] = 1;
+      ids.push(id);
+    }
   }
+  addList((s.career && s.career.trophies) || []);
+  addList(s.awards || []);
+  /* Indiv awards first in the case so Bola/Chuteira aren't buried under league stacks */
+  ids.sort(function (a, b) {
+    var ka = trophyOf(a).kind === "indiv" ? 0 : 1;
+    var kb = trophyOf(b).kind === "indiv" ? 0 : 1;
+    if (ka !== kb) return ka - kb;
+    return (trophyOf(b).w || 0) - (trophyOf(a).w || 0);
+  });
   if (!ids.length) {
     return '<div class="trophy-case empty-case"><div class="case-label">VITRINE VAZIA</div><div class="case-ghost">🏆</div></div>';
   }

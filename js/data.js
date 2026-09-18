@@ -106,7 +106,7 @@ var TROPHIES = {
   copaamerica: { name: "Copa América", img: "img/trophies/copaamerica.png?v=ca2", kind: "nt", w: 9 },
   euro: { name: "Eurocopa", img: "img/trophies/euro.png", kind: "nt", w: 9 },
   youth: { name: "Título Sub-20", img: "img/trophies/youth.png", kind: "nt", w: 2 },
-  balon: { name: "Bola de Ouro", img: "img/trophies/balon.png", kind: "indiv", w: 14 },
+  balon: { name: "Bola de Ouro", img: "img/trophies/balon.png?v=balon-fix-1", kind: "indiv", w: 14 },
   bota: { name: "Chuteira de Ouro", img: "img/trophies/bota.png", kind: "indiv", w: 5 },
   luva: { name: "Luva de Ouro", img: "img/trophies/luva.png", kind: "indiv", w: 5 },
   mvp: { name: "Melhor do campeonato", img: "img/trophies/mvp.png", kind: "indiv", w: 4 }

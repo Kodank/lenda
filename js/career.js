@@ -738,6 +738,8 @@ function finalScore(s) {
   var titles = s.career.trophies || [];
   var tw = 0;
   for (var i = 0; i < titles.length; i++) tw += (trophyOf(titles[i]).w || 2);
+  var aw = s.awards || [];
+  for (var ai = 0; ai < aw.length; ai++) tw += (trophyOf(aw[ai]).w || 2);
   var ach = clamp((peak - 50) * 1.4 + tw * 1.8, 0, 100);
   var prod;
   if (s.pos === "GOL") prod = s.career.cs * 1.2 + s.career.apps * 0.04;

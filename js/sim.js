@@ -135,20 +135,26 @@ function simSeason(s) {
   if (nt.trophies) for (var i = 0; i < nt.trophies.length; i++) trophies.push(nt.trophies[i]);
 
   var hasCont = trophies.indexOf("ucl") >= 0 || trophies.indexOf("libertadores") >= 0 || trophies.indexOf("worldcup") >= 0;
-  /* Bola de Ouro: 88+ abre porta; 95–99 pega com frequência nas janelas de pico */
-  if (s.ovr >= 88 && s.age >= 22 && s.age <= 34 && (role === "starter" || role === "star")) {
+  /* Bola de Ouro: pico realista fica em ~88–92; taxas altas nessa faixa + monstro em 95–99 */
+  if (s.ovr >= 88 && s.age >= 21 && s.age <= 35 && (role === "starter" || role === "star" || role === "rotation")) {
     var pBalon = 0;
-    var strong = goals >= 10 || assists >= 8 || (s.pos === "GOL" && cs >= 9) || rating >= 7.5;
+    var strong = goals >= 8 || assists >= 7 || (s.pos === "GOL" && cs >= 8) || rating >= 7.3;
+    var contOrTitle = hasCont || leaguePos === 1;
     if (s.ovr >= 99) {
-      pBalon = (hasCont || leaguePos === 1 || strong) ? 0.94 : 0.78;
+      pBalon = (contOrTitle || strong) ? 0.96 : 0.85;
     } else if (s.ovr >= 97) {
-      pBalon = (hasCont || leaguePos === 1) && strong ? 0.82 : (strong ? 0.58 : 0.38);
+      pBalon = contOrTitle && strong ? 0.88 : (strong || contOrTitle ? 0.70 : 0.48);
     } else if (s.ovr >= 95) {
-      pBalon = (hasCont || leaguePos === 1) && strong ? 0.68 : (hasCont || strong ? 0.42 : 0.22);
-    } else if (hasCont && (goals >= 12 || assists >= 10 || (s.pos === "GOL" && cs >= 11))) pBalon = 0.55;
-    else if (s.ovr >= 90 && (hasCont || leaguePos === 1) && strong) pBalon = 0.40;
-    else if (s.ovr >= 92 && nt.apps >= 5) pBalon = 0.28;
-    else if (s.ovr >= 88 && hasCont && rating >= 7.4) pBalon = 0.20;
+      pBalon = contOrTitle && strong ? 0.78 : (strong || contOrTitle ? 0.55 : 0.32);
+    } else if (s.ovr >= 92) {
+      pBalon = contOrTitle && strong ? 0.72 : (strong || contOrTitle ? 0.50 : 0.30);
+    } else if (s.ovr >= 90) {
+      pBalon = contOrTitle && strong ? 0.62 : (strong || contOrTitle ? 0.42 : 0.24);
+    } else {
+      /* 88–89: porta de entrada do auge — ainda especial, mas alcançável */
+      pBalon = contOrTitle && strong ? 0.48 : (strong || contOrTitle ? 0.30 : 0.16);
+    }
+    if (role === "rotation") pBalon *= 0.55;
     if (pBalon > 0 && rnd(s) < pBalon) awards.push("balon");
   }
 
