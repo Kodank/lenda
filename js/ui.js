@@ -559,44 +559,63 @@ function clearTrophyPop() {
   if (el) el.innerHTML = "";
 }
 
-function showNextTrophyPop() {
-  if (!UI.trophyQueue || !UI.trophyQueue.length) {
+function showTrophyHall(ids) {
+  ids = (ids || []).slice();
+  if (!ids.length) {
     clearTrophyPop();
     return;
   }
-  var id = UI.trophyQueue.shift();
-  var meta = trophyOf(id);
   var root = ensureTrophyPopRoot();
+  var multi = ids.length > 1;
+  var items = ids.map(function (id, i) {
+    var meta = trophyOf(id);
+    return '<div class="trophy-hall-item" style="animation-delay:' + (i * 0.06) + 's">' +
+      '<img src="' + meta.img + '" alt="">' +
+      '<div class="trophy-hall-meta">' +
+      '<span class="trophy-hall-kind">' + esc(trophyKindLabel(meta.kind)) + "</span>" +
+      "<b>" + esc(meta.name) + "</b></div></div>";
+  }).join("");
+
+  var title = multi ? "Sala de conquistas" : trophyOf(ids[0]).name;
+  var kindLine = multi
+    ? (ids.length + " títulos nesta sequência")
+    : trophyKindLabel(trophyOf(ids[0]).kind);
+  var bodyClass = multi ? "trophy-pop trophy-pop-multi" : "trophy-pop";
+
   root.innerHTML =
     '<div class="trophy-pop-backdrop" id="trophy-pop-bd">' +
-    '<div class="trophy-pop" role="dialog" aria-label="' + esc(meta.name) + '">' +
-    '<div class="trophy-pop-kind">' + esc(trophyKindLabel(meta.kind)) + "</div>" +
-    '<img class="trophy-pop-img" src="' + meta.img + '" alt="">' +
-    '<h2 class="trophy-pop-name">' + esc(meta.name) + "</h2>" +
+    '<div class="' + bodyClass + '" role="dialog" aria-label="' + esc(title) + '">' +
+    '<div class="trophy-pop-kind">' + esc(kindLine) + "</div>" +
+    (multi
+      ? '<h2 class="trophy-pop-name">' + esc(title) + "</h2>" +
+        '<div class="trophy-hall-grid">' + items + "</div>"
+      : '<img class="trophy-pop-img" src="' + trophyOf(ids[0]).img + '" alt="">' +
+        '<h2 class="trophy-pop-name">' + esc(title) + "</h2>") +
     '<p class="trophy-pop-hint">toque para continuar</p>' +
     "</div></div>";
+
   var bd = document.getElementById("trophy-pop-bd");
   requestAnimationFrame(function () {
     if (bd) bd.classList.add("on");
   });
-  function advancePop() {
+  function closePop() {
     if (UI._trophyTimer) { clearTimeout(UI._trophyTimer); UI._trophyTimer = null; }
     if (bd) {
       bd.classList.remove("on");
       bd.classList.add("out");
-      setTimeout(showNextTrophyPop, 180);
+      setTimeout(clearTrophyPop, 200);
     } else {
-      showNextTrophyPop();
+      clearTrophyPop();
     }
   }
-  root.onclick = function (e) { e.preventDefault(); advancePop(); };
-  UI._trophyTimer = setTimeout(advancePop, 2200);
+  root.onclick = function (e) { e.preventDefault(); closePop(); };
+  UI._trophyTimer = setTimeout(closePop, multi ? 4200 : 2400);
 }
 
 function startTrophyQueue(ids) {
   clearTrophyPop();
-  UI.trophyQueue = (ids || []).slice();
-  if (UI.trophyQueue.length) showNextTrophyPop();
+  UI.trophyQueue = [];
+  if (ids && ids.length) showTrophyHall(ids);
 }
 
 function retireBtnHtml(s) {
