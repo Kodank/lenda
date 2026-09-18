@@ -346,16 +346,18 @@ function viewAcademy() {
   var offers = UI.offers || [];
   var cards = offers.map(function (o) {
     var lg = leagueOf(o.club.leagueId);
-    return '<button class="card offer" data-sign="' + o.club.id + '">' +
+    return '<div class="card offer" role="button" tabindex="0" data-sign="' + o.club.id + '">' +
       imgCrest(o.club.crest, 'crest', o.club.name) +
-      "<div class='bars'><span class='offer-name'>" + esc(o.club.name) + "</span>" +
-      '<div class="offer-meta" style="display:flex;gap:8px;align-items:center;margin:6px 0 10px;font-size:12px">' +
+      '<div class="bars">' +
+      '<div class="offer-name" style="color:#ffffff;-webkit-text-fill-color:#ffffff">' + esc(o.club.name) + "</div>" +
+      '<div class="offer-meta">' +
       '<img class="lg-logo" src="' + lg.logo + '" alt="">' +
-      esc(lg.name) + (o.casa ? " · casa" : " · exterior") + "</div>" +
-      '<div class="label">Formação</div><div class="bar"><i style="width:' + o.formacao + '%"></i></div>' +
-      '<div class="label">Minutos</div><div class="bar"><i style="width:' + o.minutos + '%"></i></div>' +
-      '<div class="label">Pressão</div><div class="bar"><i style="width:' + o.pressao + '%"></i></div>' +
-      "</div></button>";
+      '<span style="color:#c5ccd6;-webkit-text-fill-color:#c5ccd6">' +
+      esc(lg.name) + (o.casa ? " · casa" : " · exterior") + "</span></div>" +
+      '<div class="label" style="color:#c5ccd6;-webkit-text-fill-color:#c5ccd6">Formação</div><div class="bar"><i style="width:' + o.formacao + '%"></i></div>' +
+      '<div class="label" style="color:#c5ccd6;-webkit-text-fill-color:#c5ccd6">Minutos</div><div class="bar"><i style="width:' + o.minutos + '%"></i></div>' +
+      '<div class="label" style="color:#c5ccd6;-webkit-text-fill-color:#c5ccd6">Pressão</div><div class="bar"><i style="width:' + o.pressao + '%"></i></div>' +
+      "</div></div>";
   }).join("");
   return '<div class="top"><div class="brand">BASE</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
     '<div class="step-card">' +

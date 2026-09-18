@@ -233,17 +233,36 @@ input[type="text"] {
 .academy-grid { display: grid; gap: 10px; }
 .offer {
   display: flex; gap: 14px; align-items: center; text-align: left;
-  width: 100%; border: 0; background: var(--paper);
-  color: #f4f6f8 !important; /* never UA black on dark offer cards */
+  width: 100%; border: 0; background: #14161c;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+  forced-color-adjust: none;
+  cursor: pointer;
 }
-.offer .bars { color: #f4f6f8 !important; }
-.offer-name, .offer b {
-  color: #f4f6f8 !important;
-  font-size: 15px;
+.offer:focus { outline: 2px solid #f3f5f7; outline-offset: 2px; }
+.offer .bars { color: #ffffff !important; -webkit-text-fill-color: #ffffff; }
+.offer-name {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 16px;
   font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 2px;
 }
-.offer .label { color: #a8b0bc !important; }
-.offer .offer-meta { color: #a8b0bc !important; }
+.offer .label {
+  color: #c5ccd6 !important;
+  -webkit-text-fill-color: #c5ccd6 !important;
+}
+.offer .offer-meta {
+  display: flex; gap: 8px; align-items: center;
+  margin: 6px 0 10px; font-size: 12px;
+  color: #c5ccd6 !important;
+  -webkit-text-fill-color: #c5ccd6 !important;
+}
+.offer .offer-meta span {
+  color: #c5ccd6 !important;
+  -webkit-text-fill-color: #c5ccd6 !important;
+}
 .offer img.crest { width: 58px; height: 58px; object-fit: contain; }
 .crest-fallback {
   display: inline-flex; align-items: center; justify-content: center;
