@@ -1711,6 +1711,33 @@ input[type="text"] {
   gap: 6px;
   padding: 10px;
 }
+/* Header chips must not flex-shrink under dense vitrine/hype/metas */
+#app.screen-decision .juice-hype-bar,
+#app.screen-report .juice-hype-bar,
+#app.screen-decision .rival-chip,
+#app.screen-report .rival-chip,
+#app.screen-decision .juice-streak-chip,
+#app.screen-report .juice-streak-chip,
+#app.screen-decision .goals-strip,
+#app.screen-report .goals-strip {
+  flex-shrink: 0;
+}
+#app.screen-decision .juice-hype-bar,
+#app.screen-report .juice-hype-bar {
+  margin: 2px 0 4px;
+}
+#app.screen-decision .goals-strip,
+#app.screen-report .goals-strip {
+  margin: 4px 0 2px;
+}
+/* Cap growing vitrine; scroll inside so rival/metas stay readable */
+#app.screen-decision .trophy-case:not(.empty-case),
+#app.screen-report .trophy-case:not(.empty-case) {
+  max-height: 112px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
+}
 #app.screen-decision .trophy-case.empty-case {
   display: none;
 }
@@ -1741,6 +1768,10 @@ input[type="text"] {
   .story h2 { font-size: 18px; margin: 2px 0 2px; }
   .story.compact p { -webkit-line-clamp: 2; font-size: 12px; }
   #app.screen-decision .career-left { gap: 5px; padding: 8px; }
+  /* Keep rival readable on short viewports — never max-height/line-clamp the chip */
+  .rival-chip { flex-shrink: 0; min-height: 32px; overflow: visible; }
+  #app.screen-decision .trophy-case:not(.empty-case),
+  #app.screen-report .trophy-case:not(.empty-case) { max-height: 88px; }
 }
 
 @media (max-width: 900px) {
@@ -1791,7 +1822,9 @@ input[type="text"] {
   flex-wrap: wrap;
   align-items: center;
   gap: 5px;
-  margin: 8px 0 4px;
+  margin: 6px 0 2px;
+  flex-shrink: 0;
+  min-height: 22px;
 }
 .goals-strip-lab {
   font-size: 10px;
@@ -1829,28 +1862,45 @@ input[type="text"] {
 }
 .rival-chip {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 6px 10px;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px 8px;
   font-size: 12px;
-  padding: 7px 10px;
+  padding: 6px 10px;
   border-radius: 10px;
   border: 1px solid rgba(167, 139, 250, .55);
   background: rgba(124, 58, 237, .14);
-  margin: 8px 0 4px;
+  margin: 4px 0 2px;
   max-width: 100%;
-  overflow: hidden;
+  min-width: 0;
+  /* overflow:hidden zeroes flex auto min-size → parent column squashes this chip */
+  overflow: visible;
+  flex-shrink: 0;
+  min-height: 32px;
+  box-sizing: border-box;
   box-shadow: 0 0 0 1px rgba(124, 58, 237, .15);
 }
-.rival-chip span { color: #c4b5fd; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 10px; }
-.rival-chip b { color: var(--ink); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rival-chip em { font-style: normal; font-weight: 800; font-family: "Barlow Condensed", sans-serif; font-size: 15px; }
+.rival-chip span {
+  color: #c4b5fd; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 10px;
+  flex: 0 0 auto;
+}
+.rival-chip b {
+  color: var(--ink); font-size: 13px; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-width: 0; flex: 1 1 auto;
+}
+.rival-chip em {
+  font-style: normal; font-weight: 800; font-family: "Barlow Condensed", sans-serif; font-size: 15px;
+  flex: 0 0 auto; line-height: 1;
+}
 .rival-chip .rival-gap {
   font-style: normal;
   font-size: 11px;
   font-weight: 600;
   color: var(--muted);
   margin-left: auto;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 .rival-chip.up em { color: var(--green); }
 .rival-chip.dn em { color: var(--red); }
@@ -2091,6 +2141,7 @@ input[type="text"] {
   gap: 8px;
   margin: 4px 0 6px;
   min-height: 14px;
+  flex-shrink: 0;
 }
 .juice-hype-track {
   flex: 1;
