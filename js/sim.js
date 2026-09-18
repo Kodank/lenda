@@ -54,7 +54,13 @@ function simSeason(s) {
 
   if (s.pos === "GOL") {
     if (cs >= Math.max(8, apps * 0.38) && (role === "starter" || role === "star")) awards.push("luva");
-  } else if (goals >= Math.max(12, Math.round(league.size * 0.55)) && role !== "youth") {
+  } else if (
+    s.ovr > 90 &&
+    s.age >= 22 && s.age <= 34 &&
+    goals >= Math.max(15, Math.round(league.size * 0.6)) &&
+    (role === "starter" || role === "star")
+  ) {
+    /* Chuteira de Ouro: só no auge, OVR acima de 90 */
     awards.push("bota");
   }
   if (leaguePos <= 2 && s.ovr >= 82 && (role === "star" || role === "starter") && rating >= 7.3) awards.push("mvp");
@@ -63,8 +69,11 @@ function simSeason(s) {
   if (nt.trophies) for (var i = 0; i < nt.trophies.length; i++) trophies.push(nt.trophies[i]);
 
   var hasCont = trophies.indexOf("ucl") >= 0 || trophies.indexOf("libertadores") >= 0 || trophies.indexOf("worldcup") >= 0;
-  if (s.ovr >= 90 && hasCont && (goals >= 18 || s.pos === "GOL" && cs >= 14) && rnd(s) < 0.45) awards.push("balon");
-  else if (s.ovr >= 92 && nt.apps >= 8 && rnd(s) < 0.22) awards.push("balon");
+  /* Bola de Ouro: só auge com OVR > 90 */
+  if (s.ovr > 90 && s.age >= 22 && s.age <= 34) {
+    if (hasCont && (goals >= 18 || (s.pos === "GOL" && cs >= 14)) && rnd(s) < 0.4) awards.push("balon");
+    else if (s.ovr >= 93 && nt.apps >= 8 && rnd(s) < 0.18) awards.push("balon");
+  }
 
   var delta = Math.round(developOvr(s, role, apps, league.size, inj));
   var prev = s.ovr;

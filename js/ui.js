@@ -60,6 +60,21 @@ function esc(t) {
   });
 }
 
+function ovrTier(ovr) {
+  var n = +ovr || 0;
+  if (n >= 99) return "ovr-99";
+  if (n >= 95) return "ovr-mythic";
+  if (n >= 90) return "ovr-diamond";
+  if (n >= 80) return "ovr-gold";
+  if (n >= 70) return "ovr-silver";
+  return "ovr-copper";
+}
+
+function ovrBadgeHtml(ovr, label) {
+  label = label || "OVR";
+  return '<div class="ovr-badge ' + ovrTier(ovr) + '"><span>' + label + "</span><b>" + ovr + "</b></div>";
+}
+
 function onColor(hex) {
   var h = (hex || "#111").replace("#", "");
   if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
@@ -201,7 +216,7 @@ function identityStrip(s) {
   var gLab = s.pos === "GOL" ? "CS" : "GOLS";
   var aLab = s.pos === "GOL" ? "GS" : "AST";
   return '<div class="id-strip">' +
-    '<div class="ovr-badge"><span>OVR</span><b>' + s.ovr + "</b></div>" +
+    ovrBadgeHtml(s.ovr) +
     '<div class="id-meta">' +
     '<div class="id-line">' +
     '<img class="mini-flag" src="' + nat.flag + '" alt="">' +
@@ -613,7 +628,7 @@ function viewLegacy() {
     '<div class="quadro-id"><img class="flag" src="' + nat.flag + '" alt=""><h1>' + esc(s.name) + "</h1>" +
     "<p>" + s.number + " · " + POS[s.pos].name + " · " + esc(nat.name) + "</p>" +
     "<p>" + years + " · " + esc(club.name) + "</p></div>" +
-    '<div class="quadro-ovr"><span>PICO</span><b>' + s.peakOvr + "</b></div></div>" +
+    '<div class="quadro-ovr">' + ovrBadgeHtml(s.peakOvr, "PICO") + "</div></div>" +
     '<div class="quadro-stats">' +
     "<div><b>" + s.career.apps + "</b><span>Jogos</span></div>" +
     "<div><b>" + gols + "</b><span>" + gLab + "</span></div>" +

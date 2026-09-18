@@ -1,6 +1,6 @@
 var SAVE_KEY = "lenda_v1";
 var START_YEAR = 2026;
-var OVR_CAP = 96;
+var OVR_CAP = 99;
 var START_OVR = 50;
 var START_AGE = 16;
 

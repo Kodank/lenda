@@ -318,12 +318,69 @@ input[type="text"] {
 }
 .ovr-badge {
   width: 64px; height: 64px; border-radius: 12px;
-  background: linear-gradient(145deg, #f5a623, #e07b00);
-  color: #1a1208; display: flex; flex-direction: column;
+  display: flex; flex-direction: column;
   align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 6px 16px rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.18);
 }
-.ovr-badge span { font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+.ovr-badge span { font-size: 10px; font-weight: 800; letter-spacing: .12em; opacity: .9; }
 .ovr-badge b { font-family: "Barlow Condensed", sans-serif; font-size: 32px; line-height: .9; font-weight: 800; }
+.ovr-badge.ovr-copper {
+  background: linear-gradient(145deg, #c47a3a 0%, #8a4a22 45%, #5c3016 100%);
+  color: #fff6e8;
+}
+.ovr-badge.ovr-silver {
+  background: linear-gradient(145deg, #f2f4f7 0%, #b8c0cc 42%, #7d8796 100%);
+  color: #1a1f28;
+}
+.ovr-badge.ovr-gold {
+  background: linear-gradient(145deg, #ffe08a 0%, #f5a623 40%, #c46b00 100%);
+  color: #1a1208;
+}
+.ovr-badge.ovr-diamond {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.55), transparent 42%),
+    linear-gradient(145deg, #e8f7ff 0%, #9ad7f2 35%, #5b8fd6 70%, #d9f0ff 100%);
+  color: #0c1a2e;
+  border-color: rgba(255,255,255,.55);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 0 18px rgba(120, 200, 255, .35);
+}
+.ovr-badge.ovr-mythic {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,180,255,.45), transparent 45%),
+    linear-gradient(145deg, #c084fc 0%, #7c3aed 45%, #4c1d95 100%);
+  color: #f8f0ff;
+  border-color: rgba(255,200,255,.45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 0 22px rgba(168, 85, 247, .45);
+  animation: ovrMythicPulse 2.4s ease-in-out infinite;
+}
+.ovr-badge.ovr-99 {
+  background: conic-gradient(from 120deg, #fff7ae, #ff4ecd, #7c3aed, #22d3ee, #fff7ae);
+  color: #0b0614;
+  border-color: rgba(255,255,255,.7);
+  box-shadow: 0 0 28px rgba(255, 78, 205, .55), inset 0 1px 0 rgba(255,255,255,.6);
+  animation: ovrLegendSpin 6s linear infinite;
+}
+.ovr-badge.ovr-99::after {
+  content: "";
+  position: absolute; inset: 2px; border-radius: 10px;
+  background: linear-gradient(160deg, rgba(12,8,24,.15), rgba(12,8,24,.55));
+  pointer-events: none;
+}
+.ovr-badge.ovr-99 span,
+.ovr-badge.ovr-99 b { position: relative; z-index: 1; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.55); }
+@keyframes ovrMythicPulse {
+  0%, 100% { filter: saturate(1); }
+  50% { filter: saturate(1.25) brightness(1.08); }
+}
+@keyframes ovrLegendSpin {
+  to { filter: hue-rotate(360deg); }
+}
+.quadro-ovr .ovr-badge { width: 72px; height: 72px; margin-left: auto; }
+.quadro-ovr .ovr-badge b { font-size: 36px; }
+
 .id-meta { min-width: 0; }
 .id-line {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
