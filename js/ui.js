@@ -526,16 +526,35 @@ function viewAcademy() {
     viewDevAcademyPicker();
 }
 
+
+function outcomeBoardHtml(out) {
+  if (!out) return "";
+  var pills = (typeof sanitizePillsList === "function") ? sanitizePillsList(out.pills || []) : (out.pills || []);
+  var pillsRow = pillsHtml(pills, "landed");
+  var hasTemp = !!out.temp;
+  if (!pillsRow && !hasTemp) return "";
+  return '<div class="outcome-board">' +
+    '<div class="outcome-label">Resultado da escolha</div>' +
+    pillsRow +
+    (hasTemp
+      ? '<div class="temp-ovr-tag ' + (out.temp < 0 ? "dn" : "up") + '">OVR tmp ' +
+        (out.temp > 0 ? "+" : "") + out.temp + "</div>"
+      : "") +
+    "</div>";
+}
+
 function pillsHtml(pills, mode) {
   pills = (typeof sanitizePillsList === "function") ? sanitizePillsList(pills) : (pills || []);
-  if (!pills.length) return '<div class="choice-pills"><span class="fx-pill neutral">Nada</span></div>';
-  return '<div class="choice-pills' + (mode === "landed" ? " resolved" : "") + '">' + pills.map(function (p) {
+  if (!pills.length) return "";
+  var inner = pills.map(function (p) {
     var kind = p.kind || "neutral";
     var text = String(p.text || "").trim();
     if (!text || (typeof isAssetPathLabel === "function" && isAssetPathLabel(text))) return "";
     var cls = "fx-pill " + kind + (mode === "landed" && p.landed ? " landed" : "");
     return '<span class="' + cls + '">' + esc(text) + "</span>";
-  }).join("") + "</div>";
+  }).join("");
+  if (!inner) return "";
+  return '<div class="choice-pills' + (mode === "landed" ? " resolved" : "") + '">' + inner + "</div>";
 }
 
 function choiceBtn(side, ch, ev, sideIdx) {
@@ -825,16 +844,8 @@ function viewReport() {
     (S._lastRisk ? '<div class="risk-toast ' + (S._lastRisk.ok ? "ok" : "bad") + '">' + esc(S._lastRisk.text) + "</div>" : "") +
     (S._lastOutcome && S._lastOutcome.relato
       ? '<div class="mini-relato loud">' + esc(S._lastOutcome.relato) + "</div>" : "") +
-    (S._lastOutcome ? '<div class="outcome-board">' +
-      '<div class="outcome-label">Resultado da escolha</div>' +
-      pillsHtml(S._lastOutcome.pills || [], "landed") +
-      (S._lastOutcome.temp
-        ? '<div class="temp-ovr-tag ' + (S._lastOutcome.temp < 0 ? "dn" : "up") + '">OVR tmp ' +
-          (S._lastOutcome.temp > 0 ? "+" : "") + S._lastOutcome.temp + "</div>"
-        : "") +
-      "</div>" : "") +
+    outcomeBoardHtml(S._lastOutcome) +
     '<div class="report-actions">' +
-    (last ? '<button class="btn season-dl" id="dl-season" type="button">Baixar card da temporada</button>' : "") +
     '<button class="btn" data-go="' + next + '">' + (s.retired ? "Ver o quadro" : "Próxima decisão") + "</button>" +
     retireBtnHtml(s) +
     "</div>" +
@@ -1084,8 +1095,10 @@ function bind() {
         applyChoice(S, UI.event, side);
         var out = S._lastOutcome;
         var wrap = b.querySelector(".choice-pills");
-        if (wrap && out && out.pills) {
-          wrap.outerHTML = pillsHtml(out.pills, "landed");
+        if (wrap && out) {
+          var landed = pillsHtml(out.pills || [], "landed");
+          if (landed) wrap.outerHTML = landed;
+          else wrap.remove();
         }
         b.classList.add("landed-pulse");
         if (typeof JUICE !== "undefined") JUICE.onAfterChoice(S, b);

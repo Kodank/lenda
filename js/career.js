@@ -499,7 +499,8 @@ function signedNum(n) {
 function isOvrPillText(t) {
   t = String(t == null ? "" : t).trim();
   if (!t) return false;
-  if (/^([—–\-]|Nada)\b/i.test(t) || /^Nada acontece$/i.test(t)) return true;
+  /* Dash / "Nada" are empty consequences — never show as pills */
+  if (/^([—–\-]|Nada)\b/i.test(t) || /^Nada acontece$/i.test(t)) return false;
   return /\bOVR\b/i.test(t);
 }
 
@@ -525,10 +526,6 @@ function collectFxPillParts(fx) {
 function summarizeLandedPills(fx) {
   var parts = collectFxPillParts(fx);
   var pills = [];
-  if (!parts.length) {
-    pills.push({ kind: "neutral", text: "Nada", landed: 1 });
-    return pills;
-  }
   for (var i = 0; i < parts.length; i++) {
     pills.push({ kind: parts[i].kind, text: parts[i].text, landed: 1 });
   }
@@ -590,7 +587,7 @@ function sanitizePillsList(list) {
 }
 
 function buildChoicePills(ch) {
-  if (!ch) return [{ kind: "neutral", text: "Nada" }];
+  if (!ch) return [];
   if (ch.pills && ch.pills.length) {
     var custom = sanitizePillsList(ch.pills);
     if (custom.length) return custom;
@@ -619,7 +616,7 @@ function buildChoicePills(ch) {
     delete base.risk;
     var baseP = collectFxPillParts(base);
     for (var i = 0; i < baseP.length; i++) pills.push({ kind: baseP[i].kind, text: baseP[i].text });
-    return pills.length ? pills : [{ kind: "neutral", text: "Nada" }];
+    return pills;
   }
   return summarizeLandedPills(fx).map(function (p) {
     return { kind: p.kind, text: p.text };
