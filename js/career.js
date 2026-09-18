@@ -450,11 +450,13 @@ function applyChoice(s, ev, side) {
 }
 
 function isAssetPathLabel(t) {
-  t = String(t == null ? "" : t);
+  t = String(t == null ? "" : t).trim();
   if (!t) return true;
+  /* raw choice-art hashes / paths must never render as consequence pills */
   if (/\.(webp|png|jpe?g|gif|svg|avif)(\?|#|$)/i.test(t)) return true;
-  if (/^(img\/|images\/|https?:|data:|blob:)/i.test(t)) return true;
+  if (/^(img\/|images\/|assets\/|https?:|data:|blob:)/i.test(t)) return true;
   if (/[\/\\]/.test(t) && /\.(webp|png|jpe?g|gif|svg)/i.test(t)) return true;
+  if (/^[a-f0-9]{16,}\.(webp|png|jpe?g|gif|svg)$/i.test(t)) return true;
   return false;
 }
 

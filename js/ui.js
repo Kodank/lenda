@@ -128,7 +128,9 @@ function ovrBadgeHtml(ovr, label) {
 function ovrTlHtml(ovr, deltaHtml) {
   var st = ovrTierStyle(ovr);
   return '<span class="tl-ovr ' + ovrTier(ovr) + '" style="color:' + st.color + ';background:' + st.bg +
-    ';border:1px solid ' + st.border + ';border-radius:8px;padding:2px 6px;font-weight:800">' +
+    ';border:1px solid ' + st.border + ';border-radius:6px;padding:0 4px;font-weight:800;' +
+    'display:inline-flex;align-items:center;justify-content:center;gap:2px;' +
+    'max-width:100%;height:18px;line-height:1;overflow:hidden;box-sizing:border-box">' +
     ovr + (deltaHtml || "") + "</span>";
 }
 function clubNameHtml(name, cls) {
