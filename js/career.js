@@ -57,6 +57,81 @@ function eventFits(s, ev) {
 
 var EURO_LEAGUES = { eng: 1, esp: 1, ita: 1, ger: 1, fra: 1, por: 1, ned: 1, bel: 1, tur: 1, sco: 1 };
 
+/*
+ * World elite lists (level + reputation). Curated mega clubs — not raw SA giants.
+ * Top 5: Real Madrid, Man City, Bayern, Barcelona, Liverpool.
+ * Top 10: + Arsenal, PSG, Inter, Chelsea, Man United.
+ */
+var WORLD_TOP5_IDS = ["rma", "mci", "bay", "fcb", "liv"];
+var WORLD_TOP10_IDS = ["rma", "mci", "bay", "fcb", "liv", "ars", "psg", "intm", "che", "mun"];
+
+function clubsByIds(ids) {
+  var out = [];
+  for (var i = 0; i < ids.length; i++) {
+    var c = clubOf(ids[i]);
+    if (c && c.id === ids[i]) out.push(c);
+  }
+  return out;
+}
+
+/* Resolve conf without nationOf fallback (unknown ids must not become Brazil/conmebol). */
+function nationConf(nationId) {
+  for (var i = 0; i < NATIONS.length; i++) {
+    if (NATIONS[i].id === nationId) return NATIONS[i].conf;
+  }
+  return "";
+}
+
+function clubConf(c) {
+  if (!c) return "";
+  var conf = nationConf(c.nation);
+  if (conf) return conf;
+  if (EURO_LEAGUES[c.leagueId]) return "uefa";
+  var lg = leagueOf(c.leagueId);
+  if (lg) {
+    if (lg.continental === "ucl") return "uefa";
+    if (lg.continental === "lib") return "conmebol";
+    conf = nationConf(lg.nation);
+    if (conf) return conf;
+  }
+  return "";
+}
+
+function sameContinentClub(s, c) {
+  if (!c) return false;
+  if (c.nation === s.nation) return true;
+  var a = nationConf(s.nation);
+  var b = clubConf(c);
+  return !!(a && b && a === b);
+}
+
+/*
+ * Wonderkid exception: young + explosive ΔOVR in 1–3 seasons unlocks elite Europe
+ * despite early same-continent gate. Tuned rare — normal careers stay home.
+ * Examples that pass: age≤21, OVR≥78, +24 from START_OVR in ≤3 seasons, ≥9 OVR/season.
+ */
+function isWonderkid(s) {
+  if (s.age > 21) return false;
+  if (s.ovr < 78) return false;
+  var seasons = Math.max(0, (s.year || START_YEAR) - START_YEAR);
+  var byAge = Math.max(0, s.age - START_AGE);
+  var played = Math.max(seasons, byAge);
+  if (played < 1 || played > 3) return false;
+  var delta = s.ovr - START_OVR;
+  if (delta < 24) return false;
+  if (delta / played < 9) return false;
+  return true;
+}
+
+/* Copero-like market stages by OVR (+ wonderkid exception). */
+function marketStage(s) {
+  if (s.ovr >= 89) return "elite";   /* top-5 offers guaranteed */
+  if (s.ovr >= 85) return "world";   /* chance of top-10 */
+  if (isWonderkid(s)) return "wonderkid"; /* rare: big Europe may call early */
+  if (s.ovr >= 78 && s.age >= 22) return "open"; /* mid: other continents ok */
+  return "home"; /* early / low OVR: same continent (or country) only */
+}
+
 function pickEvent(s) {
   var marketP = 0.72;
   if (s.age <= 22) marketP = 0.82;
@@ -64,6 +139,8 @@ function pickEvent(s) {
   /* jovem engavetado em clube grande: janela quase certa (empréstimo/passo lateral) */
   var cur = s.clubId ? clubOf(s.clubId) : null;
   if (cur && s.age <= 21 && (s.role === "youth" || s.role === "bench") && cur.level >= 4.2) marketP = 0.92;
+  /* Ritmo Intensa: oferta bem mais frequente (antes ~0.72–0.82 → ~0.92–0.97) */
+  if (s.pace === "intensa") marketP = Math.min(0.97, marketP + 0.2);
   if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.alwaysTransfers) {
     return buildTransferWindow(s);
   }
@@ -119,8 +196,19 @@ function shuffled(arr, s) {
 function pickOffers(s, n) {
   /* Estilo Copero: um passo à frente, um lateral — não dois gigantes aleatórios. */
   var cur = clubOf(s.clubId);
+  var stage = marketStage(s);
   var pool = CLUBS.filter(function (c) {
-    return c.id !== cur.id && reachableClub(s, c);
+    if (c.id === cur.id || !reachableClub(s, c)) return false;
+    /* Early career: only same continent / country (no random Europe for SA youngster). */
+    if (stage === "home" && !sameContinentClub(s, c)) return false;
+    /* Wonderkid: home continent OR European elite / world top-10 only. */
+    if (stage === "wonderkid") {
+      if (sameContinentClub(s, c)) return true;
+      if (WORLD_TOP10_IDS.indexOf(c.id) >= 0) return true;
+      if (EURO_LEAGUES[c.leagueId] && c.level >= 4.3) return true;
+      return false;
+    }
+    return true;
   });
   function expectedRole(c) {
     return roleOf({ ovr: s.ovr, age: s.age, clubId: c.id }, c);
@@ -161,16 +249,48 @@ function pickOffers(s, n) {
   var out = [];
   var seen = {};
   function add(c) {
-    if (!c || seen[c.id] || out.length >= n) return;
+    if (!c || seen[c.id] || out.length >= n) return false;
     seen[c.id] = 1;
     out.push(c);
+    return true;
+  }
+  function forceElite(c) {
+    /* Prefer slot 0 for guaranteed/chance elite so the window shows the mega club. */
+    if (!c || seen[c.id]) return false;
+    if (out.length >= n) {
+      var drop = out.pop();
+      if (drop) delete seen[drop.id];
+    }
+    seen[c.id] = 1;
+    out.unshift(c);
+    if (out.length > n) {
+      var extra = out.pop();
+      if (extra) delete seen[extra.id];
+    }
+    return true;
   }
 
-  /* 1ª carta: passo à frente (ou big step raro se o OVR aguenta) */
-  if (s.ovr >= cur.level * 18 + 2 && bigStep[0] && rnd(s) < 0.28) add(bigStep[0]);
-  else if (stepUp[0]) add(stepUp[0]);
-  else if (loanish[0]) add(loanish[0]);
-  else if (lateral[0]) add(lateral[0]);
+  /* 85+: chance of a world top-10 offer; 89+: always include a top-5.
+     Wonderkid: high chance a European mega shows interest early. */
+  var top5 = clubsByIds(WORLD_TOP5_IDS).filter(function (c) {
+    return c.id !== cur.id && reachableClub(s, c);
+  });
+  var top10 = clubsByIds(WORLD_TOP10_IDS).filter(function (c) {
+    return c.id !== cur.id && reachableClub(s, c);
+  });
+  top5 = shuffled(top5, s);
+  top10 = shuffled(top10, s);
+  if (stage === "elite" && top5[0]) forceElite(top5[0]);
+  else if (stage === "world" && top10[0] && rnd(s) < 0.48) forceElite(top10[0]);
+  else if (stage === "wonderkid" && top10[0] && rnd(s) < 0.62) forceElite(top10[0]);
+
+  /* 1ª carta: passo à frente (ou big step raro se o OVR aguenta) — se ainda cabe */
+  if (out.length < n) {
+    if (s.ovr >= cur.level * 18 + 2 && bigStep[0] && rnd(s) < 0.28) add(bigStep[0]);
+    else if (stepUp[0]) add(stepUp[0]);
+    else if (loanish[0]) add(loanish[0]);
+    else if (lateral[0]) add(lateral[0]);
+  }
 
   /* 2ª carta: lateral / outro país / empréstimo — contraste com a 1ª */
   var secondWave = loanish.concat(lateral).concat(safer).concat(stepUp).concat(bigStep);
@@ -182,6 +302,12 @@ function pickOffers(s, n) {
       return Math.abs(c.level * 18 - s.ovr) <= 14;
     }), s);
     for (var j = 0; j < near.length && out.length < n; j++) add(near[j]);
+  }
+
+  /* 89+ safety: if reachable top-5 existed but was crowded out, re-force */
+  if (stage === "elite" && top5[0]) {
+    var hasTop5 = out.some(function (c) { return WORLD_TOP5_IDS.indexOf(c.id) >= 0; });
+    if (!hasTop5) forceElite(top5[0]);
   }
   return out.slice(0, n);
 }
@@ -223,12 +349,18 @@ function stayChoice(s) {
 
 function buildTransferWindow(s) {
   var offers = pickOffers(s, 2);
+  var stage = marketStage(s);
+  var blurb;
+  if (!offers.length) blurb = "Poucas ligações nesta janela. Ficar e trabalhar, ou esperar a próxima.";
+  else if (stage === "home") blurb = "O mercado abriu. Propostas do seu continente — ou você permanece onde está.";
+  else if (stage === "elite") blurb = "O mercado abriu. A elite mundial ligou. Duas camisas novas — ou você permanece onde está.";
+  else if (stage === "world") blurb = "O mercado abriu. Gigantes do mundo podem aparecer. Duas camisas novas — ou você permanece onde está.";
+  else if (stage === "wonderkid") blurb = "O mercado abriu. Sua explosão chamou atenção na Europa. Duas camisas novas — ou você permanece onde está.";
+  else blurb = "O mercado abriu. Duas camisas novas — inclusive da Europa — ou você permanece onde está.";
   var ev = {
     id: "market",
     title: "Janela de transferências",
-    text: offers.length
-      ? "O mercado abriu. Duas camisas novas — inclusive da Europa — ou você permanece onde está."
-      : "Poucas ligações nesta janela. Ficar e trabalhar, ou esperar a próxima."
+    text: blurb
   };
   if (offers[0] && offers[1]) {
     ev.a = offerChoice(s, offers[0]);
@@ -308,13 +440,31 @@ function neighborPos(pos) {
 
 function pickClub(s, mode) {
   var cur = clubOf(s.clubId);
+  var stage = marketStage(s);
   var pool = CLUBS.filter(function (c) { return c.id !== cur.id; });
   var filtered;
-  if (mode === "elite") filtered = pool.filter(function (c) { return c.level >= 4.5 && c.level * 18 <= s.ovr + 10; });
-  else if (mode === "europe") filtered = pool.filter(function (c) {
-    return EURO_LEAGUES[c.leagueId] && reachableClub(s, c);
-  });
-  else if (mode === "home") filtered = pool.filter(function (c) { return c.nation === s.nation; });
+  if (mode === "elite") {
+    if (stage === "home") {
+      /* Early: "elite" stays on-continent big clubs, not random Europe. */
+      filtered = pool.filter(function (c) {
+        return sameContinentClub(s, c) && c.level >= 4.0 && c.level * 18 <= s.ovr + 10;
+      });
+    } else {
+      /* wonderkid / open / world / elite: real elite pool */
+      filtered = pool.filter(function (c) { return c.level >= 4.5 && c.level * 18 <= s.ovr + 10; });
+    }
+  } else if (mode === "europe") {
+    if (stage === "home" && nationConf(s.nation) !== "uefa") {
+      /* SA/etc youngster: treat "europe" as continental step-up at home. */
+      filtered = pool.filter(function (c) {
+        return sameContinentClub(s, c) && reachableClub(s, c) && c.level >= cur.level;
+      });
+    } else {
+      filtered = pool.filter(function (c) {
+        return EURO_LEAGUES[c.leagueId] && reachableClub(s, c);
+      });
+    }
+  } else if (mode === "home") filtered = pool.filter(function (c) { return c.nation === s.nation; });
   else if (mode === "down") filtered = pool.filter(function (c) { return c.level < cur.level - 0.3 && c.level >= 2.4; });
   else if (mode === "loan") {
     filtered = pool.filter(function (c) {
@@ -322,13 +472,28 @@ function pickClub(s, mode) {
     });
     var same = filtered.filter(function (c) { return c.nation === cur.nation; });
     if (same.length) filtered = same;
+    if (stage === "home") {
+      var homeLoan = filtered.filter(function (c) { return sameContinentClub(s, c); });
+      if (homeLoan.length) filtered = homeLoan;
+    }
   } else if (mode === "rival") {
     filtered = pool.filter(function (c) { return c.leagueId === cur.leagueId && Math.abs(c.level - cur.level) < 0.8; });
-  } else filtered = pool.filter(function (c) { return Math.abs(c.level - cur.level) < 0.7 && c.level * 18 <= s.ovr + 14; });
-  if (!filtered.length) {
-    filtered = pool.filter(function (c) { return Math.abs(c.level * 18 - s.ovr) <= 14; });
+  } else {
+    filtered = pool.filter(function (c) {
+      if (Math.abs(c.level - cur.level) >= 0.7 || c.level * 18 > s.ovr + 14) return false;
+      if (stage === "home" && !sameContinentClub(s, c)) return false;
+      return true;
+    });
   }
-  if (!filtered.length) filtered = pool.filter(function (c) { return c.level <= cur.level; });
+  if (!filtered.length) {
+    filtered = pool.filter(function (c) {
+      if (Math.abs(c.level * 18 - s.ovr) > 14) return false;
+      if (stage === "home" && !sameContinentClub(s, c)) return false;
+      return true;
+    });
+  }
+  if (!filtered.length) filtered = pool.filter(function (c) { return c.level <= cur.level && (stage !== "home" || sameContinentClub(s, c)); });
+  if (!filtered.length) filtered = stage === "home" ? pool.filter(function (c) { return sameContinentClub(s, c); }) : pool;
   if (!filtered.length) filtered = pool;
   return filtered[Math.floor(rnd(s) * filtered.length)];
 }
