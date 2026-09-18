@@ -58,14 +58,14 @@ function simSeason(s) {
   s.contQual = leaguePos <= (league.continental === "ucl" ? 4 : 3);
 
   if (s.pos === "GOL") {
-    if (cs >= Math.max(8, apps * 0.38) && (role === "starter" || role === "star")) awards.push("luva");
+    if (cs >= Math.max(8, apps * 0.38) && (role === "starter" || role === "star") && s.ovr >= 78) awards.push("luva");
   } else if (
-    s.ovr > 90 &&
-    s.age >= 22 && s.age <= 34 &&
-    goals >= Math.max(15, Math.round(league.size * 0.6)) &&
+    s.ovr >= 82 &&
+    s.age >= 20 && s.age <= 34 &&
+    goals >= Math.max(10, Math.round(league.size * 0.45)) &&
     (role === "starter" || role === "star")
   ) {
-    /* Chuteira de Ouro: só no auge, OVR acima de 90 */
+    /* Chuteira de Ouro: artilharia da temporada + OVR sólido (não exige 90+) */
     awards.push("bota");
   }
   if (leaguePos <= 2 && s.ovr >= 82 && (role === "star" || role === "starter") && rating >= 7.3) awards.push("mvp");
@@ -74,10 +74,14 @@ function simSeason(s) {
   if (nt.trophies) for (var i = 0; i < nt.trophies.length; i++) trophies.push(nt.trophies[i]);
 
   var hasCont = trophies.indexOf("ucl") >= 0 || trophies.indexOf("libertadores") >= 0 || trophies.indexOf("worldcup") >= 0;
-  /* Bola de Ouro: só auge com OVR > 90 */
-  if (s.ovr > 90 && s.age >= 22 && s.age <= 34) {
-    if (hasCont && (goals >= 18 || (s.pos === "GOL" && cs >= 14)) && rnd(s) < 0.4) awards.push("balon");
-    else if (s.ovr >= 93 && nt.apps >= 8 && rnd(s) < 0.18) awards.push("balon");
+  /* Bola de Ouro: especial, alcançável a partir de ~88 OVR com temporada forte */
+  if (s.ovr >= 88 && s.age >= 22 && s.age <= 34 && (role === "starter" || role === "star")) {
+    var pBalon = 0;
+    if (hasCont && (goals >= 12 || assists >= 10 || (s.pos === "GOL" && cs >= 11))) pBalon = 0.55;
+    else if (s.ovr >= 90 && (hasCont || leaguePos === 1) && (goals >= 10 || assists >= 8 || (s.pos === "GOL" && cs >= 9) || rating >= 7.5)) pBalon = 0.36;
+    else if (s.ovr >= 92 && nt.apps >= 5) pBalon = 0.26;
+    else if (s.ovr >= 88 && hasCont && rating >= 7.4) pBalon = 0.20;
+    if (pBalon > 0 && rnd(s) < pBalon) awards.push("balon");
   }
 
   var delta = Math.round(developOvr(s, role, apps, league.size, inj));
