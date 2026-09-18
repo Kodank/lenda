@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <circle cx="64" cy="64" r="60" fill="#0b0b0d"/>
+  <circle cx="64" cy="64" r="56" fill="#0038A8"/>
+  <circle cx="64" cy="64" r="40" fill="#0b0b0d"/>
+  <circle cx="64" cy="64" r="28" fill="#0038A8" fill-opacity=".25"/>
+  <text x="64" y="72" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="22" fill="#F7F4EE">URU</text>
+</svg>
