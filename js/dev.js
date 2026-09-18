@@ -192,6 +192,104 @@
     toast("-> " + c.name);
   }
 
+  function sortedClubs() {
+    var list = (typeof CLUBS !== "undefined" ? CLUBS : []).slice();
+    list.sort(function (a, b) {
+      return String(a.name).localeCompare(String(b.name), "pt");
+    });
+    return list;
+  }
+
+  function clubPickRowsHtml(attr) {
+    attr = attr || "data-base-club";
+    return sortedClubs()
+      .map(function (c) {
+        var nat = typeof nationOf === "function" ? nationOf(c.nation) : null;
+        var hay = (c.name + " " + (nat ? nat.name : "") + " " + (c.city || "")).toLowerCase();
+        var crest =
+          typeof imgCrest === "function"
+            ? imgCrest(c.crest, "dev-club-crest", c.name)
+            : '<img class="dev-club-crest" src="' + c.crest + '" alt="">';
+        var nameHtml =
+          typeof clubNameHtml === "function"
+            ? clubNameHtml(c.name, "dev-club-name")
+            : "<b>" + esc(c.name) + "</b>";
+        return (
+          '<button type="button" class="dev-club-row" ' +
+          attr +
+          '="' +
+          c.id +
+          '" data-club-q="' +
+          esc(hay) +
+          '">' +
+          crest +
+          '<span class="dev-club-meta">' +
+          nameHtml +
+          '<small class="dev-club-nat">' +
+          (nat && nat.flag ? '<img class="mini-flag" src="' + nat.flag + '" alt="">' : "") +
+          esc(nat ? nat.name : c.nation) +
+          "</small></span></button>"
+        );
+      })
+      .join("");
+  }
+
+  function bindClubSearch(inputId, listSel) {
+    var q = document.getElementById(inputId);
+    var list = document.querySelector(listSel);
+    if (!q || !list) return;
+    q.oninput = function () {
+      var s = q.value.toLowerCase().trim();
+      Array.prototype.forEach.call(list.querySelectorAll(".dev-club-row"), function (row) {
+        var hay = row.getAttribute("data-club-q") || "";
+        row.style.display = !s || hay.indexOf(s) >= 0 ? "" : "none";
+      });
+    };
+  }
+
+  /* Prefer academy-start when mid-setup; otherwise inject as current club. */
+  function startAcademyAt(clubId) {
+    var c = clubOf(clubId);
+    if (!c || c.id !== clubId) {
+      toast("Clube invalido", true);
+      return;
+    }
+    var midSetup = !S || !S.clubId;
+    if (midSetup) {
+      if (!S) {
+        if (!UI || !UI.draft) {
+          toast("Crie o jogador primeiro", true);
+          return;
+        }
+        S = newCareer(UI.draft);
+      }
+      signAcademy(S, clubId);
+      UI.offers = null;
+      UI.event = null;
+      UI.reports = [];
+      if (typeof nextDecision === "function") nextDecision();
+      else UI.screen = "decision";
+      save();
+      render();
+      toast("Base em " + c.name);
+      return;
+    }
+    moveTo(S, c);
+    refresh();
+    toast("-> " + c.name);
+  }
+
+  function basePickHtml() {
+    return (
+      '<div class="dev-sec"><div class="dev-h">Iniciar na Base em…</div>' +
+      '<p class="dev-hint">Qualquer clube do banco. Se ainda nao assinou, inicia a Base; se ja tem carreira, troca o clube atual.</p>' +
+      '<input type="search" id="dev-base-q" placeholder="Buscar clube, pais ou cidade…" autocomplete="off">' +
+      '<div class="dev-club-list" id="dev-base-list">' +
+      clubPickRowsHtml("data-base-club") +
+      "</div></div>"
+    );
+  }
+
   function forceNT(apps, goals) {
     if (!needCareer(true)) return;
     apps = Math.max(0, Math.round(+apps || 0));
@@ -430,7 +528,8 @@
   function panelHtml() {
     if (!S || !S.clubId) {
       return (
-        '<div class="dev-sec"><p class="dev-hint">Crie ou continue uma carreira para editar o estado.</p>' +
+        basePickHtml() +
+        '<div class="dev-sec"><p class="dev-hint">Crie o jogador (ou avance ate a Base) e escolha um clube acima — ou continue uma carreira para editar o estado.</p>' +
         '<div class="dev-btns">' +
         '<button type="button" class="btn sm" data-dev="new">Nova carreira</button>' +
         '<button type="button" class="btn sm alt" data-dev="reload">Recarregar</button></div></div>'
@@ -489,6 +588,7 @@
       '<label><input type="checkbox" id="dev-a-mvp"> MVP</label>' +
       '<label><input type="checkbox" id="dev-a-force"> Forcar (GK/linha)</label>' +
       '</div><button type="button" class="btn sm" data-dev="awards">Dar premios</button></div>' +
+      basePickHtml() +
       '<div class="dev-sec"><div class="dev-h">Pular clube</div>' +
       '<input type="search" id="dev-club-q" placeholder="Buscar clube..." autocomplete="off">' +
       '<select id="dev-club" size="7">' +
@@ -596,6 +696,13 @@
       };
     }
 
+    bindClubSearch("dev-base-q", "#dev-base-list");
+    Array.prototype.forEach.call(panel.querySelectorAll("[data-base-club]"), function (b) {
+      b.onclick = function () {
+        startAcademyAt(b.getAttribute("data-base-club"));
+      };
+    });
+
     function flag(id, key, label) {
       var el = document.getElementById(id);
       if (!el) return;
@@ -678,6 +785,8 @@
     bindSecrets(document.getElementById("app"));
     mountChrome();
   }
+
+  DEV.startAcademyAt = startAcademyAt;
 
   load();
   persist();

@@ -1,3 +1,14 @@
+function makeAcademyOffer(c) {
+  if (!c) return null;
+  return {
+    club: c,
+    formacao: Math.round(40 + c.level * 12),
+    minutos: Math.round(100 - c.level * 14),
+    pressao: Math.round(20 + c.level * 14),
+    casa: true
+  };
+}
+
 function academyOffers(s) {
   /* Pool = ALL clubs of the player's nation (any level). Never foreign. */
   var pool = CLUBS.filter(function (c) { return c.nation === s.nation; });
@@ -15,14 +26,8 @@ function academyOffers(s) {
   for (var k = 0; k < picks.length; k++) {
     if (!picks[k] || seen[picks[k].id]) continue;
     seen[picks[k].id] = 1;
-    var c = picks[k];
-    out.push({
-      club: c,
-      formacao: Math.round(40 + c.level * 12),
-      minutos: Math.round(100 - c.level * 14),
-      pressao: Math.round(20 + c.level * 14),
-      casa: true
-    });
+    var offer = makeAcademyOffer(picks[k]);
+    if (offer) out.push(offer);
   }
   return out;
 }

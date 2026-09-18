@@ -420,6 +420,41 @@ function viewCreate() {
     "</div></div>";
 }
 
+function sortedClubsByName() {
+  var list = (typeof CLUBS !== "undefined" ? CLUBS : []).slice();
+  list.sort(function (a, b) {
+    return String(a.name).localeCompare(String(b.name), "pt");
+  });
+  return list;
+}
+
+function clubPickerRowHtml(c, signAttr) {
+  var nat = nationOf(c.nation);
+  var attr = signAttr || "data-sign";
+  return '<button type="button" class="dev-club-row" ' + attr + '="' + c.id + '" data-club-q="' +
+    esc((c.name + " " + (nat ? nat.name : "") + " " + (c.city || "")).toLowerCase()) + '">' +
+    imgCrest(c.crest, "dev-club-crest", c.name) +
+    '<span class="dev-club-meta">' +
+    clubNameHtml(c.name, "dev-club-name") +
+    '<small class="dev-club-nat">' +
+    (nat && nat.flag ? '<img class="mini-flag" src="' + nat.flag + '" alt="">' : "") +
+    esc(nat ? nat.name : c.nation) +
+    "</small></span></button>";
+}
+
+function viewDevAcademyPicker() {
+  if (typeof DEV === "undefined" || !DEV.on || !DEV.on()) return "";
+  var rows = sortedClubsByName().map(function (c) {
+    return clubPickerRowHtml(c, "data-sign");
+  }).join("");
+  return '<div class="step-card dev-academy-pick">' +
+    '<div class="dev-sandbox-tag">DEV · Sandbox</div>' +
+    "<h2>Qualquer clube</h2>" +
+    '<p class="lead tight">Busque e inicie a Base em qualquer time do banco (qualquer país).</p>' +
+    '<input id="dev-academy-q" type="search" placeholder="Buscar clube, país ou cidade…" autocomplete="off">' +
+    '<div class="dev-club-list" id="dev-academy-list">' + rows + "</div></div>";
+}
+
 function viewAcademy() {
   var offers = UI.offers || [];
   var cards = offers.map(function (o) {
@@ -441,7 +476,8 @@ function viewAcademy() {
     '<div class="step-card">' +
     "<h2>Academia</h2>" +
     '<p class="lead tight">Três ofertas. A camisa grande não é sempre o caminho mais rápido.</p>' +
-    '<div class="academy-grid">' + cards + "</div></div>";
+    '<div class="academy-grid">' + cards + "</div></div>" +
+    viewDevAcademyPicker();
 }
 
 function choiceBtn(side, ch) {
@@ -869,6 +905,16 @@ function bind() {
       document.querySelectorAll(".flag-row").forEach(function (row) {
         var name = (row.querySelector("span") || {}).textContent || "";
         row.style.display = !q || name.toLowerCase().indexOf(q) >= 0 ? "" : "none";
+      });
+    };
+  }
+  var aq = document.getElementById("dev-academy-q");
+  if (aq) {
+    aq.oninput = function () {
+      var q = aq.value.toLowerCase().trim();
+      document.querySelectorAll("#dev-academy-list .dev-club-row").forEach(function (row) {
+        var hay = row.getAttribute("data-club-q") || "";
+        row.style.display = !q || hay.indexOf(q) >= 0 ? "" : "none";
       });
     };
   }
