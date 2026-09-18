@@ -286,3 +286,13 @@ function resolveChoiceImg(ch, ev, sideIdx) {
   var themes = (ev && EVENT_CHOICE_THEMES[ev.id]) || [];
   return choiceThemeImg(themes[sideIdx] || "default");
 }
+
+/* One illustration for the QUESTION/event — not per answer option */
+function resolveEventImg(ev) {
+  if (!ev) return CHOICE_IMG.default;
+  if (ev.img) return ev.img;
+  if (ev.theme) return choiceThemeImg(ev.theme);
+  var themes = EVENT_CHOICE_THEMES[ev.id] || [];
+  if (themes[0]) return choiceThemeImg(themes[0]);
+  return choiceThemeImg(ev.id || "default");
+}

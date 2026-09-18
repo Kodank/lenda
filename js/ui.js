@@ -513,9 +513,8 @@ function choiceBtn(side, ch, ev, sideIdx) {
       (nat ? ' <img class="mini-flag" src="' + nat.flag + '" alt="">' : "") +
       "</div>" + pillsHtml(buildChoicePills(ch)) + "</div></button>";
   }
-  var img = (typeof resolveChoiceImg === "function") ? resolveChoiceImg(ch, ev, sideIdx || 0) : "img/choices/default.png";
-  return '<button class="choice photo" data-choice="' + side + '">' +
-    '<div class="choice-photo"><img src="' + img + '" alt="" loading="lazy" onerror="this.src=\'img/choices/default.png\'"></div>' +
+  /* No per-option image — event art lives in the story header */
+  return '<button class="choice option" data-choice="' + side + '">' +
     '<div class="choice-body"><b>' + esc(ch.label) + "</b>" +
     (ch.hint ? "<small>" + esc(ch.hint) + "</small>" : "") +
     pillsHtml(buildChoicePills(ch)) +
@@ -687,12 +686,15 @@ function viewDecision() {
   var ev = UI.event;
   var s = S;
   var choices = [choiceBtn("a", ev.a, ev, 0), choiceBtn("b", ev.b, ev, 1), choiceBtn("c", ev.c, ev, 2)].filter(Boolean).join("");
+  var hero = (typeof resolveEventImg === "function") ? resolveEventImg(ev) : "img/choices/default.png";
   return '<div class="top slim"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
     '<div class="career-dash">' +
     '<div class="career-left">' +
     identityStrip(s) +
     trophyCaseHtml(s) +
-    '<div class="story compact"><div class="meta">' + esc(clubOf(s.clubId).name) + " · " + s.age + " anos</div>" +
+    '<div class="story compact">' +
+    '<div class="event-hero"><img src="' + hero + '" alt="" loading="lazy" onerror="this.src=\'img/choices/default.png\'"></div>' +
+    '<div class="meta">' + esc(clubOf(s.clubId).name) + " · " + s.age + " anos</div>" +
     "<h2>" + esc(ev.title) + "</h2>" +
     "<p>" + esc(ev.text) + "</p></div>" +
     '<div class="choices-grid">' + choices + "</div>" +

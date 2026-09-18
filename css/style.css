@@ -482,18 +482,45 @@ input[type="text"] {
 .empty-case { text-align: center; padding: 10px; }
 .case-ghost { font-size: 28px; opacity: .25; margin-top: 2px; }
 
-.story.compact { padding: 2px 2px 0; }
+.story.compact { padding: 0; }
 .story .meta {
-  font-size: 11px; color: var(--muted); font-weight: 600;
+  font-size: 10px; color: var(--muted); font-weight: 600;
   letter-spacing: .06em; text-transform: uppercase;
 }
 .story h2 {
-  font-size: 22px; line-height: 1.15; margin: 6px 0 8px; letter-spacing: -.02em;
+  font-size: 20px; line-height: 1.15; margin: 4px 0 4px; letter-spacing: -.02em;
 }
-.story p { color: var(--muted); line-height: 1.45; font-size: 14px; }
+.story p { color: var(--muted); line-height: 1.35; font-size: 13px; margin: 0; }
+.story.compact p {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Single event illustration (question header — not per choice) */
+.event-hero {
+  width: 100%;
+  max-height: 132px;
+  height: 132px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 0 0 8px;
+  background: #0b0d12;
+  border: 1px solid rgba(255,255,255,.08);
+  flex-shrink: 0;
+}
+.event-hero img {
+  width: 100%;
+  height: 100%;
+  max-height: 132px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
 
 .choices-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
   margin-top: auto;
 }
 .choices-grid .choice { margin-top: 0; }
@@ -503,11 +530,11 @@ input[type="text"] {
 
 .choice {
   width: 100%; text-align: left; background: var(--paper2); border: 1px solid var(--line);
-  border-radius: 14px; padding: 12px; color: var(--ink);
+  border-radius: 12px; padding: 8px 10px; color: var(--ink);
   box-shadow: none;
 }
 .choice b { display: block; font-size: 14px; }
-.choice small { display: block; color: var(--muted); margin-top: 4px; font-size: 12px; line-height: 1.35; }
+.choice small { display: block; color: var(--muted); margin-top: 2px; font-size: 11px; line-height: 1.3; }
 .choice.transfer {
   display: flex; gap: 10px; align-items: center;
   background: linear-gradient(135deg, color-mix(in srgb, var(--c1) 22%, #14161c), var(--paper2));
@@ -1405,39 +1432,23 @@ input[type="text"] {
   .dev-checks { grid-template-columns: 1fr; }
 }
 
-/* ===== Copero-style career CHOICE cards ===== */
-.choice.photo {
+/* ===== Compact career CHOICE cards (pills only; event art is in .event-hero) ===== */
+.choice.option {
   display: flex;
   flex-direction: column;
-  padding: 0;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid rgba(255,255,255,.1);
   background: #12151c;
   transition: transform .22s ease, opacity .22s ease, box-shadow .22s ease, border-color .22s ease;
+  padding: 8px 10px;
 }
-.choice.photo .choice-photo {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  background: #0b0d12;
+.choice.option .choice-body {
+  padding: 0;
 }
-.choice.photo .choice-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transform: scale(1.02);
-  transition: transform .35s ease;
-}
-.choice.photo:hover .choice-photo img { transform: scale(1.06); }
-.choice.photo .choice-body {
-  padding: 10px 12px 12px;
-}
-.choice.photo b {
+.choice.option b {
   font-family: "Barlow Condensed", sans-serif;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: .02em;
   line-height: 1.15;
@@ -1445,8 +1456,8 @@ input[type="text"] {
 .choice-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 4px;
+  margin-top: 6px;
   max-width: 100%;
   overflow: hidden;
 }
@@ -1572,11 +1583,12 @@ input[type="text"] {
 .choice.transfer .choice-pills { margin-top: 8px; }
 @media (max-width: 720px) {
   .choices-grid { grid-template-columns: 1fr; }
-  .choice.photo .choice-photo { aspect-ratio: 2 / 1; }
+  .event-hero { height: 110px; max-height: 110px; }
+  .event-hero img { max-height: 110px; }
 }
 
 
-.choice.photo,
+.choice.option,
 .choice.transfer {
   max-width: 100%;
   overflow: hidden;
@@ -1591,4 +1603,48 @@ input[type="text"] {
 }
 .fx-pill.good, .fx-pill.bad, .fx-pill.neutral, .fx-pill.temp-good, .fx-pill.temp-bad {
   max-width: min(100%, 220px);
+}
+
+
+/* Decision/report: keep left column dense so Q + 2 choices fit without endless scroll */
+#app.screen-decision .career-left,
+#app.screen-report .career-left {
+  gap: 6px;
+  padding: 10px;
+}
+#app.screen-decision .trophy-case.empty-case {
+  display: none;
+}
+#app.screen-decision .trophy-case {
+  padding: 6px 8px;
+}
+#app.screen-decision .case-item img {
+  width: 36px; height: 36px;
+}
+#app.screen-decision .id-strip {
+  padding: 8px 10px;
+  gap: 8px;
+}
+#app.screen-decision .ovr-badge {
+  width: 52px; height: 52px;
+}
+#app.screen-decision .ovr-badge b { font-size: 26px; }
+#app.screen-decision .choice.transfer {
+  gap: 8px;
+  padding: 8px 10px;
+}
+#app.screen-decision .choice-crest { width: 36px; height: 36px; flex-basis: 36px; }
+#app.screen-decision .choice.transfer .choice-pills { margin-top: 4px; }
+
+@media (max-height: 820px) {
+  .event-hero { height: 96px; max-height: 96px; }
+  .event-hero img { max-height: 96px; }
+  .story h2 { font-size: 18px; margin: 2px 0 2px; }
+  .story.compact p { -webkit-line-clamp: 2; font-size: 12px; }
+  #app.screen-decision .career-left { gap: 5px; padding: 8px; }
+}
+
+@media (max-width: 900px) {
+  .event-hero { height: 120px; max-height: 120px; }
+  .event-hero img { max-height: 120px; }
 }
