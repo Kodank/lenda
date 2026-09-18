@@ -75,13 +75,13 @@ function drawCareerCompleteCanvas(s) {
   var W = 1100;
   var pad = 28;
   var gap = 12;
-  var topH = 268;
+  var topH = 300;
   var clubCols = stints.length <= 1 ? 1 : stints.length === 2 ? 2 : stints.length === 3 ? 3 : 4;
   if (stints.length > 4) clubCols = 4;
   var clubW = stints.length
     ? (W - pad * 2 - gap * (clubCols - 1)) / clubCols
     : W - pad * 2;
-  var clubH = 222;
+  var clubH = 248;
   var clubRows = stints.length ? Math.ceil(stints.length / clubCols) : 0;
   var clubsBlock = stints.length
     ? clubRows * clubH + (clubRows - 1) * gap
@@ -167,14 +167,14 @@ function drawCareerCompleteCanvas(s) {
     }
 
     if (ntCups.length) {
-      drawTrophyRow(ctx, loaded, idx, ntCups, xNt + 12, y0 + topH - 66, wNt - 24, 40);
+      drawTrophyRow(ctx, loaded, idx, ntCups, xNt + 12, y0 + topH - 96, wNt - 24, 40, { labelMax: 56 });
     } else {
       drawEmptyVitrine(ctx, xNt + wNt / 2, y0 + topH - 40);
     }
     idx += ntCups.length;
 
     if (awards.length) {
-      drawTrophyRow(ctx, loaded, idx, awards, xAw + 12, y0 + 78, wAw - 24, 54);
+      drawTrophyRow(ctx, loaded, idx, awards, xAw + 12, y0 + 72, wAw - 24, 52, { labelMax: 68, fontPx: 10 });
     } else {
       drawEmptyVitrine(ctx, xAw + wAw / 2, y0 + 140);
     }
@@ -242,7 +242,7 @@ function drawCareerCompleteCanvas(s) {
 
         drawStatsBar(ctx, x + 10, y + 106, clubW - 20, st.apps, st.goals, st.assists, 20);
         if (stCups.length) {
-          drawTrophyRow(ctx, loaded, idx, stCups, x + 6, y + clubH - 46, clubW - 12, 30);
+          drawTrophyRow(ctx, loaded, idx, stCups, x + 6, y + clubH - 72, clubW - 12, 28, { labelMax: 46, fontPx: 8 });
         }
         idx += stCups.length;
       }
@@ -355,27 +355,89 @@ function drawStatsBar(ctx, x, y, w, apps, goals, assists, fontSize) {
   ctx.textAlign = "left";
 }
 
-function drawTrophyRow(ctx, loaded, startIdx, items, x, y, w, size) {
-  if (!items || !items.length) return;
-  var n = items.length;
-  var gapT = 8;
-  var total = n * size + (n - 1) * gapT;
-  var x0 = x + Math.max(0, (w - total) / 2);
-  for (var i = 0; i < n; i++) {
-    var im = loaded[startIdx + i];
-    var tx = x0 + i * (size + gapT);
-    if (im) {
-      try { ctx.drawImage(im, tx, y, size, size); } catch (e) {}
+function wrapTrophyLabel(ctx, text, maxW, maxLines) {
+  var words = String(text || "").split(/\s+/).filter(Boolean);
+  if (!words.length) return [];
+  var lines = [];
+  var cur = words[0];
+  for (var i = 1; i < words.length; i++) {
+    var trial = cur + " " + words[i];
+    if (ctx.measureText(trial).width <= maxW) {
+      cur = trial;
+      continue;
     }
-    if (items[i].n > 1) {
-      roundRect(ctx, tx + size - 18, y + size - 14, 22, 14, 7);
+    lines.push(cur);
+    cur = words[i];
+    if (lines.length >= maxLines - 1) {
+      var rest = [cur].concat(words.slice(i + 1)).join(" ");
+      while (rest.length > 1 && ctx.measureText(rest).width > maxW) rest = rest.slice(0, -1);
+      if (ctx.measureText(rest).width > maxW || rest !== [cur].concat(words.slice(i + 1)).join(" ")) {
+        while (rest.length > 1 && ctx.measureText(rest + "…").width > maxW) rest = rest.slice(0, -1);
+        rest = rest + "…";
+      }
+      lines.push(rest);
+      return lines;
+    }
+  }
+  lines.push(cur);
+  /* single long word */
+  if (lines.length === 1 && ctx.measureText(lines[0]).width > maxW) {
+    var s = lines[0];
+    while (s.length > 1 && ctx.measureText(s + "…").width > maxW) s = s.slice(0, -1);
+    lines[0] = s + "…";
+  }
+  return lines.slice(0, maxLines);
+}
+
+function drawTrophyRow(ctx, loaded, startIdx, items, x, y, w, size, opts) {
+  if (!items || !items.length) return;
+  opts = opts || {};
+  var n = items.length;
+  var labelMax = opts.labelMax != null ? opts.labelMax : Math.max(size + 8, 48);
+  var fontPx = opts.fontPx || 9;
+  var gapT = Math.max(6, Math.min(10, (w - n * labelMax) / Math.max(1, n - 1)));
+  if (!isFinite(gapT) || gapT < 4) gapT = 6;
+  var cellW = Math.max(size, labelMax);
+  var total = n * cellW + (n - 1) * gapT;
+  /* shrink cell if overflowing */
+  if (total > w && n > 0) {
+    cellW = Math.max(size, (w - (n - 1) * 4) / n);
+    gapT = n > 1 ? Math.max(4, (w - n * cellW) / (n - 1)) : 0;
+    total = n * cellW + (n - 1) * gapT;
+  }
+  var x0 = x + Math.max(0, (w - total) / 2);
+  ctx.textAlign = "center";
+  for (var i = 0; i < n; i++) {
+    var it = items[i];
+    var meta = it.meta || trophyOf(it.id || it);
+    var tx = x0 + i * (cellW + gapT);
+    var ix = tx + (cellW - size) / 2;
+    var im = loaded[startIdx + i];
+    if (im) {
+      try { ctx.drawImage(im, ix, y, size, size); } catch (e) {}
+    }
+    if (it.n > 1) {
+      roundRect(ctx, ix + size - 18, y + size - 14, 22, 14, 7);
       ctx.fillStyle = "rgba(0,0,0,.75)";
       ctx.fill();
       ctx.fillStyle = "#f5c542";
       ctx.font = "800 10px DM Sans, sans-serif";
-      ctx.fillText("×" + items[i].n, tx + size - 15, y + size - 3);
+      ctx.textAlign = "left";
+      ctx.fillText("×" + it.n, ix + size - 15, y + size - 3);
+      ctx.textAlign = "center";
+    }
+    var name = (meta && meta.name) || "";
+    if (name) {
+      ctx.fillStyle = "rgba(244,246,248,.82)";
+      ctx.font = "600 " + fontPx + "px DM Sans, sans-serif";
+      var lines = wrapTrophyLabel(ctx, name, cellW - 2, 2);
+      var ly = y + size + fontPx + 1;
+      for (var li = 0; li < lines.length; li++) {
+        ctx.fillText(lines[li], tx + cellW / 2, ly + li * (fontPx + 1));
+      }
     }
   }
+  ctx.textAlign = "left";
 }
 
 function fitText(ctx, text, x, y, maxW, weightPrefix, fontSuffix, maxPx, minPx) {

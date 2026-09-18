@@ -695,7 +695,7 @@ function ccStatsBar(apps, goals, assists) {
 }
 
 function ccTrophyStrip(items) {
-  /* items: [{id,n,meta}] or raw trophy id list */
+  /* items: [{id,n,meta}] or raw trophy id list — name under each icon */
   if (!items || !items.length) {
     return '<div class="cc-empty">Vitrine vazia</div>';
   }
@@ -708,9 +708,13 @@ function ccTrophyStrip(items) {
     } else {
       id = it.id; n = it.n || 1; meta = it.meta || trophyOf(id);
     }
-    html += '<div class="cc-cup" title="' + esc(meta.name) + (n > 1 ? " ×" + n : "") + '">' +
+    var label = meta.name || id;
+    html += '<div class="cc-cup" title="' + esc(label) + (n > 1 ? " ×" + n : "") + '">' +
+      '<div class="cc-cup-ico">' +
       '<img src="' + meta.img + '" alt="">' +
       (n > 1 ? '<i>×' + n + "</i>" : "") +
+      "</div>" +
+      '<span class="cc-cup-name">' + esc(label) + "</span>" +
       "</div>";
   }
   return html + "</div>";
