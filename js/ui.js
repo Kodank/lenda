@@ -60,6 +60,7 @@ function esc(t) {
   });
 }
 
+
 function ovrTier(ovr) {
   var n = +ovr || 0;
   if (n >= 99) return "ovr-99";
@@ -70,7 +71,66 @@ function ovrTier(ovr) {
   return "ovr-copper";
 }
 
+function ovrTierStyle(ovr) {
+  var t = ovrTier(ovr);
+  var map = {
+    "ovr-copper": {
+      bg: "linear-gradient(145deg,#d08a4a 0%,#a05a28 42%,#6a3a18 100%)",
+      color: "#fff8ee",
+      border: "rgba(255,220,180,.35)",
+      glow: "0 6px 16px rgba(0,0,0,.35)"
+    },
+    "ovr-silver": {
+      bg: "linear-gradient(145deg,#f7f9fc 0%,#c5ceda 45%,#8a95a5 100%)",
+      color: "#1a1f28",
+      border: "rgba(255,255,255,.55)",
+      glow: "0 6px 16px rgba(0,0,0,.3)"
+    },
+    "ovr-gold": {
+      bg: "linear-gradient(145deg,#ffe9a8 0%,#f5b021 40%,#c86e00 100%)",
+      color: "#1a1208",
+      border: "rgba(255,230,150,.55)",
+      glow: "0 6px 18px rgba(245,176,33,.35)"
+    },
+    "ovr-diamond": {
+      bg: "linear-gradient(135deg,rgba(255,255,255,.65),transparent 40%),linear-gradient(145deg,#f2fbff 0%,#9ad7f2 35%,#4f84d6 72%,#eaf7ff 100%)",
+      color: "#0c1a2e",
+      border: "rgba(255,255,255,.7)",
+      glow: "0 0 18px rgba(120,200,255,.4)"
+    },
+    "ovr-mythic": {
+      bg: "radial-gradient(circle at 30% 20%,rgba(255,180,255,.5),transparent 45%),linear-gradient(145deg,#d4a1ff 0%,#8b5cf6 45%,#4c1d95 100%)",
+      color: "#faf5ff",
+      border: "rgba(255,200,255,.5)",
+      glow: "0 0 22px rgba(168,85,247,.5)"
+    },
+    "ovr-99": {
+      bg: "conic-gradient(from 120deg,#fff7ae,#ff4ecd,#7c3aed,#22d3ee,#fff7ae)",
+      color: "#ffffff",
+      border: "rgba(255,255,255,.75)",
+      glow: "0 0 28px rgba(255,78,205,.55)"
+    }
+  };
+  return map[t] || map["ovr-copper"];
+}
 
+function ovrBadgeHtml(ovr, label) {
+  label = label || "OVR";
+  var t = ovrTier(ovr);
+  var st = ovrTierStyle(ovr);
+  return '<div class="ovr-badge ' + t + '" style="background:' + st.bg + ";color:" + st.color +
+    ";border:1px solid " + st.border + ";box-shadow:" + st.glow +
+    ';width:64px;height:64px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center">' +
+    '<span style="font-size:10px;font-weight:800;letter-spacing:.12em;opacity:.9;color:inherit">' + label + "</span>" +
+    '<b style="font-family:Barlow Condensed,sans-serif;font-size:32px;line-height:.9;font-weight:800;color:inherit">' + ovr + "</b></div>";
+}
+
+function ovrTlHtml(ovr, deltaHtml) {
+  var st = ovrTierStyle(ovr);
+  return '<span class="tl-ovr ' + ovrTier(ovr) + '" style="color:' + st.color + ';background:' + st.bg +
+    ';border:1px solid ' + st.border + ';border-radius:8px;padding:2px 6px;font-weight:800">' +
+    ovr + (deltaHtml || "") + "</span>";
+}
 function clubNameHtml(name, cls) {
   cls = cls || "club-name";
   return '<span class="' + cls + '" style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important">' +
@@ -83,11 +143,6 @@ function enforceLightInk() {
     el.style.setProperty("color", "#ffffff", "important");
     el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
   });
-}
-
-function ovrBadgeHtml(ovr, label) {
-  label = label || "OVR";
-  return '<div class="ovr-badge ' + ovrTier(ovr) + '"><span>' + label + "</span><b>" + ovr + "</b></div>";
 }
 
 function onColor(hex) {
@@ -230,7 +285,7 @@ function identityStrip(s) {
   var ast = last ? (s.pos === "GOL" ? last.ga : last.assists) : 0;
   var gLab = s.pos === "GOL" ? "CS" : "GOLS";
   var aLab = s.pos === "GOL" ? "GS" : "AST";
-  return '<div class="id-strip">' +
+  return '<div class="id-strip" data-ovr-tier="' + ovrTier(s.ovr) + '">' +
     ovrBadgeHtml(s.ovr) +
     '<div class="id-meta">' +
     '<div class="id-line">' +
@@ -429,7 +484,7 @@ function timelineHtml(s, hiN, choosing) {
       html += '<div class="tl-row filled' + (hi ? " hi" : "") + (cups.length ? " won" : "") + '">' +
         '<span class="tl-age">' + age + "</span>" +
         '<span class="tl-club">' + imgCrest(club.crest, 'tl-crest', club.name) + clubNameHtml(club.name, "tl-name") + cupDot + "</span>" +
-        '<span class="tl-ovr">' + r.ovr + dlt + "</span>" +
+        ovrTlHtml(r.ovr, dlt) +
         '<span class="tl-n">' + r.apps + "</span>" +
         '<span class="tl-n">' + g + "</span>" +
         '<span class="tl-n">' + a + "</span>" +
@@ -438,7 +493,7 @@ function timelineHtml(s, hiN, choosing) {
       html += '<div class="tl-row choosing">' +
         '<span class="tl-age">' + age + "</span>" +
         '<span class="tl-club choosing-lab"><span class="tl-q">?</span><b>Escolhendo clube…</b></span>' +
-        '<span class="tl-ovr">' + s.ovr + "</span>" +
+        ovrTlHtml(s.ovr) +
         '<span class="tl-n">—</span><span class="tl-n">—</span><span class="tl-n">—</span>' +
         "</div>";
     } else {

@@ -763,3 +763,13 @@ input[type="text"] {
   .quadro-ovr b { font-size: 52px; }
   .flag-list { grid-template-columns: 1fr; }
 }
+
+
+/* Career strip soft tint by OVR tier */
+.id-strip[data-ovr-tier="ovr-copper"] { box-shadow: inset 3px 0 0 #c47a3a; }
+.id-strip[data-ovr-tier="ovr-silver"] { box-shadow: inset 3px 0 0 #c5ceda; }
+.id-strip[data-ovr-tier="ovr-gold"] { box-shadow: inset 3px 0 0 #f5b021; }
+.id-strip[data-ovr-tier="ovr-diamond"] { box-shadow: inset 3px 0 0 #9ad7f2; }
+.id-strip[data-ovr-tier="ovr-mythic"] { box-shadow: inset 3px 0 0 #a855f7; }
+.id-strip[data-ovr-tier="ovr-99"] { box-shadow: inset 3px 0 0 #ff4ecd; }
+.tl-ovr { display: inline-block; min-width: 2.4em; text-align: center; }
