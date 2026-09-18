@@ -484,9 +484,18 @@ function isAssetPathLabel(t) {
   return false;
 }
 
+function isEmptyPillLabel(t) {
+  t = String(t == null ? "" : t).trim();
+  if (!t) return true;
+  /* Dash / "Nada" / "Nada acontece" — never user-visible pill labels */
+  if (/^([—–\-−]|Nada)\b/i.test(t)) return true;
+  if (/^Nada acontece$/i.test(t)) return true;
+  return false;
+}
+
 function humanPillText(t) {
   t = String(t == null ? "" : t).trim();
-  if (!t || isAssetPathLabel(t)) return "";
+  if (!t || isAssetPathLabel(t) || isEmptyPillLabel(t)) return "";
   return t;
 }
 
@@ -498,9 +507,7 @@ function signedNum(n) {
 /* Visible pills: OVR up/down (+ temporary) only. Other fx still apply in applyChoiceFx. */
 function isOvrPillText(t) {
   t = String(t == null ? "" : t).trim();
-  if (!t) return false;
-  /* Dash / "Nada" are empty consequences — never show as pills */
-  if (/^([—–\-]|Nada)\b/i.test(t) || /^Nada acontece$/i.test(t)) return false;
+  if (!t || isEmptyPillLabel(t)) return false;
   return /\bOVR\b/i.test(t);
 }
 
@@ -587,6 +594,7 @@ function sanitizePillsList(list) {
 }
 
 function buildChoicePills(ch) {
+  /* Empty → []; never invent placeholder "Nada" pills (farewell / stay / flavor-only). */
   if (!ch) return [];
   if (ch.pills && ch.pills.length) {
     var custom = sanitizePillsList(ch.pills);
@@ -596,7 +604,7 @@ function buildChoicePills(ch) {
   var pills = [];
   function push(kind, text) {
     text = humanPillText(text);
-    if (!text) return;
+    if (!text || !isOvrPillText(text)) return;
     pills.push({ kind: kind, text: text });
   }
   if (fx.risk) {
@@ -615,11 +623,13 @@ function buildChoicePills(ch) {
     var base = Object.assign({}, fx);
     delete base.risk;
     var baseP = collectFxPillParts(base);
-    for (var i = 0; i < baseP.length; i++) pills.push({ kind: baseP[i].kind, text: baseP[i].text });
+    for (var i = 0; i < baseP.length; i++) push(baseP[i].kind, baseP[i].text);
     return pills;
   }
   return summarizeLandedPills(fx).map(function (p) {
     return { kind: p.kind, text: p.text };
+  }).filter(function (p) {
+    return p.text && isOvrPillText(p.text);
   });
 }
 

@@ -544,12 +544,15 @@ function outcomeBoardHtml(out) {
 }
 
 function pillsHtml(pills, mode) {
+  /* Empty list → no .choice-pills container and no placeholder "Nada" pill. */
   pills = (typeof sanitizePillsList === "function") ? sanitizePillsList(pills) : (pills || []);
   if (!pills.length) return "";
   var inner = pills.map(function (p) {
     var kind = p.kind || "neutral";
     var text = String(p.text || "").trim();
-    if (!text || (typeof isAssetPathLabel === "function" && isAssetPathLabel(text))) return "";
+    if (!text) return "";
+    if (typeof isEmptyPillLabel === "function" && isEmptyPillLabel(text)) return "";
+    if (typeof isAssetPathLabel === "function" && isAssetPathLabel(text)) return "";
     var cls = "fx-pill " + kind + (mode === "landed" && p.landed ? " landed" : "");
     return '<span class="' + cls + '">' + esc(text) + "</span>";
   }).join("");
