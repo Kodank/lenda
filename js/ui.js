@@ -331,12 +331,34 @@ function render() {
   root.className = "screen-" + UI.screen + (UI.screen === "create" ? " step-" + ((UI.draft && UI.draft.step) || 0) : "");
   bind();
   enforceLightInk();
+  if (typeof JUICE !== "undefined") {
+    JUICE.bindSoundToggle();
+    if (UI.screen === "report" && S) {
+      JUICE.onReportEnter(S, UI.reports || [], UI._prevOvr);
+      UI._prevOvr = null;
+    } else if (S && typeof JUICE.ensureJuice === "function") {
+      JUICE.ensureJuice(S);
+    }
+  }
   if (typeof devAfterRender === "function") devAfterRender();
+}
+
+
+function topBarHtml(brand, slim) {
+  brand = brand || "LENDA";
+  return '<div class="top' + (slim ? " slim" : "") + '"><div class="brand">' + brand + "</div>" +
+    '<div class="top-actions">' +
+    (typeof JUICE !== "undefined" ? JUICE.soundToggleHtml() : "") +
+    '<button class="ghost danger" data-go="reset">Reiniciar tudo</button>' +
+    "</div></div>";
 }
 
 function viewHome() {
   var has = !!load();
   return '<div class="home">' +
+    '<div class="home-top">' +
+    (typeof JUICE !== "undefined" ? JUICE.soundToggleHtml() : "") +
+    "</div>" +
     '<div class="kicker">Simulador de carreira</div>' +
     "<h1>LENDA</h1>" +
     "<p>Escolhe a origem, toma as decisões e deixa o destino virar títulos, números e um quadro para guardar.</p>" +
@@ -357,7 +379,7 @@ function viewCreate() {
   var d = UI.draft;
   var step = d.step || 0;
   var kit = NATION_KIT[d.nation] || ["#1f8a4c", "#111"];
-  var top = '<div class="top"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
+  var top = topBarHtml("LENDA", false) +
     createProgress(step);
 
   if (step === 0) {
@@ -496,7 +518,7 @@ function viewAcademy() {
       '<div class="label" style="color:#c5ccd6;-webkit-text-fill-color:#c5ccd6">Pressão</div><div class="bar"><i style="width:' + o.pressao + '%"></i></div>' +
       "</div></div>";
   }).join("");
-  return '<div class="top"><div class="brand">BASE</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
+  return topBarHtml("BASE", false) +
     '<div class="step-card">' +
     "<h2>Academia</h2>" +
     '<p class="lead tight">Três ofertas. A camisa grande não é sempre o caminho mais rápido.</p>' +
@@ -679,6 +701,7 @@ function showTrophyHall(ids) {
   requestAnimationFrame(function () {
     if (bd) bd.classList.add("on");
   });
+  if (typeof JUICE !== "undefined") JUICE.onTrophyShow(ids);
   function closePop() {
     if (UI._trophyTimer) { clearTimeout(UI._trophyTimer); UI._trophyTimer = null; }
     if (bd) {
@@ -730,12 +753,14 @@ function viewDecision() {
   var s = S;
   var choices = [choiceBtn("a", ev.a, ev, 0), choiceBtn("b", ev.b, ev, 1), choiceBtn("c", ev.c, ev, 2)].filter(Boolean).join("");
   var hero = (typeof resolveEventImg === "function") ? resolveEventImg(ev) : "img/choices/default.png";
-  return '<div class="top slim"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
+  return topBarHtml("LENDA", true) +
     '<div class="career-dash">' +
     '<div class="career-left">' +
     identityStrip(s) +
     trophyCaseHtml(s) +
+    (typeof JUICE !== "undefined" ? JUICE.hypeBarHtml(s) : "") +
     rivalChipHtml(s) +
+    (typeof JUICE !== "undefined" ? JUICE.streakChipHtml(s) : "") +
     goalsStripHtml(s) +
     '<div class="story compact">' +
     '<div class="event-hero"><img src="' + hero + '" alt="" loading="lazy" onerror="this.src=\'img/choices/default.png\'"></div>' +
@@ -761,6 +786,7 @@ function viewReport() {
       ? " · " + (last.nt.youth ? "Sub-20" : "seleção") + " (" + last.nt.apps + " j)"
       : "";
     var theme = last.themeTitle || (typeof pickSeasonTheme === "function" ? pickSeasonTheme(s, last) : "");
+    var juiceSurprise = (typeof JUICE !== "undefined") ? JUICE.seasonSurpriseHtml(last) : "";
     var pathLine = (last.nt && last.nt.path && last.nt.path.text)
       ? '<div class="flavor-line nt-path">' + esc(last.nt.path.text) + "</div>"
       : "";
@@ -772,7 +798,7 @@ function viewReport() {
     }
     var rivalLine = last.rivalNote ? '<div class="flavor-line rival">Rival · ' + esc(last.rivalNote) + "</div>" : "";
     recap = '<div class="story compact"><div class="meta">Temporada encerrada</div>' +
-      (theme ? '<div class="season-theme" role="status">' + esc(theme) + "</div>" : "") +
+      (!juiceSurprise && theme ? '<div class="season-theme" role="status">' + esc(theme) + "</div>" : "") +
       "<h2 class=\"club-title\" style=\"color:#ffffff !important;-webkit-text-fill-color:#ffffff !important\">" + esc(club.name) + "</h2>" +
       '<p class="lead tight">OVR ' + last.ovr + " (" + fmtDelta(last.delta) + ") · " +
       last.apps + " jogos · " + (s.pos === "GOL" ? last.cs + " CS" : last.goals + " gols / " + last.assists + " ast") +
@@ -784,13 +810,16 @@ function viewReport() {
       "</div>";
   }
   var next = s.retired ? "legacy" : "decision";
-  return '<div class="top slim"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
+  return topBarHtml("LENDA", true) +
     '<div class="career-dash">' +
     '<div class="career-left">' +
     identityStrip(s) +
     trophyCaseHtml(s) +
+    (typeof JUICE !== "undefined" ? JUICE.hypeBarHtml(s) : "") +
     recap +
+    (typeof JUICE !== "undefined" && last ? JUICE.seasonSurpriseHtml(last) : "") +
     rivalChipHtml(s) +
+    (typeof JUICE !== "undefined" ? JUICE.streakChipHtml(s) : "") +
     goalsStripHtml(s) +
     (S._goalToast ? '<div class="goal-toast">Meta: ' + esc(S._goalToast) + "</div>" : "") +
     (S._lastRisk ? '<div class="risk-toast ' + (S._lastRisk.ok ? "ok" : "bad") + '">' + esc(S._lastRisk.text) + "</div>" : "") +
@@ -924,7 +953,7 @@ function viewLegacy() {
       "</div></article>";
   }).join("");
 
-  return '<div class="top"><div class="brand">LENDA</div><button class="ghost danger" data-go="reset">Reiniciar tudo</button></div>' +
+  return topBarHtml("LENDA", false) +
     '<div class="cc-wrap">' +
     '<div class="cc-top">' + playerCard + ntCard + awCard + "</div>" +
     '<div class="cc-clubs">' + (clubsHtml || '<div class="cc-empty wide">Nenhum clube na carreira</div>') + "</div>" +
@@ -1043,27 +1072,37 @@ function bind() {
       if (UI._picking) return;
       UI._picking = true;
       var side = b.getAttribute("data-choice");
+      var ch = UI.event && UI.event[side];
       var grid = document.querySelector(".choices-grid");
       if (grid) grid.classList.add("resolving");
       b.classList.add("selected");
       document.querySelectorAll("[data-choice]").forEach(function (other) {
         if (other !== b) other.classList.add("dimmed");
       });
-      applyChoice(S, UI.event, side);
-      var out = S._lastOutcome;
-      var wrap = b.querySelector(".choice-pills");
-      if (wrap && out && out.pills) {
-        wrap.outerHTML = pillsHtml(out.pills, "landed");
+      function finishPick() {
+        UI._prevOvr = S ? S.ovr : null;
+        applyChoice(S, UI.event, side);
+        var out = S._lastOutcome;
+        var wrap = b.querySelector(".choice-pills");
+        if (wrap && out && out.pills) {
+          wrap.outerHTML = pillsHtml(out.pills, "landed");
+        }
+        b.classList.add("landed-pulse");
+        if (typeof JUICE !== "undefined") JUICE.onAfterChoice(S, b);
+        setTimeout(function () {
+          UI._picking = false;
+          UI.reports = advance(S);
+          UI.screen = "report";
+          save();
+          render();
+          startTrophyQueue(trophiesFromReports(UI.reports));
+        }, 980);
       }
-      b.classList.add("landed-pulse");
-      setTimeout(function () {
-        UI._picking = false;
-        UI.reports = advance(S);
-        UI.screen = "report";
-        save();
-        render();
-        startTrophyQueue(trophiesFromReports(UI.reports));
-      }, 980);
+      if (typeof JUICE !== "undefined" && JUICE.riskNearMiss(ch)) {
+        JUICE.runNearMiss(b, finishPick);
+      } else {
+        finishPick();
+      }
     };
   });
   var dl = document.getElementById("dl");
