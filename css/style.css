@@ -851,3 +851,94 @@ input[type="text"] {
 .id-strip[data-ovr-tier="ovr-mythic"] { box-shadow: inset 3px 0 0 #a855f7; }
 .id-strip[data-ovr-tier="ovr-99"] { box-shadow: inset 3px 0 0 #ff4ecd; }
 .tl-ovr { display: inline-block; min-width: 2.4em; text-align: center; }
+
+/* ===== Mobile / phone (375–430px) — keep desktop unchanged above ===== */
+@media (max-width: 900px) {
+  #app {
+    max-width: 100%;
+    padding: 10px 12px calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  #app.screen-decision,
+  #app.screen-report {
+    max-width: 100%;
+  }
+  .career-dash {
+    grid-template-columns: 1fr !important;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    gap: 10px;
+  }
+  .career-left {
+    overflow: visible;
+    max-height: none;
+  }
+  .timeline-panel {
+    max-height: min(52vh, 440px);
+    height: min(52vh, 440px);
+  }
+  .timeline-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  .id-strip {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .nation-split,
+  .pos-split {
+    grid-template-columns: 1fr;
+  }
+  .shirt-mini { display: none; }
+  .field-grid { grid-template-columns: 1fr; }
+  .academy-grid { grid-template-columns: 1fr; }
+  .trophy-pop {
+    width: min(92vw, 420px);
+    max-height: min(86vh, 640px);
+    overflow-y: auto;
+    padding: 18px 14px 16px;
+  }
+  .trophy-hall-grid { grid-template-columns: 1fr !important; }
+
+  /* Touch targets ≥44px */
+  .btn,
+  button.btn,
+  .offer,
+  .flag-row,
+  .chip,
+  .ghost,
+  .choice {
+    min-height: 44px;
+  }
+  .chip {
+    min-width: 44px;
+    padding: 10px 14px;
+  }
+  .flag-row { padding: 10px 12px; }
+  .offer { padding: 14px 12px; }
+  .ghost { padding: 10px 12px; }
+  .step-actions { gap: 10px; }
+  .step-actions .btn { flex: 1; }
+
+  body, #app, .career-dash, .step-card, .id-strip, .trophy-pop {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  input, select, textarea { font-size: 16px; }
+}
+
+@media (max-width: 430px) {
+  .home h1 { font-size: 56px; }
+  .brand { font-size: 18px; letter-spacing: .18em; }
+  .ovr-badge { width: 56px; height: 56px; }
+  .ovr-badge b { font-size: 28px; }
+  .step-card { padding: 14px 12px; }
+  .flag-list { max-height: 42vh; }
+  .quadro-id h1 { font-size: 30px; }
+  .quadro-ovr b { font-size: 48px; }
+  .trophy-pop-img { width: 120px; height: 120px; }
+  .legacy-timeline .timeline-panel {
+    max-height: 380px;
+    height: 380px;
+  }
+}

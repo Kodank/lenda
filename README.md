@@ -19,6 +19,16 @@ Abra http://localhost:8765
 
 Ou, se já houver um servidor nessa pasta, abra `index.html` via esse servidor (evite `file://` por causa de alguns browsers com módulos/assets).
 
+
+## Celular / PWA
+
+1. No PC, suba o servidor (`abrir.bat` no Windows, ou `./abrir-mobile.sh` / `python3 -m http.server 8765`).
+2. Celular e PC na **mesma Wi‑Fi**.
+3. No telefone, abra `http://<IP-do-PC>:8765/` (o `abrir.bat` / `abrir-mobile.sh` imprime o IP).
+4. No navegador: **Adicionar à tela inicial** / Instalar app (usa `manifest.webmanifest` + service worker leve).
+
+Layout empilha o painel da carreira e a timeline em telas ≤900px; alvos de toque ≥44px. Desktop permanece em duas colunas.
+
 ## Smoke test
 
 ```bash
