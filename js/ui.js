@@ -313,31 +313,35 @@ function createProgress(step) {
 
 
 function pitchMarkingsSvg() {
-  /* FIFA-ish vertical full pitch (metres). ATA top, GOL bottom. */
+  /* FIFA-ish vertical full pitch (metres). ATA top, GOL bottom.
+     viewBox 68×105 = real aspect; preserveAspectRatio meet keeps circles circular. */
   var s = "rgba(255,255,255,.55)";
-  var sw = "0.5";
+  var sw = "1.75";
   return (
-    '<svg class="pitch-markings" viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true">' +
-    '<g fill="none" stroke="' + s + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round">' +
-    /* outer touchlines + goal lines */
+    '<svg class="pitch-markings" viewBox="0 0 68 105" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+    '<g fill="none" stroke="' + s + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round" ' +
+    'vector-effect="non-scaling-stroke" shape-rendering="geometricPrecision">' +
+    /* straight markings — crispEdges for axis-aligned rects only */
+    '<g shape-rendering="crispEdges">' +
     '<rect x="1" y="1" width="66" height="103"/>' +
+    '<rect x="13.84" y="1" width="40.32" height="16.5"/>' +
+    '<rect x="24.84" y="1" width="18.32" height="5.5"/>' +
+    '<rect x="30.34" y="0.2" width="7.32" height="0.8"/>' +
+    '<rect x="13.84" y="87.5" width="40.32" height="16.5"/>' +
+    '<rect x="24.84" y="98.5" width="18.32" height="5.5"/>' +
+    '<rect x="30.34" y="104" width="7.32" height="0.8"/>' +
+    "</g>" +
     /* halfway line */
     '<line x1="1" y1="52.5" x2="67" y2="52.5"/>' +
     /* center circle + spot */
     '<circle cx="34" cy="52.5" r="9.15"/>' +
-    '<circle cx="34" cy="52.5" r="0.4" fill="' + s + '" stroke="none"/>' +
-    /* top (ATA) penalty area, goal area, spot, arc, goal mouth */
-    '<rect x="13.84" y="1" width="40.32" height="16.5"/>' +
-    '<rect x="24.84" y="1" width="18.32" height="5.5"/>' +
-    '<circle cx="34" cy="12" r="0.4" fill="' + s + '" stroke="none"/>' +
+    '<circle cx="34" cy="52.5" r="0.55" fill="' + s + '" stroke="none"/>' +
+    /* top (ATA) penalty spot + arc */
+    '<circle cx="34" cy="12" r="0.55" fill="' + s + '" stroke="none"/>' +
     '<path d="M26.69 17.5 A 9.15 9.15 0 0 1 41.31 17.5"/>' +
-    '<rect x="30.34" y="0.2" width="7.32" height="0.8"/>' +
-    /* bottom (GOL) penalty area, goal area, spot, arc, goal mouth */
-    '<rect x="13.84" y="87.5" width="40.32" height="16.5"/>' +
-    '<rect x="24.84" y="98.5" width="18.32" height="5.5"/>' +
-    '<circle cx="34" cy="93" r="0.4" fill="' + s + '" stroke="none"/>' +
+    /* bottom (GOL) penalty spot + arc */
+    '<circle cx="34" cy="93" r="0.55" fill="' + s + '" stroke="none"/>' +
     '<path d="M26.69 87.5 A 9.15 9.15 0 0 0 41.31 87.5"/>' +
-    '<rect x="30.34" y="104" width="7.32" height="0.8"/>' +
     /* corner arcs (escanteios) */
     '<path d="M1 2.5 A 1.5 1.5 0 0 0 2.5 1"/>' +
     '<path d="M65.5 1 A 1.5 1.5 0 0 0 67 2.5"/>' +

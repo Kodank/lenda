@@ -290,20 +290,28 @@ input[type="text"] {
 .pos-now small { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; }
 
 .pitch-wrap {
-  position: relative; height: 340px; border-radius: 14px; overflow: hidden;
+  /* Match FIFA pitch aspect (68×105 vertical) so SVG meet never stretches circles */
+  position: relative;
+  aspect-ratio: 68 / 105;
+  width: min(100%, 236px);
+  height: auto;
+  justify-self: center;
+  border-radius: 14px; overflow: hidden;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
 }
-.pitch-wrap.compact { height: 360px; }
+.pitch-wrap.compact {
+  width: min(100%, 236px);
+}
 .pitch {
   position: absolute; inset: 0;
   background: repeating-linear-gradient(180deg, #2e9a57 0 34px, #278a4c 34px 68px);
 }
 .pitch-markings {
   position: absolute;
-  left: 9%;
-  top: 7%;
-  width: 82%;
-  height: 86%;
+  left: 4%;
+  top: 3.5%;
+  width: 92%;
+  height: 93%;
   display: block;
   pointer-events: none;
   overflow: visible;
