@@ -42,17 +42,9 @@ Inspiração de UX: simuladores de carreira no estilo Copero — sem copiar asse
 
 ## Fontes das imagens de taças (`img/trophies/`)
 
-Preferência: fotos reais com fundo escuro/transparente.
+Uma PNG canônica por ID em `TROPHIES` (`js/data.js`). Preferência: fotos reais com fundo removido.
 
-| Arquivo | Origem |
-|---------|--------|
-| `premier.png`, `ucl.png`, `libertadores.png`, `brasileirao.png`, `clubworldcup.jpg`, `copaamerica.png`, `euro.png`, `copa.png`, `mvp.png`, `youth.png` | TheSportsDB / Wikimedia (downloads anteriores do projeto) |
-| `fa_cup.jpg` | Wikimedia Commons — *The FA Cup Trophy.jpg* |
-| `copa_rey.png` | Wikimedia Commons — *Copa del Rey Trophy.png* |
-| `bundesliga.jpg` | Wikimedia Commons — *Trophy of Fußball-Bundesliga in Singapore, 2023.jpg* |
-| `worldcup.jpg` | Wikimedia Commons — *FIFA World Cup Trophy (Ank Kumar, Infosys Limited) 01.jpg* |
-| `coppa_ita.jpg` | Wikimedia Commons — *Coppa Italia.jpg* |
-| `laliga.png`, `seriea.png`, `ligue1.png`, `proleague.png`, `superlig.png` | provisório: reuso de `premier.png` até arte dedicada |
-| `primerliga.png`, `ligapro.png`, `eredivisie.png`, `copa_br.png`, `taca_pt.png`, `copa_arg.png`, `coupe_fr.png`, `dfb_pokal.png`, `mls.png`, … | provisório: reuso de `copa.png` / `youth.png` |
+Ver tabela completa em [`tools/TROPHY_SOURCES.md`](tools/TROPHY_SOURCES.md).
 
-Licenças: assets do Wikimedia Commons sob as licenças de cada arquivo (CC / domínio público conforme página do arquivo). TheSportsDB: uso conforme termos da API gratuita.
+Smoke: `python3 tools/smoke_trophies.py` (garante hashes únicos entre IDs diferentes).
+

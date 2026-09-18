@@ -14,7 +14,7 @@ function leagueOf(id) {
   return LEAGUES[0];
 }
 function trophyOf(id) {
-  return TROPHIES[id] || { name: id, img: "img/trophies/copa.jpg", kind: "cup", w: 2 };
+  return TROPHIES[id] || { name: id, img: "img/trophies/copa.png", kind: "cup", w: 2 };
 }
 
 function computeOvr(attrs, pos) {
