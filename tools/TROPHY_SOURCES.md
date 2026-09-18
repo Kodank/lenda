@@ -37,7 +37,7 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 | `ucl` | TheSportsDB (verified league name) |
 | `clubworldcup` | Wikimedia Commons — CWC Trophy 2025.png |
 | `worldcup` | TheSportsDB (verified league name) |
-| `copaamerica` | High-res Copa América trophy cutout → transparent PNG (alpha); sourced from pngdownload.io studio cutout of the official cup (plaques / COPA AMERICA engraving), rembg + crop to match other trophies |
+| `copaamerica` | pngdownload.io studio cutout (Oct 2025 AVIF → PNG) + rembg alpha; cache-bust `?v=ca2` — replaces prior stadium-reflection cutout that still looked like the museum photo |
 | `euro` | Wikimedia Commons — Henri Delaunay / Euro trophy |
 | `youth` | Stylized distinct generic cup (no suitable Commons photo found); style=1 |
 | `balon` | Generated Ballon d'Or-style golden ball (existing asset was a Zidane poster) |

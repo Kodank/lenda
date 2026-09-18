@@ -102,7 +102,7 @@ var TROPHIES = {
   ucl: { name: "Champions League", img: "img/trophies/ucl.png", kind: "continental", w: 12 },
   clubworldcup: { name: "Mundial de Clubes", img: "img/trophies/clubworldcup.png", kind: "continental", w: 8 },
   worldcup: { name: "Copa do Mundo", img: "img/trophies/worldcup.png", kind: "nt", w: 16 },
-  copaamerica: { name: "Copa América", img: "img/trophies/copaamerica.png", kind: "nt", w: 9 },
+  copaamerica: { name: "Copa América", img: "img/trophies/copaamerica.png?v=ca2", kind: "nt", w: 9 },
   euro: { name: "Eurocopa", img: "img/trophies/euro.png", kind: "nt", w: 9 },
   youth: { name: "Título Sub-20", img: "img/trophies/youth.png", kind: "nt", w: 2 },
   balon: { name: "Bola de Ouro", img: "img/trophies/balon.png", kind: "indiv", w: 14 },
