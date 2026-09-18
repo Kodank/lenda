@@ -72,7 +72,9 @@ function drawCareerCompleteCanvas(s) {
   var sc = finalScore(s);
   var ver = verdict(s, sc);
 
-  var W = 1100;
+  /* Logical layout size; backing store is × EXPORT_SCALE for sharp PNG. */
+  var W = 1200;
+  var EXPORT_SCALE = 2;
   var pad = 28;
   var gap = 12;
   var topH = 300;
@@ -89,9 +91,12 @@ function drawCareerCompleteCanvas(s) {
   var H = pad + 28 + gap + topH + gap + clubsBlock + gap + 44 + pad;
 
   var cv = document.createElement("canvas");
-  cv.width = W;
-  cv.height = H;
+  cv.width = Math.round(W * EXPORT_SCALE);
+  cv.height = Math.round(H * EXPORT_SCALE);
   var ctx = cv.getContext("2d");
+  ctx.setTransform(EXPORT_SCALE, 0, 0, EXPORT_SCALE, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
 
   ctx.fillStyle = "#070809";
   ctx.fillRect(0, 0, W, H);
@@ -489,7 +494,15 @@ function loadImg(src) {
   return new Promise(function (res) {
     if (!src) return res(null);
     var im = new Image();
-    im.onload = function () { res(im); };
+    im.decoding = "async";
+    im.onload = function () {
+      /* Prefer fully decoded bitmap before drawImage for crisp export. */
+      if (typeof im.decode === "function") {
+        im.decode().then(function () { res(im); }).catch(function () { res(im); });
+      } else {
+        res(im);
+      }
+    };
     im.onerror = function () { res(null); };
     im.src = src;
   });
@@ -526,11 +539,15 @@ function drawSeasonCardCanvas(s, season) {
   var cups = (season.trophies || []).concat(season.awards || []);
   var W = 720;
   var H = 420;
+  var EXPORT_SCALE = 2;
   var pad = 24;
   var cv = document.createElement("canvas");
-  cv.width = W;
-  cv.height = H;
+  cv.width = Math.round(W * EXPORT_SCALE);
+  cv.height = Math.round(H * EXPORT_SCALE);
   var ctx = cv.getContext("2d");
+  ctx.setTransform(EXPORT_SCALE, 0, 0, EXPORT_SCALE, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
   ctx.fillStyle = "#070809";
   ctx.fillRect(0, 0, W, H);
   drawCcCard(ctx, pad, pad, W - pad * 2, H - pad * 2);
