@@ -70,6 +70,21 @@ function ovrTier(ovr) {
   return "ovr-copper";
 }
 
+
+function clubNameHtml(name, cls) {
+  cls = cls || "club-name";
+  return '<span class="' + cls + '" style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important">' +
+    esc(name) + "</span>";
+}
+
+function enforceLightInk() {
+  var sel = ".offer-name,.club-name,.tl-name,.tl-club b,.choice.transfer b,.choice .club-label,h2.club-title,.report .club-title";
+  document.querySelectorAll(sel).forEach(function (el) {
+    el.style.setProperty("color", "#ffffff", "important");
+    el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
+  });
+}
+
 function ovrBadgeHtml(ovr, label) {
   label = label || "OVR";
   return '<div class="ovr-badge ' + ovrTier(ovr) + '"><span>' + label + "</span><b>" + ovr + "</b></div>";
@@ -221,7 +236,7 @@ function identityStrip(s) {
     '<div class="id-line">' +
     '<img class="mini-flag" src="' + nat.flag + '" alt="">' +
     '<span class="pill">#' + s.number + " " + POS[s.pos].short + "</span>" +
-    '<b class="club-name">' + esc(club.name) + "</b>" +
+    clubNameHtml(club.name, "club-name") +
     imgCrest(club.crest, 'crest sm', club.name) +
     "</div>" +
     '<div class="id-kpis">' +
@@ -247,6 +262,7 @@ function render() {
   root.innerHTML = html;
   root.className = "screen-" + UI.screen + (UI.screen === "create" ? " step-" + ((UI.draft && UI.draft.step) || 0) : "");
   bind();
+  enforceLightInk();
 }
 
 function viewHome() {
@@ -349,7 +365,7 @@ function viewAcademy() {
     return '<div class="card offer" role="button" tabindex="0" data-sign="' + o.club.id + '">' +
       imgCrest(o.club.crest, 'crest', o.club.name) +
       '<div class="bars">' +
-      '<div class="offer-name" style="color:#ffffff;-webkit-text-fill-color:#ffffff">' + esc(o.club.name) + "</div>" +
+      clubNameHtml(o.club.name, "offer-name") +
       '<div class="offer-meta">' +
       '<img class="lg-logo" src="' + lg.logo + '" alt="">' +
       '<span style="color:#c5ccd6;-webkit-text-fill-color:#c5ccd6">' +
@@ -373,9 +389,9 @@ function choiceBtn(side, ch) {
     var nat = ch.nation ? nationOf(ch.nation) : null;
     var cols = ch.colors || ["#222", "#111"];
     var on = onColor(cols[0]);
-    return '<button class="choice transfer" data-choice="' + side + '" style="--c1:' + cols[0] + ";--c2:" + (cols[1] || cols[0]) + ';--on:' + on + '">' +
+    return '<button class="choice transfer" data-choice="' + side + '" style="--c1:' + cols[0] + ";--c2:" + (cols[1] || cols[0]) + ';--on:#ffffff">' +
       imgCrest(ch.crest, 'choice-crest', ch.label) +
-      "<div class='choice-body'><b>" + esc(ch.label) + "</b><small>" + esc(ch.hint) + "</small>" +
+      "<div class='choice-body'>" + clubNameHtml(ch.label, "club-name") + "<small>" + esc(ch.hint) + "</small>" +
       '<div class="choice-meta">' +
       (lg ? '<img class="lg-logo" src="' + lg.logo + '" alt="">' + esc(lg.name) : "") +
       (nat ? ' <img class="mini-flag" src="' + nat.flag + '" alt="">' : "") +
@@ -412,7 +428,7 @@ function timelineHtml(s, hiN, choosing) {
         : "";
       html += '<div class="tl-row filled' + (hi ? " hi" : "") + (cups.length ? " won" : "") + '">' +
         '<span class="tl-age">' + age + "</span>" +
-        '<span class="tl-club">' + imgCrest(club.crest, 'tl-crest', club.name) + '<b>' + esc(club.name) + "</b>" + cupDot + "</span>" +
+        '<span class="tl-club">' + imgCrest(club.crest, 'tl-crest', club.name) + clubNameHtml(club.name, "tl-name") + cupDot + "</span>" +
         '<span class="tl-ovr">' + r.ovr + dlt + "</span>" +
         '<span class="tl-n">' + r.apps + "</span>" +
         '<span class="tl-n">' + g + "</span>" +
@@ -558,7 +574,7 @@ function viewReport() {
       ? " · " + (last.nt.youth ? "Sub-20" : "seleção") + " (" + last.nt.apps + " j)"
       : "";
     recap = '<div class="story compact"><div class="meta">Temporada encerrada</div>' +
-      "<h2>" + esc(club.name) + "</h2>" +
+      "<h2 class=\"club-title\" style=\"color:#ffffff !important;-webkit-text-fill-color:#ffffff !important\">" + esc(club.name) + "</h2>" +
       '<p class="lead tight">OVR ' + last.ovr + " (" + fmtDelta(last.delta) + ") · " +
       last.apps + " jogos · " + (s.pos === "GOL" ? last.cs + " CS" : last.goals + " gols / " + last.assists + " ast") +
       " · #" + last.leaguePos + nt + "</p>" +

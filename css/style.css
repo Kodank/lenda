@@ -1,3 +1,16 @@
+
+/* GLOBAL: club names always light on dark UI */
+.offer-name,
+.club-name,
+.tl-name,
+.tl-club b,
+.choice.transfer b,
+.club-title {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  forced-color-adjust: none;
+}
+
 :root {
   --bg: #070809;
   --paper: #14161c;
