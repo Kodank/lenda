@@ -389,7 +389,7 @@ function viewCreate() {
   }
 
   if (step === 1) {
-    var flags = NATIONS.map(function (n) {
+    var flags = NATIONS.filter(function (n) { return !n.clubOnly; }).map(function (n) {
       return '<button type="button" class="flag-row' + (d.nation === n.id ? " on" : "") + '" data-nation="' + n.id + '">' +
         '<img src="' + n.flag + '" alt=""><span>' + esc(n.name) + "</span></button>";
     }).join("");
@@ -451,16 +451,17 @@ function sortedClubsByName() {
 }
 
 function clubPickerRowHtml(c, signAttr) {
-  var nat = nationOf(c.nation);
+  var nat = c.nation ? nationOf(c.nation) : null;
+  if (nat && nat.id !== c.nation) nat = null;
   var attr = signAttr || "data-sign";
   return '<button type="button" class="dev-club-row" ' + attr + '="' + c.id + '" data-club-q="' +
-    esc((c.name + " " + (nat ? nat.name : "") + " " + (c.city || "")).toLowerCase()) + '">' +
+    esc((c.name + " " + (nat ? nat.name : c.nation || "") + " " + (c.city || "")).toLowerCase()) + '">' +
     imgCrest(c.crest, "dev-club-crest", c.name) +
     '<span class="dev-club-meta">' +
     clubNameHtml(c.name, "dev-club-name") +
     '<small class="dev-club-nat">' +
     (nat && nat.flag ? '<img class="mini-flag" src="' + nat.flag + '" alt="">' : "") +
-    esc(nat ? nat.name : c.nation) +
+    esc(nat ? nat.name : (c.nation || "")) +
     "</small></span></button>";
 }
 
@@ -540,14 +541,17 @@ function choiceBtn(side, ch, ev, sideIdx) {
   if (!ch) return "";
   if (ch.crest) {
     var lg = ch.leagueId ? leagueOf(ch.leagueId) : null;
-    var nat = ch.nation ? nationOf(ch.nation) : null;
+    /* Club country flag only — never player nationality (nationOf falls back to BR). */
+    var natId = ch.nation || (lg && lg.nation) || null;
+    var nat = natId ? nationOf(natId) : null;
+    if (nat && nat.id !== natId) nat = null;
     var cols = ch.colors || ["#222", "#111"];
     return '<button class="choice transfer" data-choice="' + side + '" style="--c1:' + cols[0] + ";--c2:" + (cols[1] || cols[0]) + ';--on:#ffffff">' +
       imgCrest(ch.crest, 'choice-crest', ch.label) +
       "<div class='choice-body'>" + clubNameHtml(ch.label, "club-name") + "<small>" + esc(ch.hint) + "</small>" +
       '<div class="choice-meta">' +
       (lg ? '<img class="lg-logo" src="' + lg.logo + '" alt="">' + esc(lg.name) : "") +
-      (nat ? ' <img class="mini-flag" src="' + nat.flag + '" alt="">' : "") +
+      (nat && nat.flag ? ' <img class="mini-flag" src="' + nat.flag + '" alt="">' : "") +
       "</div>" + pillsHtml(buildChoicePills(ch)) + "</div></button>";
   }
   /* No per-option image — event art lives in the story header */

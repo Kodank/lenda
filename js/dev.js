@@ -204,7 +204,8 @@
     attr = attr || "data-base-club";
     return sortedClubs()
       .map(function (c) {
-        var nat = typeof nationOf === "function" ? nationOf(c.nation) : null;
+        var nat = typeof nationOf === "function" && c.nation ? nationOf(c.nation) : null;
+        if (nat && nat.id !== c.nation) nat = null;
         var hay = (c.name + " " + (nat ? nat.name : "") + " " + (c.city || "")).toLowerCase();
         var crest =
           typeof imgCrest === "function"

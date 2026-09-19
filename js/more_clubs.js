@@ -1,3 +1,10 @@
+/* Club-country nations (flags on transfer/stay cards). Not playable NT origins. */
+NATIONS = NATIONS.concat([
+  { id: "sct", name: "Escócia", adj: "Escocês", conf: "uefa", ntCut: -4, flag: "img/flags/sct.png", clubOnly: true },
+  { id: "be", name: "Bélgica", adj: "Belga", conf: "uefa", ntCut: -3, flag: "img/flags/be.png", clubOnly: true },
+  { id: "tr", name: "Turquia", adj: "Turco", conf: "uefa", ntCut: -4, flag: "img/flags/tr.png", clubOnly: true }
+]);
+
 /* LEAGUE_SEASON placements: Brasileirão 2026 + EUR 2026/27 — see LEAGUE_SEASON in world.js */
 LEAGUES = LEAGUES.concat([
   { id: "bel", name: "Pro League", nation: "be", tier: 1, level: 3.6, continental: "ucl", size: 16, trophy: "premier", logo: "img/leagues/bel.png", color: "#FFD700" },
