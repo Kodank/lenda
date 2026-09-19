@@ -16,8 +16,8 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 | `eredivisie` | TheSportsDB (verified league name) |
 | `liga_mx` | TheSportsDB (verified league name) |
 | `mls` | TheSportsDB (verified league name) |
-| `j1` | Stylized distinct generic cup (no suitable Commons photo found); style=6 |
-| `uruprimera` | Stylized distinct generic cup (no suitable Commons photo found); style=5 |
+| `j1` | TheSportsDB Japanese J1 League Schale cutout (`mbbzjn1750168223`) + rembg/chroma; cache-bust `?v=sub20-hq-1` |
+| `uruprimera` | TheSportsDB Uruguayan Primera División trophy (`6b3fgj1702965059`) + rembg/chroma; cache-bust `?v=sub20-hq-1` |
 | `colbetplay` | TheSportsDB (verified league name) |
 | `npfl` | Stylized distinct generic cup (no suitable Commons photo found); style=7 |
 | `senliga` | Stylized distinct generic cup (no suitable Commons photo found); style=4 |
@@ -39,7 +39,7 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 | `worldcup` | TheSportsDB (verified league name) |
 | `copaamerica` | pngdownload.io studio cutout (Oct 2025 AVIF → PNG) + rembg alpha; cache-bust `?v=ca2` — replaces prior stadium-reflection cutout that still looked like the museum photo |
 | `euro` | Wikimedia Commons — Henri Delaunay / Euro trophy |
-| `youth` | Stylized distinct generic cup (no suitable Commons photo found); style=1 |
+| `youth` | FIFA U-20 World Cup trophy studio cutout (pngitem 569-5697471) + rembg alpha; cache-bust `?v=sub20-hq-1` — Título Sub-20 |
 | `balon` | pngdownload.io Ballon d'Or studio cutout (AVIF→PNG) + rembg alpha; cache-bust `?v=indiv-hq-1` |
 | `bota` | Wikimedia Commons — Messi's Golden Shoe (51937265513).jpg crop + rembg; European Golden Shoe / Chuteira de Ouro; cache-bust `?v=indiv-hq-1` |
 | `luva` | adidas FIFA World Cup 2026 Golden Glove product photo (House of Heat / Sanity CDN) crop + rembg; cache-bust `?v=indiv-hq-1` |
@@ -48,5 +48,6 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 ## Notes
 - Prefer TheSportsDB trophy cutouts (black bg → made transparent) when league name matched.
 - Wikimedia Commons used for Euro (Henri Delaunay), Copa América, Club World Cup.
-- Obscure leagues without a free Commons photo (NPFL, Senegal, J1, Uruguay after failed distinct match) use **distinct** stylized generics — never FA Cup / Libertadores / UCL.
+- Obscure leagues without a free photo (NPFL, Senegal Ligue 1) and the shared generic `copa` (multi-nation national-cup fallback) still use **distinct** stylized generics — never FA Cup / Libertadores / UCL.
+- J1 Schale + Uruguay Primera + FIFA U-20 World Cup replaced with photoreal transparent PNGs (TheSportsDB / pngitem + rembg).
 - Individual awards (balon/bota/luva/mvp) + Club World Cup replaced with photoreal transparent PNGs (pngdownload / Commons photo / adidas product shots + rembg).
