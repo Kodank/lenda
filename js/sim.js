@@ -63,14 +63,17 @@ function simSeason(s) {
   var pr = PROD[s.pos] || PROD.MC;
   var goals = poisson(apps * pr.g * ovrF * formF, function () { return rnd(s); });
   var assists = poisson(apps * pr.a * ovrF * formF, function () { return rnd(s); });
-  var cs = 0, ga = 0, rating = 6.15 + ovrF * 1.35 + (rnd(s) - 0.42);
+  var cs = 0, ga = 0, saves = 0, rating = 6.15 + ovrF * 1.35 + (rnd(s) - 0.42);
   if (s.pos === "GOL") {
     goals = rnd(s) < 0.04 ? 1 : 0;
     assists = poisson(apps * 0.02, function () { return rnd(s); });
     cs = poisson(apps * ((pr.cs || 0.28) + ovrF * 0.22), function () { return rnd(s); });
     cs = Math.min(apps, cs);
     ga = Math.max(0, Math.round(apps * (1.35 - ovrF * 0.48) + (rnd(s) - 0.5) * 6));
-    rating = 6.0 + (cs / Math.max(1, apps)) * 2.4 + ovrF * 0.15;
+    /* Defesas: volume sobe com OVR (goleiro elite para mais chutes / taxa). */
+    saves = poisson(apps * (2.35 + ovrF * 1.15) * formF, function () { return rnd(s); });
+    saves = Math.max(saves, Math.round(ga * 1.4 + cs * 0.5));
+    rating = 6.0 + (cs / Math.max(1, apps)) * 1.6 + Math.min(1.2, saves / Math.max(1, apps) * 0.22) + ovrF * 0.15;
   }
   var rateCap = s.ovr >= 96 ? 9.4 : s.ovr >= 90 ? 9.1 : 8.8;
   rating = Math.round(clamp(rating, 5.4, rateCap) * 10) / 10;
@@ -178,11 +181,13 @@ function simSeason(s) {
   s.career.assists += assists;
   s.career.cs += cs;
   s.career.ga += ga;
+  s.career.saves = (s.career.saves || 0) + saves;
   s.caps += nt.apps;
   s.ntGoals += nt.goals;
   s.ntAssists = (s.ntAssists || 0) + (nt.assists || 0);
   s.ntCs += nt.cs;
   s.ntGa = (s.ntGa || 0) + (nt.ga || 0);
+  s.ntSaves = (s.ntSaves || 0) + (nt.saves || 0);
   if (nt.youth) s.youthCaps += nt.apps;
 
   if (s.loanYears > 0) {
@@ -207,6 +212,7 @@ function simSeason(s) {
     rating: rating,
     cs: cs,
     ga: ga,
+    saves: saves,
     leaguePos: leaguePos,
     leagueId: league.id,
     trophies: trophies.slice(),
@@ -299,7 +305,7 @@ function simNational(s) {
   var nat = nationOf(s.nation);
   var cut = 74 + (nat.ntCut || 0);
   var youthCut = 58 + (nat.ntCut || 0);
-  var out = { apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, trophies: [], youth: false, team: null };
+  var out = { apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, saves: 0, trophies: [], youth: false, team: null };
   if (s.ntNoStreak > 0) {
     s.ntNoStreak--;
     return out;
@@ -320,8 +326,13 @@ function simNational(s) {
       out.goals = poisson(out.apps * 0.16 * ((s.ovr - 40) / 50), function () { return rnd(s); });
       out.assists = poisson(out.apps * 0.1 * ((s.ovr - 40) / 50), function () { return rnd(s); });
     } else {
+      var yF = perfOvrFactor(s.ovr);
       out.cs = Math.min(out.apps, poisson(out.apps * 0.28, function () { return rnd(s); }));
-      out.ga = Math.max(0, Math.round(out.apps * (1.25 - perfOvrFactor(s.ovr) * 0.42) + (rnd(s) - 0.5) * 3));
+      out.ga = Math.max(0, Math.round(out.apps * (1.25 - yF * 0.42) + (rnd(s) - 0.5) * 3));
+      out.saves = Math.max(
+        poisson(out.apps * (2.2 + yF * 1.0), function () { return rnd(s); }),
+        Math.round(out.ga * 1.4)
+      );
     }
     if (year % 2 === 0 && rnd(s) < 0.2) out.trophies.push("youth");
     return out;
@@ -340,8 +351,13 @@ function simNational(s) {
     out.goals = poisson(out.apps * (s.pos === "ATA" ? 0.34 : 0.12) * ntF, function () { return rnd(s); });
     out.assists = poisson(out.apps * (s.pos === "ATA" ? 0.13 : 0.14) * ntF, function () { return rnd(s); });
   } else {
-    out.cs = Math.min(out.apps, poisson(out.apps * (0.28 + perfOvrFactor(s.ovr) * 0.12), function () { return rnd(s); }));
-    out.ga = Math.max(0, Math.round(out.apps * (1.2 - perfOvrFactor(s.ovr) * 0.4) + (rnd(s) - 0.5) * 3));
+    var nF = perfOvrFactor(s.ovr);
+    out.cs = Math.min(out.apps, poisson(out.apps * (0.28 + nF * 0.12), function () { return rnd(s); }));
+    out.ga = Math.max(0, Math.round(out.apps * (1.2 - nF * 0.4) + (rnd(s) - 0.5) * 3));
+    out.saves = Math.max(
+      poisson(out.apps * (2.25 + nF * 1.05), function () { return rnd(s); }),
+      Math.round(out.ga * 1.4)
+    );
   }
   if (isWC && starter && s.ovr >= 84) {
     var wcP = 0.14 + (s.ovr - 84) * 0.018;

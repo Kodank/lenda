@@ -225,9 +225,9 @@ function identityStrip(s) {
   var nat = nationOf(s.nation);
   var last = (s.seasons && s.seasons.length) ? s.seasons[s.seasons.length - 1] : null;
   var apps = last ? last.apps : 0;
-  var goals = last ? (s.pos === "GOL" ? last.cs : last.goals) : 0;
+  var goals = last ? (s.pos === "GOL" ? resolveGkSaves(last) : last.goals) : 0;
   var ast = last ? (s.pos === "GOL" ? last.ga : last.assists) : 0;
-  var gLab = s.pos === "GOL" ? "SG" : "GOLS";
+  var gLab = s.pos === "GOL" ? "DEF" : "GOLS";
   var aLab = s.pos === "GOL" ? "GS" : "ASS";
   var temp = tempOvrTotal(s);
   var showOvr = temp ? effectiveOvr(s) : s.ovr;
@@ -567,7 +567,7 @@ function timelineHtml(s, hiN, choosing) {
   var byAge = {};
   for (var i = 0; i < rows.length; i++) byAge[rows[i].age] = { row: rows[i], idx: i };
   var lastAge = rows.length ? rows[rows.length - 1].age : (START_AGE - 1);
-  var gHead = s.pos === "GOL" ? "SG" : "G";
+  var gHead = s.pos === "GOL" ? "DEF" : "G";
   var aHead = s.pos === "GOL" ? "GS" : "A";
   var html = '<div class="timeline-panel">' +
     '<div class="tl-head"><span>IDADE</span><span>CLUBE</span><span>OVR</span><span>J</span><span>' + gHead + '</span><span>' + aHead + '</span></div>' +
@@ -582,7 +582,7 @@ function timelineHtml(s, hiN, choosing) {
     if (hit) {
       var r = hit.row;
       var club = clubOf(r.clubId);
-      var g = s.pos === "GOL" ? r.cs : r.goals;
+      var g = s.pos === "GOL" ? resolveGkSaves(r) : r.goals;
       var a = s.pos === "GOL" ? r.ga : r.assists;
       var cups = (r.trophies || []).concat(r.awards || []);
       var cupDot = cups.length ? '<i class="tl-cup" title="' + esc(cups.map(function (id) { return trophyOf(id).name; }).join(", ")) + '">🏆</i>' : "";
@@ -624,7 +624,7 @@ function timelineHtml(s, hiN, choosing) {
   html += '</div><div class="nt-row"><img class="mini-flag" src="' + nat.flag + '" alt="">' +
     "<b>" + esc(nat.name) + "</b><span>" + (s.caps || 0) + " J · " +
     (s.pos === "GOL"
-      ? (s.ntCs || 0) + " SG · " + (s.ntGa || 0) + " GS"
+      ? (resolveGkSaves({ apps: s.caps || 0, cs: s.ntCs || 0, saves: s.ntSaves }) + " DEF · " + (s.ntGa || 0) + " GS")
       : (s.ntGoals || 0) + " G · " + (s.ntAssists || 0) + " A") +
     "</span></div></div>";
   return html;
@@ -811,7 +811,7 @@ function viewReport() {
       (!juiceSurprise && theme ? '<div class="season-theme" role="status">' + esc(theme) + "</div>" : "") +
       "<h2 class=\"club-title\" style=\"color:#ffffff !important;-webkit-text-fill-color:#ffffff !important\">" + esc(club.name) + "</h2>" +
       '<p class="lead tight">OVR ' + last.ovr + " (" + fmtDelta(last.delta) + ") · " +
-      last.apps + " jogos · " + (s.pos === "GOL" ? last.cs + " SG / " + last.ga + " GS" : last.goals + " gols / " + last.assists + " ASS") +
+      last.apps + " jogos · " + (s.pos === "GOL" ? resolveGkSaves(last) + " DEF / " + last.ga + " GS" : last.goals + " gols / " + last.assists + " ASS") +
       " · #" + last.leaguePos + nt + "</p>" +
       pathLine + derbyLine + rivalLine +
       (cups.length ? '<div class="report-cups">' + cups.map(function (id) {
@@ -926,7 +926,7 @@ function viewLegacy() {
     ovrBadgeHtml(s.peakOvr, "OVR") +
     "</div></div>" +
     (function () {
-      var st = gkAwareStats(s, s.career.apps, s.career.goals, s.career.assists, s.career.cs, s.career.ga);
+      var st = gkAwareStats(s, s.career.apps, s.career.goals, s.career.assists, resolveGkSaves(s.career), s.career.ga);
       return ccStatsBar(st.apps, st.g, st.a, st.gLab, st.aLab);
     })() +
     "</section>";
@@ -938,7 +938,7 @@ function viewLegacy() {
     '<img class="cc-flag" src="' + nat.flag + '" alt="">' +
     "<b>" + esc(nat.name) + "</b></div>" +
     (function () {
-      var st = gkAwareStats(s, s.caps || 0, s.ntGoals || 0, s.ntAssists || 0, s.ntCs || 0, s.ntGa || 0);
+      var st = gkAwareStats(s, s.caps || 0, s.ntGoals || 0, s.ntAssists || 0, resolveGkSaves({ apps: s.caps || 0, cs: s.ntCs || 0, saves: s.ntSaves }), s.ntGa || 0);
       return ccStatsBar(st.apps, st.g, st.a, st.gLab, st.aLab);
     })() +
     '<div class="cc-vitrine">' + ccTrophyStrip(ntCups) + "</div>" +
@@ -961,7 +961,7 @@ function viewLegacy() {
       imgCrest(club.crest, "cc-club-crest", club.name) +
       "<h3>" + esc(club.name) + "</h3>" +
       (function () {
-        var ps = gkAwareStats(s, st.apps, st.goals, st.assists, st.cs, st.ga);
+        var ps = gkAwareStats(s, st.apps, st.goals, st.assists, resolveGkSaves(st), st.ga);
         return ccStatsBar(ps.apps, ps.g, ps.a, ps.gLab, ps.aLab);
       })() +
       '<div class="cc-club-cups">' + (cups.length ? ccTrophyStrip(cups) : "") + "</div>" +

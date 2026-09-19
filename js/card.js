@@ -139,7 +139,7 @@ function drawCareerCompleteCanvas(s) {
   ctx.fillText(fmtMoney(s.value), xPlayer + wPlayer - 86, y0 + 74);
   ctx.textAlign = "left";
   drawOvrBadge(ctx, xPlayer + wPlayer - 78, y0 + 38, s.peakOvr);
-  var careerSt = gkAwareStats(s, s.career.apps, s.career.goals, s.career.assists, s.career.cs, s.career.ga);
+  var careerSt = gkAwareStats(s, s.career.apps, s.career.goals, s.career.assists, resolveGkSaves(s.career), s.career.ga);
   drawStatsBar(ctx, xPlayer + 16, y0 + topH - 72, wPlayer - 32, careerSt.apps, careerSt.g, careerSt.a, 26, careerSt.gLab, careerSt.aLab);
 
   /* —— Seleção —— */
@@ -147,7 +147,7 @@ function drawCareerCompleteCanvas(s) {
   ctx.fillStyle = "#f4f6f8";
   ctx.font = "700 17px DM Sans, sans-serif";
   ctx.fillText(nat.name, xNt + 60, y0 + 60);
-  var ntSt = gkAwareStats(s, s.caps || 0, s.ntGoals || 0, s.ntAssists || 0, s.ntCs || 0, s.ntGa || 0);
+  var ntSt = gkAwareStats(s, s.caps || 0, s.ntGoals || 0, s.ntAssists || 0, resolveGkSaves({ apps: s.caps || 0, cs: s.ntCs || 0, saves: s.ntSaves }), s.ntGa || 0);
   drawStatsBar(ctx, xNt + 16, y0 + 84, wNt - 32, ntSt.apps, ntSt.g, ntSt.a, 24, ntSt.gLab, ntSt.aLab);
 
   /* —— Prêmios (GK → Luva; outfield → Chuteira via showcaseIndivAwards) —— */
@@ -247,7 +247,7 @@ function drawCareerCompleteCanvas(s) {
         fitText(ctx, cl.name, x + 8, y + 92, clubW - 16, "700 ", "px DM Sans, sans-serif", 14, 11);
         ctx.textAlign = "left";
 
-        var clubSt = gkAwareStats(s, st.apps, st.goals, st.assists, st.cs, st.ga);
+        var clubSt = gkAwareStats(s, st.apps, st.goals, st.assists, resolveGkSaves(st), st.ga);
         drawStatsBar(ctx, x + 10, y + 106, clubW - 20, clubSt.apps, clubSt.g, clubSt.a, 20, clubSt.gLab, clubSt.aLab);
         if (stCups.length) {
           drawTrophyRow(ctx, loaded, idx, stCups, x + 6, y + clubH - 72, clubW - 12, 28, { labelMax: 46, fontPx: 8 });
@@ -618,9 +618,9 @@ function drawSeasonCardCanvas(s, season) {
     if (flag) {
       try { ctx.drawImage(flag, pad + 20, pad + 244, 28, 18); } catch (e) {}
     }
-    var seasonSt = gkAwareStats(s, season.apps, season.goals, season.assists, season.cs, season.ga);
-    /* Short labels on season card (G/A) for outfield; SG/GS for GK */
-    var gLab = s.pos === "GOL" ? "SG" : "G";
+    var seasonSt = gkAwareStats(s, season.apps, season.goals, season.assists, resolveGkSaves(season), season.ga);
+    /* Short labels on season card (G/A) for outfield; DEF/GS for GK */
+    var gLab = s.pos === "GOL" ? "DEF" : "G";
     var aLab = s.pos === "GOL" ? "GS" : "A";
     drawStatsBar(ctx, pad + 56, pad + 236, 280, seasonSt.apps, seasonSt.g, seasonSt.a, 22, gLab, aLab);
 

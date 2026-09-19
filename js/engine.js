@@ -205,7 +205,8 @@ function newCareer(draft) {
     ntAssists: 0,
     ntCs: 0,
     ntGa: 0,
-    career: { apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, trophies: [] },
+    ntSaves: 0,
+    career: { apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, saves: 0, trophies: [] },
     awards: [],
     seasons: [],
     clubs: [],
@@ -313,10 +314,20 @@ function touchTrait(obj, k, d) {
 }
 
 
-function gkAwareStats(s, apps, goals, assists, cs, ga) {
-  /* Outfield → GOLS/ASS; GOL → SG (clean sheets) / GS (goals conceded). */
+function resolveGkSaves(bucket) {
+  /* Prefer stored saves; legacy careers derive lightly from apps/cs so UI never NaNs. */
+  if (!bucket) return 0;
+  if (typeof bucket.saves === "number") return Math.max(0, bucket.saves || 0);
+  var apps = bucket.apps || 0;
+  var cs = bucket.cs || 0;
+  if (!apps && !cs) return 0;
+  return Math.max(0, Math.round(apps * 2.6 + cs * 3));
+}
+
+function gkAwareStats(s, apps, goals, assists, saves, ga) {
+  /* Outfield → GOLS/ASS; GOL → DEF (saves/defesas) / GS (gols sofridos). */
   if (s && s.pos === "GOL") {
-    return { apps: apps || 0, g: cs || 0, a: ga || 0, gLab: "SG", aLab: "GS" };
+    return { apps: apps || 0, g: saves || 0, a: ga || 0, gLab: "DEF", aLab: "GS" };
   }
   return { apps: apps || 0, g: goals || 0, a: assists || 0, gLab: "GOLS", aLab: "ASS" };
 }
@@ -331,7 +342,7 @@ function clubStintsCareer(s) {
     var id = se.clubId;
     if (!id) continue;
     if (!map[id]) {
-      map[id] = { id: id, apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, trophies: [] };
+      map[id] = { id: id, apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, saves: 0, trophies: [] };
       order.push(map[id]);
     }
     var st = map[id];
@@ -340,6 +351,7 @@ function clubStintsCareer(s) {
     st.assists += se.assists || 0;
     st.cs += se.cs || 0;
     st.ga += se.ga || 0;
+    st.saves += (typeof se.saves === "number" ? se.saves : resolveGkSaves(se));
     var cups = se.trophies || [];
     for (var t = 0; t < cups.length; t++) {
       var tid = cups[t];
