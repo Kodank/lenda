@@ -204,6 +204,7 @@ function newCareer(draft) {
     ntGoals: 0,
     ntAssists: 0,
     ntCs: 0,
+    ntGa: 0,
     career: { apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, trophies: [] },
     awards: [],
     seasons: [],
@@ -309,6 +310,15 @@ function addTrophy(s, id) {
 
 function touchTrait(obj, k, d) {
   obj[k] = clamp((obj[k] || 50) + d, 0, 100);
+}
+
+
+function gkAwareStats(s, apps, goals, assists, cs, ga) {
+  /* Outfield → GOLS/ASS; GOL → SG (clean sheets) / GS (goals conceded). */
+  if (s && s.pos === "GOL") {
+    return { apps: apps || 0, g: cs || 0, a: ga || 0, gLab: "SG", aLab: "GS" };
+  }
+  return { apps: apps || 0, g: goals || 0, a: assists || 0, gLab: "GOLS", aLab: "ASS" };
 }
 
 function clubStintsCareer(s) {
