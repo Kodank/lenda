@@ -11,7 +11,7 @@ hashes={}
 dups=[]
 missing=[]
 for tid, rel in pairs:
-  path=os.path.join(ROOT, rel)
+  path=os.path.join(ROOT, rel.split("?",1)[0])
   if not os.path.isfile(path):
     missing.append((tid, rel)); continue
   h=hashlib.md5(open(path,'rb').read()).hexdigest()

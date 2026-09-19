@@ -101,15 +101,15 @@ var TROPHIES = {
   /* Continentais / seleção */
   libertadores: { name: "Libertadores", img: "img/trophies/libertadores.png", kind: "continental", w: 10 },
   ucl: { name: "Champions League", img: "img/trophies/ucl.png", kind: "continental", w: 12 },
-  clubworldcup: { name: "Mundial de Clubes", img: "img/trophies/clubworldcup.png", kind: "continental", w: 8 },
+  clubworldcup: { name: "Mundial de Clubes", img: "img/trophies/clubworldcup.png?v=indiv-hq-1", kind: "continental", w: 8 },
   worldcup: { name: "Copa do Mundo", img: "img/trophies/worldcup.png", kind: "nt", w: 16 },
   copaamerica: { name: "Copa América", img: "img/trophies/copaamerica.png?v=ca2", kind: "nt", w: 9 },
   euro: { name: "Eurocopa", img: "img/trophies/euro.png", kind: "nt", w: 9 },
   youth: { name: "Título Sub-20", img: "img/trophies/youth.png", kind: "nt", w: 2 },
-  balon: { name: "Bola de Ouro", img: "img/trophies/balon.png?v=balon-fix-1", kind: "indiv", w: 14 },
-  bota: { name: "Chuteira de Ouro", img: "img/trophies/bota.png", kind: "indiv", w: 5 },
-  luva: { name: "Luva de Ouro", img: "img/trophies/luva.png", kind: "indiv", w: 5 },
-  mvp: { name: "Melhor do campeonato", img: "img/trophies/mvp.png", kind: "indiv", w: 4 }
+  balon: { name: "Bola de Ouro", img: "img/trophies/balon.png?v=indiv-hq-1", kind: "indiv", w: 14 },
+  bota: { name: "Chuteira de Ouro", img: "img/trophies/bota.png?v=indiv-hq-1", kind: "indiv", w: 5 },
+  luva: { name: "Luva de Ouro", img: "img/trophies/luva.png?v=indiv-hq-1", kind: "indiv", w: 5 },
+  mvp: { name: "Melhor do campeonato", img: "img/trophies/mvp.png?v=indiv-hq-1", kind: "indiv", w: 4 }
 };
 
 /* Copa nacional por país (fallback: copa) */

@@ -35,18 +35,18 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 | `copa_arg` | TheSportsDB (verified league name) |
 | `libertadores` | TheSportsDB (verified league name) |
 | `ucl` | TheSportsDB (verified league name) |
-| `clubworldcup` | Wikimedia Commons — CWC Trophy 2025.png |
+| `clubworldcup` | pngdownload.io FIFA Club World Cup 2025 product cutout + rembg alpha; cache-bust `?v=indiv-hq-1` — replaces prior stylized Commons Inkscape icon |
 | `worldcup` | TheSportsDB (verified league name) |
 | `copaamerica` | pngdownload.io studio cutout (Oct 2025 AVIF → PNG) + rembg alpha; cache-bust `?v=ca2` — replaces prior stadium-reflection cutout that still looked like the museum photo |
 | `euro` | Wikimedia Commons — Henri Delaunay / Euro trophy |
 | `youth` | Stylized distinct generic cup (no suitable Commons photo found); style=1 |
-| `balon` | Generated Ballon d'Or-style golden ball (existing asset was a Zidane poster) |
-| `bota` | Generated Golden Shoe stylized icon |
-| `luva` | Generated Golden Glove / Yashin-style icon |
-| `mvp` | Generated MVP star award icon |
+| `balon` | pngdownload.io Ballon d'Or studio cutout (AVIF→PNG) + rembg alpha; cache-bust `?v=indiv-hq-1` |
+| `bota` | Wikimedia Commons — Messi's Golden Shoe (51937265513).jpg crop + rembg; European Golden Shoe / Chuteira de Ouro; cache-bust `?v=indiv-hq-1` |
+| `luva` | adidas FIFA World Cup 2026 Golden Glove product photo (House of Heat / Sanity CDN) crop + rembg; cache-bust `?v=indiv-hq-1` |
+| `mvp` | adidas FIFA Golden Ball (best player) product photo crop + rembg — used for Melhor do campeonato; cache-bust `?v=indiv-hq-1` |
 
 ## Notes
 - Prefer TheSportsDB trophy cutouts (black bg → made transparent) when league name matched.
 - Wikimedia Commons used for Euro (Henri Delaunay), Copa América, Club World Cup.
 - Obscure leagues without a free Commons photo (NPFL, Senegal, J1, Uruguay after failed distinct match) use **distinct** stylized generics — never FA Cup / Libertadores / UCL.
-- Individual awards (balon/bota/luva/mvp) regenerated as clean icons (old balon was a Zidane poster).
+- Individual awards (balon/bota/luva/mvp) + Club World Cup replaced with photoreal transparent PNGs (pngdownload / Commons photo / adidas product shots + rembg).
