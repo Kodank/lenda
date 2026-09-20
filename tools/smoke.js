@@ -74,4 +74,26 @@ function assertAcademy(nation) {
   console.log("trophy", id, m.name, m.img);
 });
 
+
+/* Destino oculto: distribuição + tetos */
+(function () {
+  var N = 1000;
+  var counts = { ruim: 0, mediocre: 0, muito_boa: 0, extraordinaria: 0 };
+  for (var i = 0; i < N; i++) {
+    var s = ctx.newCareer({ name: "D" + i, number: 9, foot: "D", nation: "br", pos: "ATA", pace: "normal" });
+    if (!s.destiny || !ctx.DESTINY[s.destiny]) throw new Error("missing destiny");
+    if (s.careerTier !== s.destiny) throw new Error("careerTier mismatch");
+    var d = ctx.DESTINY[s.destiny];
+    if (s.pot < d.potLo || s.pot > d.potHi) throw new Error("pot out of band " + s.pot + " for " + s.destiny);
+    counts[s.destiny]++;
+  }
+  var forced = ctx.newCareer({ name: "F", number: 9, foot: "D", nation: "br", pos: "ATA", pace: "rapido", destiny: "ruim" });
+  if (forced.destiny !== "ruim" || forced.pot > 82) throw new Error("force destiny failed");
+  console.log("destiny", N,
+    "ruim=" + (100 * counts.ruim / N).toFixed(1) + "%",
+    "mediocre=" + (100 * counts.mediocre / N).toFixed(1) + "%",
+    "muito_boa=" + (100 * counts.muito_boa / N).toFixed(1) + "%",
+    "extraordinaria=" + (100 * counts.extraordinaria / N).toFixed(1) + "%");
+})();
+
 console.log(JSON.stringify(rows, null, 2));

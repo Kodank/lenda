@@ -161,14 +161,102 @@ function fmtDelta(n) {
   return String(n);
 }
 
+
+/* --- Destino oculto (teto de carreira) --- */
+var MARKET_STAGE_RANK = { home: 0, open: 1, wonderkid: 2, world: 3, elite: 4 };
+
+function rollDestiny(rng) {
+  var r = (typeof rng === "function" ? rng() : Math.random()) * 100;
+  var acc = 0;
+  for (var i = 0; i < DESTINY_IDS.length; i++) {
+    var d = DESTINY[DESTINY_IDS[i]];
+    acc += d.weight;
+    if (r < acc) return d;
+  }
+  return DESTINY.mediocre;
+}
+
+function ensureDestiny(s) {
+  if (!s) return DESTINY.mediocre;
+  if (s.destiny && DESTINY[s.destiny]) {
+    s.careerTier = s.destiny;
+    return DESTINY[s.destiny];
+  }
+  /* Save legado: destino estável a partir da seed (não re-rola a cada load). */
+  var r = mulberry32((s.seed ^ 0xD3571) >>> 0);
+  var d = rollDestiny(r);
+  s.destiny = d.id;
+  s.careerTier = d.id;
+  return d;
+}
+
+function destinyOf(s) {
+  return ensureDestiny(s);
+}
+
+function destinyPotMax(s) {
+  return destinyOf(s).potMax;
+}
+
+function destinyOvrCap(s) {
+  return destinyOf(s).ovrSoftCap;
+}
+
+function clampPotToDestiny(s, pot) {
+  var d = destinyOf(s);
+  var lo = Math.min(70, d.potLo);
+  return clamp(Math.round(pot), lo, d.potMax);
+}
+
+function clampOvrToDestiny(s, ovr) {
+  return clamp(Math.round(ovr), 40, destinyOvrCap(s));
+}
+
+function applyDestiny(s, id) {
+  var d = DESTINY[id];
+  if (!s || !d) return null;
+  s.destiny = d.id;
+  s.careerTier = d.id;
+  /* Reajusta pot/ovr para caber no novo teto (DEV force). */
+  s.pot = clampPotToDestiny(s, Math.min(s.pot || d.potHi, d.potMax));
+  if ((s.pot || 0) < d.potLo) s.pot = d.potLo + Math.floor(((s.seed || 1) % (d.potHi - d.potLo + 1)));
+  s.ovr = clampOvrToDestiny(s, Math.min(s.ovr || START_OVR, d.ovrSoftCap));
+  if (s.peakOvr) s.peakOvr = Math.min(s.peakOvr, d.ovrSoftCap);
+  return d;
+}
+
+function clampMarketStage(s, stage) {
+  var max = destinyOf(s).maxStage || "elite";
+  var a = MARKET_STAGE_RANK[stage] != null ? MARKET_STAGE_RANK[stage] : 0;
+  var b = MARKET_STAGE_RANK[max] != null ? MARKET_STAGE_RANK[max] : 4;
+  if (a <= b) return stage;
+  /* Desce para o estágio máximo permitido pelo destino. */
+  var best = "home";
+  for (var k in MARKET_STAGE_RANK) {
+    if (MARKET_STAGE_RANK[k] <= b && MARKET_STAGE_RANK[k] >= MARKET_STAGE_RANK[best]) best = k;
+  }
+  return best;
+}
+
 function newCareer(draft) {
   var seed = (Date.now() ^ hashStr(draft.name + draft.nation + draft.pos)) >>> 0;
   var rnd = mulberry32(seed);
   var attrs = makeAttrs(draft.pos, draft.foot, rnd);
-  var pot = 84 + Math.floor(rnd() * 12);
+  /* Destino oculto: 1 roll no create (DEV pode forçar via draft.destiny / DEV.flags.nextDestiny). */
+  var dest = null;
+  var forceId = (draft && draft.destiny) || null;
+  if (!forceId && typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags && DEV.flags.nextDestiny) {
+    forceId = DEV.flags.nextDestiny;
+  }
+  if (forceId && DESTINY[forceId]) dest = DESTINY[forceId];
+  else dest = rollDestiny(rnd);
+  var potSpan = dest.potHi - dest.potLo + 1;
+  var pot = dest.potLo + Math.floor(rnd() * potSpan);
   var s = {
     seed: seed,
     rndI: 0,
+    destiny: dest.id,
+    careerTier: dest.id,
     name: (draft.name || "LENDA").toUpperCase().slice(0, 12),
     number: draft.number || 10,
     foot: draft.foot || "D",

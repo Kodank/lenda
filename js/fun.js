@@ -407,7 +407,7 @@ function checkCareerGoals(s) {
     if (fx.loyalty) touchTrait(s.traits, "loyalty", fx.loyalty);
     if (fx.ambition) touchTrait(s.traits, "ambition", fx.ambition);
     if (fx.confidence) s.confidence = clamp(s.confidence + fx.confidence, 15, 100);
-    if (fx.pot) s.pot = clamp((s.pot || 88) + fx.pot, 82, OVR_CAP);
+    if (fx.pot) s.pot = clampPotToDestiny(s, (s.pot || 88) + fx.pot);
   }
   if (newly.length) s._goalToast = newly.map(function (g) { return g.label; }).join(" · ");
   return newly;

@@ -35,7 +35,8 @@ function academyOffers(s) {
 function signAcademy(s, clubId) {
   s.clubId = clubId;
   var club = clubOf(clubId);
-  s.pot = clamp(s.pot + Math.round((club.level - 3.2) * 1.2), 82, OVR_CAP);
+  /* Pot sobe com a academia, mas não passa do teto do destino. */
+  s.pot = clampPotToDestiny(s, s.pot + Math.round((club.level - 3.2) * 1.2));
   s.role = roleOf(s, club);
   s.value = marketValue(s);
   s.clubs = [{ id: clubId, from: s.year }];
@@ -123,13 +124,15 @@ function isWonderkid(s) {
   return true;
 }
 
-/* Copero-like market stages by OVR (+ wonderkid exception). */
+/* Copero-like market stages by OVR (+ wonderkid exception), limitado pelo destino. */
 function marketStage(s) {
-  if (s.ovr >= 89) return "elite";   /* top-5 offers guaranteed */
-  if (s.ovr >= 85) return "world";   /* chance of top-10 */
-  if (isWonderkid(s)) return "wonderkid"; /* rare: big Europe may call early */
-  if (s.ovr >= 78 && s.age >= 22) return "open"; /* mid: other continents ok */
-  return "home"; /* early / low OVR: same continent (or country) only */
+  var stage;
+  if (s.ovr >= 89) stage = "elite";   /* top-5 offers guaranteed */
+  else if (s.ovr >= 85) stage = "world";   /* chance of top-10 */
+  else if (isWonderkid(s)) stage = "wonderkid"; /* rare: big Europe may call early */
+  else if (s.ovr >= 78 && s.age >= 22) stage = "open"; /* mid: other continents ok */
+  else stage = "home"; /* early / low OVR: same continent (or country) only */
+  return clampMarketStage(s, stage);
 }
 
 function pickEvent(s) {
@@ -168,6 +171,7 @@ function pickEvent(s) {
     rarePool.push(EVENTS[ri]);
   }
   var rareP = s.pace === "rapido" ? 0.05 : 0.09;
+  rareP *= destinyOf(s).rareMul || 1;
   if (rarePool.length && rnd(s) < rareP) {
     return rarePool[Math.floor(rnd(s) * rarePool.length)];
   }
@@ -216,8 +220,11 @@ function pickOffers(s, n) {
   /* Estilo Copero: um passo à frente, um lateral — não dois gigantes aleatórios. */
   var cur = clubOf(s.clubId);
   var stage = marketStage(s);
+  var dGate = destinyOf(s);
   var pool = CLUBS.filter(function (c) {
     if (c.id === cur.id || !reachableClub(s, c)) return false;
+    /* Destino baixo: bloqueia gigantes (top Europa) mesmo se o OVR “aguenta”. */
+    if (dGate.maxClubLevel != null && c.level > dGate.maxClubLevel + 0.001) return false;
     /* Early career: only same continent / country (no random Europe for SA youngster). */
     if (stage === "home" && !sameContinentClub(s, c)) return false;
     /* Wonderkid: home continent OR European elite / world top-10 only. */
@@ -292,16 +299,27 @@ function pickOffers(s, n) {
   /* 85+: chance of a world top-10 offer; 89+: always include a top-5.
      Wonderkid: high chance a European mega shows interest early. */
   var top5 = clubsByIds(WORLD_TOP5_IDS).filter(function (c) {
-    return c.id !== cur.id && reachableClub(s, c);
+    if (c.id === cur.id || !reachableClub(s, c)) return false;
+    if (dGate.maxClubLevel != null && c.level > dGate.maxClubLevel + 0.001) return false;
+    return true;
   });
   var top10 = clubsByIds(WORLD_TOP10_IDS).filter(function (c) {
-    return c.id !== cur.id && reachableClub(s, c);
+    if (c.id === cur.id || !reachableClub(s, c)) return false;
+    if (dGate.maxClubLevel != null && c.level > dGate.maxClubLevel + 0.001) return false;
+    return true;
   });
   top5 = shuffled(top5, s);
   top10 = shuffled(top10, s);
-  if (stage === "elite" && top5[0]) forceElite(top5[0]);
-  else if (stage === "world" && top10[0] && rnd(s) < 0.48) forceElite(top10[0]);
-  else if (stage === "wonderkid" && top10[0] && rnd(s) < 0.62) forceElite(top10[0]);
+  /* Destino reduz (ou zera) portas top-5 / top-10 — teto de mercado, não só OVR. */
+  var dMul = dGate;
+  var pTop5 = 0.48 * (dMul.top5Mul != null ? dMul.top5Mul : 1);
+  var pTop10 = 0.48 * (dMul.top10Mul != null ? dMul.top10Mul : 1);
+  var pWk = 0.62 * (dMul.wonderkidMul != null ? dMul.wonderkidMul : 1);
+  if (stage === "elite" && top5[0]) {
+    if ((dMul.top5Mul != null ? dMul.top5Mul : 1) >= 0.99 || rnd(s) < Math.max(0.08, pTop5)) forceElite(top5[0]);
+    else if (top10[0] && rnd(s) < pTop10) forceElite(top10[0]);
+  } else if (stage === "world" && top10[0] && rnd(s) < pTop10) forceElite(top10[0]);
+  else if (stage === "wonderkid" && top10[0] && rnd(s) < pWk) forceElite(top10[0]);
 
   /* 1ª carta: passo à frente (ou big step raro se o OVR aguenta) — se ainda cabe */
   if (out.length < n) {
@@ -323,8 +341,8 @@ function pickOffers(s, n) {
     for (var j = 0; j < near.length && out.length < n; j++) add(near[j]);
   }
 
-  /* 89+ safety: if reachable top-5 existed but was crowded out, re-force */
-  if (stage === "elite" && top5[0]) {
+  /* 89+ safety: re-force top-5 só se o destino permitir (mul alto). */
+  if (stage === "elite" && top5[0] && (dMul.top5Mul != null ? dMul.top5Mul : 1) >= 0.55) {
     var hasTop5 = out.some(function (c) { return WORLD_TOP5_IDS.indexOf(c.id) >= 0; });
     if (!hasTop5) forceElite(top5[0]);
   }
@@ -433,15 +451,23 @@ function applyChoice(s, ev, side) {
   if (fx.confidence) s.confidence = clamp(s.confidence + fx.confidence, 15, 100);
   if (fx.coach) s.coach = clamp(s.coach + fx.coach, 10, 100);
   if (fx.injury && !(typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.ignoreInjury)) s.injuryWeeks = (s.injuryWeeks || 0) + fx.injury;
+  /* Eventos raros / breakthrough: salto de pot/OVR mais fraco em destinos baixos. */
+  if (ev.rare && (fx.pot || fx.ovr)) {
+    var bMul = destinyOf(s).breakMul;
+    if (bMul != null && bMul < 1) {
+      if (fx.pot) fx.pot = Math.max(fx.pot > 0 ? 1 : fx.pot, Math.round(fx.pot * bMul));
+      if (fx.ovr) fx.ovr = Math.max(fx.ovr > 0 ? 1 : fx.ovr, Math.round(fx.ovr * bMul));
+    }
+  }
   if (fx.pot) {
-    s.pot = clamp((s.pot || 88) + fx.pot, 82, OVR_CAP);
+    s.pot = clampPotToDestiny(s, (s.pot || 88) + fx.pot);
   }
   if (fx.tempOvr) addTempOvr(s, fx.tempOvr);
   if (fx.ovr) {
     applyDeltaToAttrs(s, fx.ovr);
-    s.ovr = clamp(computeOvr(s.attrs, s.pos), 40, OVR_CAP);
-    /* soft-cap sobe junto se o salto passou do potencial antigo */
-    if (s.ovr > s.pot) s.pot = Math.min(OVR_CAP, s.ovr);
+    s.ovr = clampOvrToDestiny(s, computeOvr(s.attrs, s.pos));
+    /* soft-cap sobe junto se o salto passou do potencial antigo — ainda limitado pelo destino */
+    if (s.ovr > s.pot) s.pot = clampPotToDestiny(s, s.ovr);
     s.peakOvr = Math.max(s.peakOvr || s.ovr, s.ovr);
   }
   if (fx.ntNo) s.ntNoStreak = 2;

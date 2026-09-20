@@ -4,6 +4,88 @@ var OVR_CAP = 99;
 var START_OVR = 50;
 var START_AGE = 16;
 
+/*
+ * Destino oculto da carreira (rolado 1x no create).
+ * Não aparece na UI normal — só tetos/portas; escolhas ainda importam dentro da faixa.
+ * Pesos: 25% ruim · 35% medíocre · 25% muito boa · 15% extraordinária.
+ */
+var DESTINY_IDS = ["ruim", "mediocre", "muito_boa", "extraordinaria"];
+var DESTINY = {
+  ruim: {
+    id: "ruim",
+    label: "Ruim",
+    weight: 25,
+    potLo: 78,
+    potHi: 82,
+    potMax: 82,
+    ovrSoftCap: 82,
+    maxStage: "open",
+    maxClubLevel: 4.15,
+    top10Mul: 0.04,
+    top5Mul: 0,
+    wonderkidMul: 0.12,
+    balonMul: 0.04,
+    botaMul: 0.2,
+    rareMul: 0.35,
+    breakMul: 0.4
+  },
+  mediocre: {
+    id: "mediocre",
+    label: "Medíocre",
+    weight: 35,
+    potLo: 84,
+    potHi: 88,
+    potMax: 88,
+    ovrSoftCap: 88,
+    maxStage: "world",
+    maxClubLevel: 4.55,
+    top10Mul: 0.22,
+    top5Mul: 0.05,
+    wonderkidMul: 0.35,
+    balonMul: 0.12,
+    botaMul: 0.4,
+    rareMul: 0.55,
+    breakMul: 0.6
+  },
+  muito_boa: {
+    id: "muito_boa",
+    label: "Muito boa",
+    weight: 25,
+    potLo: 90,
+    potHi: 95,
+    potMax: 95,
+    ovrSoftCap: 95,
+    maxStage: "elite",
+    maxClubLevel: 5,
+    top10Mul: 1,
+    top5Mul: 0.62,
+    wonderkidMul: 1,
+    balonMul: 0.85,
+    botaMul: 0.9,
+    rareMul: 1,
+    breakMul: 1
+  },
+  extraordinaria: {
+    id: "extraordinaria",
+    label: "Extraordinária",
+    weight: 15,
+    potLo: 94,
+    potHi: 99,
+    potMax: 99,
+    ovrSoftCap: 99,
+    maxStage: "elite",
+    maxClubLevel: 5,
+    top10Mul: 1.15,
+    top5Mul: 1,
+    wonderkidMul: 1.1,
+    balonMul: 1,
+    botaMul: 1,
+    rareMul: 1.15,
+    breakMul: 1
+  }
+};
+
+
 var PACE = {
   intensa: { n: 1, label: "Intensa", hint: "Uma decisão por temporada" },
   normal: { n: 2, label: "Normal", hint: "Uma decisão a cada duas temporadas" },

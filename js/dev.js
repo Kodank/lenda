@@ -12,7 +12,7 @@
 
   var DEV = {
     unlocked: false,
-    flags: { ignoreInjury: false, alwaysTransfers: false, godGrowth: false },
+    flags: { ignoreInjury: false, alwaysTransfers: false, godGrowth: false, nextDestiny: null },
     on: function () { return !!DEV.unlocked; }
   };
 
@@ -26,6 +26,7 @@
           DEV.flags.ignoreInjury = !!f.ignoreInjury;
           DEV.flags.alwaysTransfers = !!f.alwaysTransfers;
           DEV.flags.godGrowth = !!f.godGrowth;
+          DEV.flags.nextDestiny = f.nextDestiny && DESTINY[f.nextDestiny] ? f.nextDestiny : null;
         }
       }
     } catch (e) {
@@ -75,16 +76,32 @@
   function setOvrPot(ovr, pot) {
     if (!needCareer(true)) return;
     ovr = clamp(Math.round(+ovr), 40, OVR_CAP);
-    pot = clamp(Math.round(+pot), 82, OVR_CAP);
+    pot = clamp(Math.round(+pot), 70, OVR_CAP);
     var d = ovr - S.ovr;
     if (d) applyDeltaToAttrs(S, d);
     S.ovr = clamp(ovr, 40, OVR_CAP);
     S.pot = Math.max(pot, S.ovr);
+    /* DEV: OVR livre; pot ainda respeita teto do destino se existir. */
+    if (typeof clampPotToDestiny === "function") S.pot = clampPotToDestiny(S, S.pot);
+    if (typeof clampOvrToDestiny === "function") S.ovr = clampOvrToDestiny(S, S.ovr);
     S.peakOvr = Math.max(S.peakOvr || 0, S.ovr);
     S.role = roleOf(S, clubOf(S.clubId));
     S.value = marketValue(S);
     refresh();
     toast("OVR " + S.ovr + " / Pot " + S.pot);
+  }
+
+  function setDestinyId(id) {
+    if (!needCareer(true)) return;
+    if (!DESTINY[id]) {
+      toast("Destino invalido", true);
+      return;
+    }
+    var d = applyDestiny(S, id);
+    S.role = roleOf(S, clubOf(S.clubId));
+    S.value = marketValue(S);
+    refresh();
+    toast("Destino: " + d.label + " (teto " + d.ovrSoftCap + ")");
   }
 
   function setAge(age) {
@@ -526,10 +543,40 @@
       .join("");
   }
 
+  function destinyPickHtml(forNext) {
+    var cur = S && S.destiny && DESTINY[S.destiny] ? DESTINY[S.destiny] : null;
+    var next = DEV.flags.nextDestiny && DESTINY[DEV.flags.nextDestiny] ? DESTINY[DEV.flags.nextDestiny] : null;
+    var opts = DESTINY_IDS.map(function (id) {
+      var d = DESTINY[id];
+      var sel = forNext ? next && next.id === id : cur && cur.id === id;
+      return '<option value="' + id + '"' + (sel ? " selected" : "") + ">" + d.label + " · teto " + d.ovrSoftCap + " (" + d.weight + "%)</option>";
+    }).join("");
+    var head = forNext ? "Destino (proxima carreira)" : "Destino oculto";
+    var hint = cur
+      ? "Atual: " + cur.label + " · potMax " + cur.potMax + " · stage≤" + cur.maxStage
+      : next
+        ? "Forcar na proxima: " + next.label
+        : "Oculto na UI normal — so sandbox ve/forca.";
+    return (
+      '<div class="dev-sec"><div class="dev-h">' +
+      head +
+      '</div><p class="dev-hint">' +
+      hint +
+      '</p><div class="dev-row">' +
+      '<select id="dev-destiny">' +
+      '<option value="">(rolar aleatorio)</option>' +
+      opts +
+      '</select>' +
+      '<button type="button" class="btn sm" data-dev="destiny">Aplicar</button></div></div>'
+    );
+  }
+
   function panelHtml() {
+
     if (!S || !S.clubId) {
       return (
         basePickHtml() +
+        destinyPickHtml(true) +
         '<div class="dev-sec"><p class="dev-hint">Crie o jogador (ou avance ate a Base) e escolha um clube acima — ou continue uma carreira para editar o estado.</p>' +
         '<div class="dev-btns">' +
         '<button type="button" class="btn sm" data-dev="new">Nova carreira</button>' +
@@ -542,10 +589,11 @@
       '<label>OVR <input type="number" id="dev-ovr" min="40" max="99" value="' +
       S.ovr +
       '"></label>' +
-      '<label>Pot <input type="number" id="dev-pot" min="82" max="99" value="' +
+      '<label>Pot <input type="number" id="dev-pot" min="70" max="99" value="' +
       S.pot +
       '"></label>' +
       '<button type="button" class="btn sm" data-dev="ovr">Aplicar</button></div></div>' +
+      destinyPickHtml(false) +
       '<div class="dev-sec"><div class="dev-h">Idade</div><div class="dev-row">' +
       '<input type="number" id="dev-age" min="16" max="40" value="' +
       S.age +
@@ -725,6 +773,22 @@
             (document.getElementById("dev-ovr") || {}).value,
             (document.getElementById("dev-pot") || {}).value
           );
+        } else if (act === "destiny") {
+          var dEl = document.getElementById("dev-destiny");
+          var id = dEl ? dEl.value : "";
+          if (!id) {
+            DEV.flags.nextDestiny = null;
+            persist();
+            toast("Proxima carreira: roll aleatorio");
+          } else if (S && S.clubId) {
+            DEV.flags.nextDestiny = id;
+            persist();
+            setDestinyId(id);
+          } else {
+            DEV.flags.nextDestiny = id;
+            persist();
+            toast("Proxima carreira: " + (DESTINY[id] ? DESTINY[id].label : id));
+          }
         } else if (act === "age") {
           setAge((document.getElementById("dev-age") || {}).value);
         } else if (act === "vitals") {

@@ -126,9 +126,10 @@ function simSeason(s) {
     var botaNeed = Math.max(10, Math.round(league.size * 0.45));
     if (s.ovr >= 96) botaNeed = Math.max(8, Math.round(league.size * 0.35));
     if (s.ovr >= 99) botaNeed = Math.max(7, Math.round(league.size * 0.28));
-    /* Chuteira: artilharia + OVR; em 95–99 cai com frequência (quase automática no 99 ATA) */
-    if (goals >= botaNeed) awards.push("bota");
-    else if (s.ovr >= 97 && goals >= Math.max(6, botaNeed - 4) && rnd(s) < 0.45) awards.push("bota");
+    /* Chuteira: artilharia + OVR; destino baixo reduz muito a chance. */
+    var botaMul = destinyOf(s).botaMul != null ? destinyOf(s).botaMul : 1;
+    if (goals >= botaNeed && rnd(s) < botaMul) awards.push("bota");
+    else if (s.ovr >= 97 && goals >= Math.max(6, botaNeed - 4) && rnd(s) < 0.45 * botaMul) awards.push("bota");
   }
   var mvpRate = s.ovr >= 96 ? 7.0 : s.ovr >= 90 ? 7.15 : 7.3;
   if (leaguePos <= 2 && s.ovr >= 82 && (role === "star" || role === "starter") && rating >= mvpRate) awards.push("mvp");
@@ -158,6 +159,8 @@ function simSeason(s) {
       pBalon = contOrTitle && strong ? 0.48 : (strong || contOrTitle ? 0.30 : 0.16);
     }
     if (role === "rotation") pBalon *= 0.55;
+    /* Destino baixo: Bola de Ouro quase impossível; extraordinária mantém taxas atuais. */
+    pBalon *= destinyOf(s).balonMul != null ? destinyOf(s).balonMul : 1;
     if (pBalon > 0 && rnd(s) < pBalon) awards.push("balon");
   }
 
@@ -167,6 +170,9 @@ function simSeason(s) {
   s.ovr = clamp(prev + delta, 40, OVR_CAP);
   /* potencial é teto mole: no máximo +2 acima, e só por forma absurda */
   if (s.ovr > s.pot + 2) s.ovr = s.pot + 2;
+  /* Destino: soft-cap de OVR (ruim ~82, medíocre ~88, muito boa ~95, extraordinária 99). */
+  s.ovr = clampOvrToDestiny(s, s.ovr);
+  s.pot = clampPotToDestiny(s, s.pot);
   s.peakOvr = Math.max(s.peakOvr, s.ovr);
   s.energy = clamp(s.energy + rngInt(function () { return rnd(s); }, -6, 5) - (role === "star" ? 3 : 0) + (inj > 12 ? 4 : 0), 35, 96);
   s.form = clamp(s.form + rngInt(function () { return rnd(s); }, -8, 8) + (rating >= 7.4 ? 4 : -2), 30, 96);
