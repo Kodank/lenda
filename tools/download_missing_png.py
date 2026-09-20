@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json, os, time, urllib.parse, urllib.request
 from download_real_rest import CLUBS, UA, API, req, api, download, pick_team, COMMONS_Q, ROOT
+from team_ids import TEAM_IDS
 
 def has_png(folder, stem):
     return os.path.isfile(os.path.join(ROOT, "img", folder, stem + ".png"))
@@ -11,8 +12,13 @@ def main():
         if has_png("clubs", cid):
             continue
         try:
-            d = api("/searchteams.php?t=" + urllib.parse.quote(name))
-            t = pick_team(d.get("teams") or [], country)
+            tid = TEAM_IDS.get(cid)
+            if tid:
+                d = api("/lookupteam.php?id=%s" % tid)
+                t = (d.get("teams") or [None])[0]
+            else:
+                d = api("/searchteams.php?t=" + urllib.parse.quote(name))
+                t = pick_team(d.get("teams") or [], country)
             url = (t or {}).get("strBadge")
             if not url:
                 print(" MISS", cid, name)

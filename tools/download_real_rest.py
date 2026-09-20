@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json, os, time, urllib.parse, urllib.request
+from team_ids import TEAM_IDS
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 UA = "LendaCareerSim/1.0 (local personal game)"
@@ -158,17 +159,29 @@ def download(url, dest_base):
     return save_bytes(data, dest_base, url, ctype)
 
 
-def pick_team(teams, country):
+def pick_team(teams, country, require_country=True):
+    """Pick a soccer team. Never fall back to teams[0] when country is set —
+    that caused Athletic Bilbao to get Athletic-MG's crest."""
     if not teams:
         return None
-    c = (country or "").lower()
-    aliases = {"united states": "usa", "usa": "united states"}
-    for t in teams:
+    soccer = [t for t in teams if (t.get("strSport") or "Soccer") in ("Soccer", "Association Football", "")]
+    pool = soccer or teams
+    c = (country or "").lower().strip()
+    if not c:
+        return pool[0] if pool else None
+    aliases = {"united states": "usa", "usa": "united states", "the netherlands": "netherlands", "netherlands": "the netherlands"}
+    for t in pool:
         tc = (t.get("strCountry") or "").lower()
         if tc == c or aliases.get(c) == tc or aliases.get(tc) == c:
             if t.get("strBadge"):
                 return t
-    return teams[0]
+    for t in pool:
+        tc = (t.get("strCountry") or "").lower()
+        if tc == c or aliases.get(c) == tc or aliases.get(tc) == c:
+            return t
+    if require_country:
+        return None
+    return pool[0]
 
 
 def main():
@@ -182,8 +195,13 @@ def main():
             paths["clubs"][cid] = "img/clubs/" + existing[0]
             continue
         try:
-            d = api("/searchteams.php?t=" + urllib.parse.quote(name))
-            t = pick_team(d.get("teams") or [], country)
+            tid = TEAM_IDS.get(cid)
+            if tid:
+                d = api("/lookupteam.php?id=%s" % tid)
+                t = (d.get("teams") or [None])[0]
+            else:
+                d = api("/searchteams.php?t=" + urllib.parse.quote(name))
+                t = pick_team(d.get("teams") or [], country)
             url = (t or {}).get("strBadge")
             if not url:
                 fail.append(cid)

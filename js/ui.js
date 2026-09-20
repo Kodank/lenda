@@ -9,7 +9,8 @@ var NATION_KIT = {
 };
 
 function crestSrc(path) {
-  return path || "img/clubs/fla.png";
+  var p = path || "img/clubs/fla.png";
+  return p + (p.indexOf("?") >= 0 ? "&" : "?") + "v=crests-fix-1";
 }
 
 function crestInitials(name) {

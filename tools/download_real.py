@@ -7,6 +7,8 @@ import time
 import urllib.parse
 import urllib.request
 
+from team_ids import TEAM_IDS
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 UA = "LendaCareerSim/1.0 (local personal game; briel)"
 API = "https://www.thesportsdb.com/api/v1/json/3"
@@ -173,21 +175,33 @@ def rel(path):
     return os.path.relpath(path, ROOT).replace("\\", "/")
 
 
-def pick_team(teams, country):
+def pick_team(teams, country, require_country=True):
+    """Pick a soccer team. Never fall back to teams[0] when country is set."""
     if not teams:
         return None
-    country = (country or "").lower()
-    for t in teams:
-        if (t.get("strCountry") or "").lower() == country and (t.get("strSport") or "") in ("Soccer", "Association Football", ""):
+    soccer = [t for t in teams if (t.get("strSport") or "Soccer") in ("Soccer", "Association Football", "")]
+    pool = soccer or teams
+    country = (country or "").lower().strip()
+    if not country:
+        return pool[0] if pool else None
+    for t in pool:
+        if (t.get("strCountry") or "").lower() == country:
             if t.get("strBadge") or t.get("strTeamBadge"):
                 return t
-    for t in teams:
+    for t in pool:
         if (t.get("strCountry") or "").lower() == country:
             return t
-    return teams[0]
+    if require_country:
+        return None
+    return pool[0]
 
 
-def search_team(name, country):
+def search_team(name, country, cid=None):
+    tid = TEAM_IDS.get(cid) if cid else None
+    if tid:
+        d = api("/lookupteam.php?id=%s" % tid)
+        teams = d.get("teams") or []
+        return teams[0] if teams else None
     q = urllib.parse.quote(name)
     d = api("/searchteams.php?t=" + q)
     return pick_team(d.get("teams") or [], country)
@@ -244,7 +258,7 @@ def main():
     print("clubs...")
     for cid, (name, country) in CLUBS.items():
         try:
-            t = search_team(name, country)
+            t = search_team(name, country, cid=cid)
             url = badge_url(t) if t else None
             if not url:
                 fail.append("club " + cid + " " + name)

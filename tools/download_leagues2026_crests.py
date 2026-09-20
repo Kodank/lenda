@@ -10,15 +10,13 @@ UA = "LendaCareerSim/1.0 (local personal game)"
 API = "https://www.thesportsdb.com/api/v1/json/3"
 OUT = os.path.join(ROOT, "img", "clubs")
 
-# id -> TheSportsDB idTeam (verified)
-TEAMS = {
-    "mir": 141181, "nov": 141182, "chp": 134464, "rem": 137818, "jve": 135887,
-    "lon": 135664, "sbe": 145389, "cri": 134292, "crb": 135680, "cui": 136831,
-    "ago": 134737, "ope": 136829, "vna": 134734, "amg": 134742, "athm": 147142,
-    "bsp": 136830, "vit": 134280, "ctb": 134298, "elv": 138411, "cov": 133625,
-    "ips": 133622, "hul": 133617, "s04": 133661, "pad": 134551, "tro": 134789,
-    "lem": 133848, "bou": 134301, "bre": 134355, "lee": 133635, "sun": 133603,
-}
+# id -> TheSportsDB idTeam (verified). Canonical map lives in team_ids.py.
+from team_ids import TEAM_IDS
+TEAMS = {k: TEAM_IDS[k] for k in (
+    "mir", "nov", "chp", "rem", "jve", "lon", "sbe", "cri", "crb", "cui",
+    "ago", "ope", "vna", "amg", "athm", "bsp", "vit", "ctb", "elv", "cov",
+    "ips", "hul", "s04", "pad", "tro", "lem", "bou", "bre", "lee", "sun",
+)}
 
 def req(url, retries=8):
     last = None
