@@ -114,8 +114,8 @@ function roleOf(s, club) {
 
 function marketValue(s) {
   /* OVR-driven curve: 70s–80s tens of mi; 90–94 hundreds; 95–98 deep hundreds; 99 = €1B+. */
-  var club = clubOf(s.clubId);
-  var level = club && club.level != null ? club.level : 3;
+  var club = s.clubId ? clubOf(s.clubId) : null;
+  var level = club && club.level != null ? club.level : (s._rescindLevel != null ? s._rescindLevel : 3);
   var age = s.age || 25;
   var ageF =
     age <= 21 ? 1.22 :

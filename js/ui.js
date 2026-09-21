@@ -222,7 +222,8 @@ function trophyCaseHtml(s) {
 }
 
 function identityStrip(s) {
-  var club = clubOf(s.clubId);
+  var free = !s.clubId || s.freeAgent;
+  var club = free ? null : clubOf(s.clubId);
   var nat = nationOf(s.nation);
   var last = (s.seasons && s.seasons.length) ? s.seasons[s.seasons.length - 1] : null;
   var apps = last ? last.apps : 0;
@@ -241,8 +242,9 @@ function identityStrip(s) {
     '<div class="id-line">' +
     '<img class="mini-flag" src="' + nat.flag + '" alt="">' +
     '<span class="pill">#' + s.number + " " + POS[s.pos].short + "</span>" +
-    clubNameHtml(club.name, "club-name") +
-    imgCrest(club.crest, 'crest sm', club.name) +
+    (free
+      ? '<span class="club-name">Sem clube</span>'
+      : clubNameHtml(club.name, "club-name") + imgCrest(club.crest, 'crest sm', club.name)) +
     "</div>" +
     '<div class="id-kpis">' +
     "<div><b>" + apps + "</b><span>JOGOS</span></div>" +
@@ -774,7 +776,7 @@ function viewDecision() {
     '<div class="career-body">' +
     '<div class="story compact">' +
     '<div class="event-hero"><img src="' + hero + '" alt="" loading="lazy" onerror="this.src=\'img/choices/default.png\'"></div>' +
-    '<div class="meta">' + esc(clubOf(s.clubId).name) + " · " + s.age + " anos</div>" +
+    '<div class="meta">' + esc((!s.clubId || s.freeAgent) ? "Agente livre" : clubOf(s.clubId).name) + " · " + s.age + " anos</div>" +
     "<h2>" + esc(ev.title) + "</h2>" +
     "<p>" + esc(ev.text) + "</p></div>" +
     '<div class="choices-grid">' + choices + "</div>" +

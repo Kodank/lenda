@@ -34,6 +34,9 @@ function academyOffers(s) {
 
 function signAcademy(s, clubId) {
   s.clubId = clubId;
+  s.freeAgent = false;
+  s._rescindClubId = null;
+  s._rescindName = null;
   var club = clubOf(clubId);
   /* Pot sobe com a academia, mas não passa do teto do destino. */
   s.pot = clampPotToDestiny(s, s.pot + Math.round((club.level - 3.2) * 1.2));
@@ -49,8 +52,8 @@ function eventFits(s, ev) {
   if (w.minOvr != null && s.ovr < w.minOvr) return false;
   if (w.maxOvr != null && s.ovr > w.maxOvr) return false;
   if (w.roles && w.roles.indexOf(s.role) < 0) return false;
-  if (w.home && clubOf(s.clubId).nation !== s.nation) return false;
-  if (w.abroad && clubOf(s.clubId).nation === s.nation) return false;
+  if (w.home && (!s.clubId || clubOf(s.clubId).nation !== s.nation)) return false;
+  if (w.abroad && (!s.clubId || clubOf(s.clubId).nation === s.nation)) return false;
   if (w.wcYear && s.year % 4 !== 2) return false;
   if ((s.usedEvents || []).indexOf(ev.id) >= 0 && ev.id !== "muscle" && ev.id !== "formdip") return false;
   return true;
@@ -74,6 +77,222 @@ function clubsByIds(ids) {
   }
   return out;
 }
+
+/* Clube grande: top-10 mundial ou nível elite (~4.3+). */
+function isBigClub(c) {
+  if (!c) return false;
+  if (WORLD_TOP10_IDS.indexOf(c.id) >= 0) return true;
+  return c.level >= 4.3;
+}
+
+function seasonsAtCurrentClub(s) {
+  if (!s.clubId || !s.seasons || !s.seasons.length) return 0;
+  var n = 0;
+  for (var i = s.seasons.length - 1; i >= 0; i--) {
+    if (s.seasons[i].clubId !== s.clubId) break;
+    n++;
+  }
+  return n;
+}
+
+/*
+ * Queda em gigante: OVR abaixo do elenco, demotion, forma ruim, temporadas ruins.
+ * Score alto = candidata a rescisão (ainda precisa do roll raro).
+ */
+function rescissionScore(s) {
+  if (!s || !s.clubId) return 0;
+  var cur = clubOf(s.clubId);
+  if (!isBigClub(cur)) return 0;
+  if (s.age < 19) return 0;
+  if (seasonsAtCurrentClub(s) < 1) return 0;
+
+  var need = cur.level * 18;
+  var gap = s.ovr - need;
+  var peakDrop = Math.max(0, (s.peakOvr || s.ovr) - s.ovr);
+  var role = s.role || roleOf(s, cur);
+  var score = 0;
+
+  if (gap <= -12) score += 4;
+  else if (gap <= -9) score += 3;
+  else if (gap <= -6) score += 2;
+  else if (gap <= -4) score += 1;
+
+  if (peakDrop >= 10) score += 3;
+  else if (peakDrop >= 7) score += 2;
+  else if (peakDrop >= 4) score += 1;
+
+  if (role === "bench" || role === "youth") score += 2;
+  else if (role === "rotation" && gap <= -4) score += 1;
+
+  if ((s.form || 50) < 38) score += 1;
+  if ((s.confidence || 50) < 34) score += 1;
+  if ((s.coach || 50) < 28) score += 1;
+
+  var recent = 0;
+  for (var i = s.seasons.length - 1; i >= 0 && recent < 2; i--) {
+    var se = s.seasons[i];
+    if (se.clubId !== s.clubId) break;
+    recent++;
+    if ((se.delta || 0) <= -2) score += 1;
+    if ((se.apps || 0) < 12) score += 1;
+    if ((se.rating || 7) < 6.15) score += 1;
+  }
+
+  return score;
+}
+
+function shouldRescind(s) {
+  if (!s || !s.clubId || s.freeAgent) return false;
+  if (s.lastRescindYear != null && (s.year - s.lastRescindYear) < 2) return false;
+  var score = rescissionScore(s);
+  if (score < 5) return false;
+  /* Raro o bastante para doer: score 5 ~10%, 8 ~28%, teto ~40%. Destino não isenta. */
+  var p = 0.1 + (score - 5) * 0.06;
+  if (p > 0.4) p = 0.4;
+  return rnd(s) < p;
+}
+
+function releaseToFreeAgent(s) {
+  var cur = s.clubId ? clubOf(s.clubId) : null;
+  s._rescindClubId = s.clubId || null;
+  s._rescindLevel = cur ? cur.level : 3.5;
+  s._rescindName = cur ? cur.name : "";
+  s.clubId = null;
+  s.loanFrom = null;
+  s.loanYears = 0;
+  s.freeAgent = true;
+  s.role = "bench";
+  s.coach = clamp((s.coach || 40) - 12, 10, 70);
+  s.confidence = clamp((s.confidence || 50) - 8, 15, 100);
+  s.value = marketValue(s);
+}
+
+function currentClubLevel(s) {
+  if (s.clubId) return clubOf(s.clubId).level;
+  if (s._rescindLevel != null) return s._rescindLevel;
+  return clamp((s.ovr || 70) / 18 - 0.2, 2.2, 4.4);
+}
+
+function pickRescissionOffers(s, n) {
+  n = n || 3;
+  var prevLv = currentClubLevel(s);
+  var dGate = destinyOf(s);
+  var pool = CLUBS.filter(function (c) {
+    if (s._rescindClubId && c.id === s._rescindClubId) return false;
+    /* Pós-queda: opções reais em clubes menores/pares — sem outro gigante irrealista. */
+    var need = c.level * 18;
+    var gap = s.ovr - need;
+    if (gap < -9) return false;
+    if (c.level > prevLv + 0.05) return false;
+    if (WORLD_TOP10_IDS.indexOf(c.id) >= 0 && gap < -4) return false;
+    if (dGate.maxClubLevel != null && c.level > dGate.maxClubLevel + 0.35) return false;
+    return true;
+  });
+  function roleOk(c) {
+    var r = roleOf({ ovr: s.ovr, age: s.age, clubId: c.id }, c);
+    return r === "star" || r === "starter" || r === "rotation";
+  }
+  var playable = pool.filter(roleOk);
+  if (playable.length < 2) playable = pool.slice();
+
+  var stepDown = playable.filter(function (c) {
+    return c.level <= prevLv - 0.25 && c.level >= prevLv - 1.4;
+  });
+  var muchLower = playable.filter(function (c) {
+    return c.level < prevLv - 1.35 && c.level >= 2.4;
+  });
+  var lateral = playable.filter(function (c) {
+    return Math.abs(c.level - prevLv) <= 0.4 && c.level < prevLv + 0.05;
+  });
+  stepDown = shuffled(stepDown, s);
+  muchLower = shuffled(muchLower, s);
+  lateral = shuffled(lateral, s);
+
+  var out = [];
+  var seen = {};
+  function add(c) {
+    if (!c || seen[c.id] || out.length >= n) return false;
+    seen[c.id] = 1;
+    out.push(c);
+    return true;
+  }
+  if (stepDown[0]) add(stepDown[0]);
+  if (muchLower[0]) add(muchLower[0]);
+  if (lateral[0]) add(lateral[0]);
+  var rest = shuffled(playable, s);
+  for (var i = 0; i < rest.length && out.length < n; i++) add(rest[i]);
+  if (out.length < 2) {
+    var any = shuffled(CLUBS.filter(function (c) {
+      return (!s._rescindClubId || c.id !== s._rescindClubId) && c.level <= Math.min(prevLv, 4.2);
+    }), s);
+    for (var j = 0; j < any.length && out.length < n; j++) add(any[j]);
+  }
+  return out.slice(0, n);
+}
+
+function freeAgentOfferChoice(s, club) {
+  var lg = leagueOf(club.leagueId);
+  var ghost = { ovr: s.ovr, age: s.age, clubId: club.id };
+  var role = roleOf(ghost, club);
+  var prev = s._rescindLevel != null ? s._rescindLevel : currentClubLevel(s);
+  var step = club.level - prev;
+  var tag = step <= -0.55 ? "Recomeço · " : step <= -0.2 ? "Mais minutos · " : "Assinar · ";
+  var euro = EURO_LEAGUES[club.leagueId] ? "Europa · " : "";
+  return {
+    label: tag + club.name,
+    hint: euro + lg.name + " · " + ROLE_NAME[role],
+    crest: club.crest,
+    leagueId: club.leagueId,
+    nation: club.nation,
+    colors: club.colors,
+    fx: { sign: club.id, ambition: step >= 0 ? 3 : -2, loyalty: 4, confidence: 6, form: 4 }
+  };
+}
+
+function buildFreeAgentWindow(s) {
+  var offers = pickRescissionOffers(s, 3);
+  var from = s._rescindName || "o clube";
+  var ev = {
+    id: "rescisao",
+    title: "Agente livre",
+    text: "Você está sem clube após a rescisão com " + from + ". Escolha uma das propostas — não dá para ficar parado."
+  };
+  if (offers[0] && offers[1] && offers[2]) {
+    ev.a = freeAgentOfferChoice(s, offers[0]);
+    ev.b = freeAgentOfferChoice(s, offers[1]);
+    ev.c = freeAgentOfferChoice(s, offers[2]);
+  } else if (offers[0] && offers[1]) {
+    ev.a = freeAgentOfferChoice(s, offers[0]);
+    ev.b = freeAgentOfferChoice(s, offers[1]);
+  } else if (offers[0]) {
+    ev.a = freeAgentOfferChoice(s, offers[0]);
+    ev.b = freeAgentOfferChoice(s, offers[0]);
+  } else {
+    /* Fallback extremo: qualquer clube jogável */
+    var fb = shuffled(CLUBS.filter(function (c) { return c.level <= 3.8; }), s)[0] || CLUBS[0];
+    ev.a = freeAgentOfferChoice(s, fb);
+  }
+  return ev;
+}
+
+function buildRescissionEvent(s) {
+  var cur = clubOf(s.clubId);
+  var name = cur.name;
+  releaseToFreeAgent(s);
+  s.lastRescindYear = s.year;
+  s.rescissions = (s.rescissions || 0) + 1;
+  var blurbs = [
+    "A diretoria do " + name + " pediu a rescisão. Fim do vínculo — você está dispensado.",
+    name + " encerrou o contrato. Sem minutos, sem confiança: você é agente livre.",
+    "Rescisão. O " + name + " cortou o vínculo. Escolha um novo destino — clubes menores já ligaram."
+  ];
+  var ev = buildFreeAgentWindow(s);
+  ev.id = "rescisao";
+  ev.title = "Rescisão de contrato";
+  ev.text = blurbs[Math.floor(rnd(s) * blurbs.length)];
+  return ev;
+}
+
 
 /* Resolve conf without nationOf fallback (unknown ids must not become Brazil/conmebol). */
 function nationConf(nationId) {
@@ -136,6 +355,9 @@ function marketStage(s) {
 }
 
 function pickEvent(s) {
+  /* Agente livre: obrigado a escolher oferta (pós-rescisão). */
+  if (s.freeAgent || !s.clubId) return buildFreeAgentWindow(s);
+
   var marketP = 0.72;
   if (s.age <= 22) marketP = 0.82;
   if (s.age >= 32) marketP = 0.5;
@@ -146,6 +368,11 @@ function pickEvent(s) {
   if (s.pace === "intensa") marketP = Math.min(0.97, marketP + 0.2);
   /* Modo Rápido: mais mercado/títulos, menos narrativa */
   if (s.pace === "rapido") marketP = Math.min(0.94, marketP + 0.18);
+  if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.forceRescind) {
+    DEV.flags.forceRescind = false;
+    return buildRescissionEvent(s);
+  }
+  if (shouldRescind(s)) return buildRescissionEvent(s);
   if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.alwaysTransfers) {
     return buildTransferWindow(s);
   }
@@ -218,11 +445,13 @@ function shuffled(arr, s) {
 
 function pickOffers(s, n) {
   /* Estilo Copero: um passo à frente, um lateral — não dois gigantes aleatórios. */
-  var cur = clubOf(s.clubId);
+  var cur = s.clubId ? clubOf(s.clubId) : null;
+  var curId = cur ? cur.id : "";
+  var curLevel = currentClubLevel(s);
   var stage = marketStage(s);
   var dGate = destinyOf(s);
   var pool = CLUBS.filter(function (c) {
-    if (c.id === cur.id || !reachableClub(s, c)) return false;
+    if (c.id === curId || !reachableClub(s, c)) return false;
     /* Destino baixo: bloqueia gigantes (top Europa) mesmo se o OVR “aguenta”. */
     if (dGate.maxClubLevel != null && c.level > dGate.maxClubLevel + 0.001) return false;
     /* Early career: only same continent / country (no random Europe for SA youngster). */
@@ -246,23 +475,28 @@ function pickOffers(s, n) {
   var playablePool = pool.filter(playable);
   if (playablePool.length < 3) playablePool = pool.slice();
 
+  /* Em 85–88 (world) / wonderkid: top-10 só via roll elite — não pelo passo genérico. */
+  var eliteGate = (stage === "world" || stage === "wonderkid");
+  function notEliteOnly(c) {
+    return !eliteGate || WORLD_TOP10_IDS.indexOf(c.id) < 0;
+  }
   var stepUp = playablePool.filter(function (c) {
-    return c.level > cur.level + 0.12 && c.level <= cur.level + 0.85;
+    return notEliteOnly(c) && c.level > curLevel + 0.12 && c.level <= curLevel + 0.85;
   });
   var bigStep = playablePool.filter(function (c) {
-    return c.level > cur.level + 0.85 && s.ovr >= c.level * 18 - 6;
+    return notEliteOnly(c) && c.level > curLevel + 0.85 && s.ovr >= c.level * 18 - 6;
   });
   var lateral = playablePool.filter(function (c) {
-    return Math.abs(c.level - cur.level) <= 0.35;
+    return notEliteOnly(c) && Math.abs(c.level - curLevel) <= 0.35;
   });
   var safer = playablePool.filter(function (c) {
-    return c.level < cur.level - 0.15 && c.level >= cur.level - 0.9;
+    return notEliteOnly(c) && c.level < curLevel - 0.15 && c.level >= curLevel - 0.9;
   });
   /* empréstimos naturais para jovens engavetados */
   var loanish = [];
   if (s.age <= 21 && (s.role === "youth" || s.role === "bench")) {
     loanish = playablePool.filter(function (c) {
-      return c.level < cur.level - 0.2 && c.level >= 2.6;
+      return notEliteOnly(c) && c.level < curLevel - 0.2 && c.level >= 2.6;
     });
   }
 
@@ -296,24 +530,23 @@ function pickOffers(s, n) {
     return true;
   }
 
-  /* 85+: chance of a world top-10 offer; 89+: always include a top-5.
-     Wonderkid: high chance a European mega shows interest early. */
+  /* 85+: chance real mas modesta de top-10; 89+: top-5 quase certo (destino alto).
+     Elite roll ignora maxClubLevel (destino entra só via mul) — medíocre pode sonhar pequeno.
+     Wonderkid: Europa mega cedo; continente/home gates intactos no pool geral. */
   var top5 = clubsByIds(WORLD_TOP5_IDS).filter(function (c) {
-    if (c.id === cur.id || !reachableClub(s, c)) return false;
-    if (dGate.maxClubLevel != null && c.level > dGate.maxClubLevel + 0.001) return false;
+    if (c.id === curId || !reachableClub(s, c)) return false;
     return true;
   });
   var top10 = clubsByIds(WORLD_TOP10_IDS).filter(function (c) {
-    if (c.id === cur.id || !reachableClub(s, c)) return false;
-    if (dGate.maxClubLevel != null && c.level > dGate.maxClubLevel + 0.001) return false;
+    if (c.id === curId || !reachableClub(s, c)) return false;
     return true;
   });
   top5 = shuffled(top5, s);
   top10 = shuffled(top10, s);
-  /* Destino reduz (ou zera) portas top-5 / top-10 — teto de mercado, não só OVR. */
+  /* Base ~0.30: "um pouco difícil" em 85; mul do destino escala. */
   var dMul = dGate;
-  var pTop5 = 0.48 * (dMul.top5Mul != null ? dMul.top5Mul : 1);
-  var pTop10 = 0.48 * (dMul.top10Mul != null ? dMul.top10Mul : 1);
+  var pTop5 = 0.3 * (dMul.top5Mul != null ? dMul.top5Mul : 1);
+  var pTop10 = 0.3 * (dMul.top10Mul != null ? dMul.top10Mul : 1);
   var pWk = 0.62 * (dMul.wonderkidMul != null ? dMul.wonderkidMul : 1);
   if (stage === "elite" && top5[0]) {
     if ((dMul.top5Mul != null ? dMul.top5Mul : 1) >= 0.99 || rnd(s) < Math.max(0.08, pTop5)) forceElite(top5[0]);
@@ -323,7 +556,7 @@ function pickOffers(s, n) {
 
   /* 1ª carta: passo à frente (ou big step raro se o OVR aguenta) — se ainda cabe */
   if (out.length < n) {
-    if (s.ovr >= cur.level * 18 + 2 && bigStep[0] && rnd(s) < 0.28) add(bigStep[0]);
+    if (s.ovr >= curLevel * 18 + 2 && bigStep[0] && rnd(s) < 0.28) add(bigStep[0]);
     else if (stepUp[0]) add(stepUp[0]);
     else if (loanish[0]) add(loanish[0]);
     else if (lateral[0]) add(lateral[0]);
@@ -336,6 +569,7 @@ function pickOffers(s, n) {
   /* fallback: qualquer jogável próximo do OVR */
   if (out.length < n) {
     var near = shuffled(playablePool.filter(function (c) {
+      if (eliteGate && WORLD_TOP10_IDS.indexOf(c.id) >= 0) return false;
       return Math.abs(c.level * 18 - s.ovr) <= 14;
     }), s);
     for (var j = 0; j < near.length && out.length < n; j++) add(near[j]);
@@ -353,9 +587,9 @@ function offerChoice(s, club) {
   var lg = leagueOf(club.leagueId);
   var ghost = { ovr: s.ovr, age: s.age, clubId: club.id };
   var role = roleOf(ghost, club);
-  var cur = clubOf(s.clubId);
-  var loan = s.age <= 21 && (s.role === "youth" || s.role === "bench") && club.level < cur.level - 0.15;
-  var step = club.level - cur.level;
+  var curLevel = currentClubLevel(s);
+  var loan = s.clubId && s.age <= 21 && (s.role === "youth" || s.role === "bench") && club.level < curLevel - 0.15;
+  var step = club.level - curLevel;
   var tag = loan ? "Empréstimo · " : step >= 0.45 ? "Subir · " : step <= -0.35 ? "Mais minutos · " : "Mudar · ";
   var euro = EURO_LEAGUES[club.leagueId] ? "Europa · " : "";
   return {
@@ -372,6 +606,9 @@ function offerChoice(s, club) {
 }
 
 function stayChoice(s) {
+  if (!s.clubId) {
+    return { label: "Esperar proposta", hint: "Agente livre", fx: { confidence: -2 } };
+  }
   var cur = clubOf(s.clubId);
   return {
     label: "Ficar no " + cur.name,
@@ -439,7 +676,7 @@ function applyChoice(s, ev, side) {
     delete fx.risk;
   }
   s.usedEvents = s.usedEvents || [];
-  if (ev.id && ev.id !== "market" && ev.id !== "quiet" && ev.id !== "muscle" && ev.id !== "formdip" && ev.id !== "rivalaward" && s.usedEvents.indexOf(ev.id) < 0) {
+  if (ev.id && ev.id !== "market" && ev.id !== "rescisao" && ev.id !== "quiet" && ev.id !== "muscle" && ev.id !== "formdip" && ev.id !== "rivalaward" && s.usedEvents.indexOf(ev.id) < 0) {
     s.usedEvents.push(ev.id);
   }
   if (fx.loyalty) touchTrait(s.traits, "loyalty", fx.loyalty);
@@ -729,6 +966,9 @@ function moveTo(s, club) {
   s.clubId = club.id;
   s.loanFrom = null;
   s.loanYears = 0;
+  s.freeAgent = false;
+  s._rescindClubId = null;
+  s._rescindName = null;
   s.coach = clamp(40 + rnd(s) * 20, 30, 70);
   s.role = roleOf(s, club);
   s.value = marketValue(s);

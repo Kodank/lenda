@@ -12,7 +12,7 @@
 
   var DEV = {
     unlocked: false,
-    flags: { ignoreInjury: false, alwaysTransfers: false, godGrowth: false, nextDestiny: null },
+    flags: { ignoreInjury: false, alwaysTransfers: false, godGrowth: false, forceRescind: false, nextDestiny: null },
     on: function () { return !!DEV.unlocked; }
   };
 
@@ -320,7 +320,25 @@
     toast("Selecao +" + apps + " J / +" + goals + " G");
   }
 
+  function forceRescission() {
+    if (!needCareer()) return;
+    if (!S.clubId) {
+      toast("Ja esta sem clube", true);
+      return;
+    }
+    if (typeof buildRescissionEvent !== "function") {
+      toast("Rescisao indisponivel", true);
+      return;
+    }
+    UI.event = buildRescissionEvent(S);
+    UI.screen = "decision";
+    save();
+    render();
+    toast("Rescisao forcada");
+  }
+
   function finishSeason() {
+
     if (!needCareer()) return;
     UI.reports = advance(S);
     UI.screen = S.retired ? "legacy" : "report";
@@ -656,7 +674,8 @@
       '<button type="button" class="btn sm danger" data-dev="retire">Aposentar</button></div></div>' +
       '<div class="dev-sec"><div class="dev-h">Presets</div><div class="dev-btns">' +
       '<button type="button" class="btn sm" data-dev="apex">Apice max.</button>' +
-      '<button type="button" class="btn sm" data-dev="break">Breakthrough raro</button></div></div>' +
+      '<button type="button" class="btn sm" data-dev="break">Breakthrough raro</button>' +
+      '<button type="button" class="btn sm danger" data-dev="rescind">Forcar rescisao</button></div></div>' +
       '<div class="dev-sec"><div class="dev-h">Toggles</div><div class="dev-checks">' +
       '<label><input type="checkbox" id="dev-f-inj"' +
       (DEV.flags.ignoreInjury ? " checked" : "") +
@@ -831,6 +850,7 @@
         else if (act === "retire") jumpAge(99);
         else if (act === "apex") maxApex();
         else if (act === "break") triggerBreakthrough();
+        else if (act === "rescind") forceRescission();
         else if (act === "reload") location.reload();
         else if (act === "new") {
           if (typeof go === "function") go("new");
