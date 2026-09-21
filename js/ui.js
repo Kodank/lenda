@@ -166,7 +166,7 @@ function nationShirt(nation) {
   var map = (typeof NATION_SHIRT !== "undefined" && NATION_SHIRT) || {};
   var base = map[nation] || { shirt: "img/shirts/br.png", ink: "#186531", inkShadow: "rgba(0,0,0,.22)" };
   return {
-    shirt: base.shirt + (base.shirt.indexOf("?") >= 0 ? "&" : "?") + "v=camisa-setup-2",
+    shirt: base.shirt + (base.shirt.indexOf("?") >= 0 ? "&" : "?") + "v=valor-peak-setup-1",
     ink: base.ink || "#111111",
     inkShadow: base.inkShadow || "rgba(0,0,0,.25)"
   };
@@ -327,7 +327,7 @@ function viewHome() {
 }
 
 function createProgress(step) {
-  var labels = ["Camisa", "País", "Posição"];
+  var labels = ["País", "Camisa", "Posição"];
   return '<div class="steps">' + labels.map(function (lab, i) {
     return '<span class="step-dot' + (i === step ? " on" : "") + (i < step ? " done" : "") + '">' + (i + 1) + "<i>" + lab + "</i></span>";
   }).join('<span class="step-line"></span>') + "</div>";
@@ -380,37 +380,8 @@ function viewCreate() {
   var top = topBarHtml("LENDA", false) +
     createProgress(step);
 
+  /* step 0 — nationality first (shirt kit colors depend on this) */
   if (step === 0) {
-    var feet = [["D", "Destro"], ["E", "Canhoto"], ["A", "Ambidestro"]].map(function (f) {
-      return '<button type="button" class="chip' + (d.foot === f[0] ? " on" : "") + '" data-foot="' + f[0] + '">' + f[1] + "</button>";
-    }).join("");
-    var paces = ["intensa", "normal", "rapido"].map(function (k) {
-      var p = PACE[k];
-      var extra = k === "rapido" ? '<i class="pace-new">novo</i>' : "";
-      return '<button type="button" class="chip pace-chip' + (d.pace === k ? " on" : "") + (k === "rapido" ? " pace-rapido" : "") +
-        '" data-pace="' + k + '" title="' + esc(p.hint) + '">' + p.label + extra + "</button>";
-    }).join("");
-    var paceHint = (PACE[d.pace] || PACE.normal).hint;
-    return top +
-      '<div class="step-card focus-shirt">' +
-      "<h2>Define a camisa</h2>" +
-      '<p class="lead tight">Nome, número e perna — o resto vem depois.</p>' +
-      '<div class="shirt-panel">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA", d.nation) + "</div>" +
-      '<div class="field-grid">' +
-      '<div><div class="label">Sobrenome</div><input id="nm" type="text" maxlength="12" value="' + esc(d.name) + '" placeholder="SOBRENOME"></div>' +
-      '<div><div class="label">Número</div><div class="dorsal compact"><button type="button" class="chip" data-num="-1">−</button><b class="num">' + d.number + '</b><button type="button" class="chip" data-num="1">+</button></div></div>' +
-      "</div>" +
-      '<div class="label">Perna boa</div><div class="row">' + feet + "</div>" +
-      '<div class="label" style="margin-top:12px">Ritmo da carreira</div>' +
-      '<div class="row pace-row">' + paces + "</div>" +
-      '<div class="pace-hint">' + esc(paceHint) + "</div>" +
-      '<div class="step-actions">' +
-      '<button class="btn alt" data-go="home">Voltar</button>' +
-      '<button class="btn" data-step="1">Continuar</button>' +
-      "</div></div>";
-  }
-
-  if (step === 1) {
     var flags = NATIONS.filter(function (n) { return !n.clubOnly; }).map(function (n) {
       return '<button type="button" class="flag-row' + (d.nation === n.id ? " on" : "") + '" data-nation="' + n.id + '">' +
         '<img src="' + n.flag + '" alt=""><span>' + esc(n.name) + "</span></button>";
@@ -424,6 +395,37 @@ function viewCreate() {
       '<div class="nation-panel"><input id="nat-search" type="text" placeholder="Buscar país…" autocomplete="off">' +
       '<div class="flag-list" id="flag-list">' + flags + "</div></div>" +
       "</div>" +
+      '<div class="step-actions">' +
+      '<button class="btn alt" data-go="home">Voltar</button>' +
+      '<button class="btn" data-step="1">Continuar</button>' +
+      "</div></div>";
+  }
+
+  /* step 1 — shirt (uses nation chosen on step 0) */
+  if (step === 1) {
+    var feet = [["D", "Destro"], ["E", "Canhoto"], ["A", "Ambidestro"]].map(function (f) {
+      return '<button type="button" class="chip' + (d.foot === f[0] ? " on" : "") + '" data-foot="' + f[0] + '">' + f[1] + "</button>";
+    }).join("");
+    var paces = ["intensa", "normal", "rapido"].map(function (k) {
+      var p = PACE[k];
+      var extra = k === "rapido" ? '<i class="pace-new">novo</i>' : "";
+      return '<button type="button" class="chip pace-chip' + (d.pace === k ? " on" : "") + (k === "rapido" ? " pace-rapido" : "") +
+        '" data-pace="' + k + '" title="' + esc(p.hint) + '">' + p.label + extra + "</button>";
+    }).join("");
+    var paceHint = (PACE[d.pace] || PACE.normal).hint;
+    return top +
+      '<div class="step-card focus-shirt">' +
+      "<h2>Define a camisa</h2>" +
+      '<p class="lead tight">Nome, número e perna — com as cores da seleção.</p>' +
+      '<div class="shirt-panel">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA", d.nation) + "</div>" +
+      '<div class="field-grid">' +
+      '<div><div class="label">Sobrenome</div><input id="nm" type="text" maxlength="12" value="' + esc(d.name) + '" placeholder="SOBRENOME"></div>' +
+      '<div><div class="label">Número</div><div class="dorsal compact"><button type="button" class="chip" data-num="-1">−</button><b class="num">' + d.number + '</b><button type="button" class="chip" data-num="1">+</button></div></div>' +
+      "</div>" +
+      '<div class="label">Perna boa</div><div class="row">' + feet + "</div>" +
+      '<div class="label" style="margin-top:12px">Ritmo da carreira</div>' +
+      '<div class="row pace-row">' + paces + "</div>" +
+      '<div class="pace-hint">' + esc(paceHint) + "</div>" +
       '<div class="step-actions">' +
       '<button class="btn alt" data-step="0">Voltar</button>' +
       '<button class="btn" data-step="2">Continuar</button>' +
@@ -1033,7 +1035,15 @@ function bind() {
       if (!UI.draft) return;
       var nm = document.getElementById("nm");
       if (nm) UI.draft.name = nm.value.toUpperCase().slice(0, 12) || "SILVA";
-      UI.draft.step = Number(b.getAttribute("data-step")) || 0;
+      var next = Number(b.getAttribute("data-step")) || 0;
+      var cur = UI.draft.step || 0;
+      /* País first: must pick nationality before Camisa / Posição. */
+      if (next > cur && next >= 1 && !UI.draft.nation) {
+        if (typeof JUICE !== "undefined" && JUICE.showToast) JUICE.showToast("Escolhe o país primeiro", "bad", 1800);
+        else window.alert("Escolhe o país primeiro");
+        return;
+      }
+      UI.draft.step = next;
       render();
     };
   });
@@ -1176,6 +1186,14 @@ function go(to) {
       else nextDecision();
     }
   } else if (to === "academies") {
+    if (!UI.draft || !UI.draft.nation) {
+      if (typeof JUICE !== "undefined" && JUICE.showToast) JUICE.showToast("Escolhe o país primeiro", "bad", 1800);
+      else window.alert("Escolhe o país primeiro");
+      if (UI.draft) UI.draft.step = 0;
+      UI.screen = "create";
+      render();
+      return;
+    }
     var inp = document.getElementById("nm");
     if (inp) UI.draft.name = inp.value.toUpperCase().slice(0, 12) || "SILVA";
     if (UI.draft) UI.draft.step = 2;
