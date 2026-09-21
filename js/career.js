@@ -158,8 +158,7 @@ function releaseToFreeAgent(s) {
   s._rescindLevel = cur ? cur.level : 3.5;
   s._rescindName = cur ? cur.name : "";
   s.clubId = null;
-  s.loanFrom = null;
-  s.loanYears = 0;
+  clearLoanState(s);
   s.freeAgent = true;
   s.role = "bench";
   s.coach = clamp((s.coach || 40) - 12, 10, 70);
@@ -493,6 +492,8 @@ function buildSubstancesEvent(s) {
 }
 
 function pickEvent(s) {
+  /* Fim de empréstimo: Retorno / definitivo / (talvez) outro emp. */
+  if (s._loanResolve && s.loanFrom) return buildLoanResolveWindow(s);
   /* Agente livre: obrigado a escolher oferta (pós-rescisão). */
   if (s.freeAgent || !s.clubId) return buildFreeAgentWindow(s);
 
@@ -723,13 +724,21 @@ function offerChoice(s, club) {
   var ghost = { ovr: s.ovr, age: s.age, clubId: club.id };
   var role = roleOf(ghost, club);
   var curLevel = currentClubLevel(s);
-  var loan = s.clubId && s.age <= 21 && (s.role === "youth" || s.role === "bench") && club.level < curLevel - 0.15;
+  var ownerLv = s.loanFrom ? clubOf(s.loanFrom).level : curLevel;
+  /* Empréstimo (não "rodízio"/transferência permanente): jovens engavetados ou já em emp. */
+  var loan = !!s.loanFrom || (
+    s.clubId && s.age <= 22 &&
+    (s.role === "youth" || s.role === "bench" || s.role === "rotation") &&
+    club.level < ownerLv - 0.1
+  );
   var step = club.level - curLevel;
   var tag = loan ? "Empréstimo · " : step >= 0.45 ? "Subir · " : step <= -0.35 ? "Mais minutos · " : "Mudar · ";
   var euro = EURO_LEAGUES[club.leagueId] ? "Europa · " : "";
   return {
     label: tag + club.name,
-    hint: euro + lg.name + " · " + ROLE_NAME[role],
+    hint: loan
+      ? (euro + "Empréstimo · 1 temporada")
+      : (euro + lg.name + " · " + ROLE_NAME[role]),
     crest: club.crest,
     leagueId: club.leagueId,
     nation: club.nation,
@@ -811,7 +820,7 @@ function applyChoice(s, ev, side) {
     delete fx.risk;
   }
   s.usedEvents = s.usedEvents || [];
-  if (ev.id && ev.id !== "market" && ev.id !== "rescisao" && ev.id !== "quiet" && ev.id !== "muscle" && ev.id !== "formdip" && s.usedEvents.indexOf(ev.id) < 0) {
+  if (ev.id && ev.id !== "market" && ev.id !== "rescisao" && ev.id !== "loan_resolve" && ev.id !== "quiet" && ev.id !== "muscle" && ev.id !== "formdip" && s.usedEvents.indexOf(ev.id) < 0) {
     s.usedEvents.push(ev.id);
   }
   if (fx.loyalty) touchTrait(s.traits, "loyalty", fx.loyalty);
@@ -857,6 +866,7 @@ function applyChoice(s, ev, side) {
   if (fx.retire) s.retireForce = true;
   if (fx.extraYear) s.extraYears = (s.extraYears || 0) + 2;
   if (fx.shiftPos) s.pos = neighborPos(s.pos);
+  if (fx.returnLoan) returnFromLoan(s);
   if (fx.sign) moveTo(s, clubOf(fx.sign));
   if (fx.loanTo) loanTo(s, clubOf(fx.loanTo));
   if (fx.transferElite) moveTo(s, pickClub(s, "elite"));
@@ -1083,10 +1093,13 @@ function pickClub(s, mode) {
   } else if (mode === "home") filtered = pool.filter(function (c) { return c.nation === s.nation; });
   else if (mode === "down") filtered = pool.filter(function (c) { return c.level < cur.level - 0.3 && c.level >= 2.4; });
   else if (mode === "loan") {
+    var owner = s.loanFrom ? clubOf(s.loanFrom) : cur;
     filtered = pool.filter(function (c) {
-      return c.level < cur.level && (s.ovr - c.level * 18) >= -3;
+      if (c.id === s.clubId) return false;
+      if (s.loanFrom && c.id === s.loanFrom) return false;
+      return c.level < owner.level && (s.ovr - c.level * 18) >= -3;
     });
-    var same = filtered.filter(function (c) { return c.nation === cur.nation; });
+    var same = filtered.filter(function (c) { return c.nation === owner.nation; });
     if (same.length) filtered = same;
     if (stage === "home") {
       var homeLoan = filtered.filter(function (c) { return sameContinentClub(s, c); });
@@ -1114,11 +1127,19 @@ function pickClub(s, mode) {
   return filtered[Math.floor(rnd(s) * filtered.length)];
 }
 
+function clearLoanState(s) {
+  s.loanFrom = null;
+  s.parentClubId = null;
+  s.loanYears = 0;
+  s.loanSpell = 0;
+  s.onLoan = false;
+  s._loanResolve = false;
+}
+
 function moveTo(s, club) {
   if (!club) return;
   s.clubId = club.id;
-  s.loanFrom = null;
-  s.loanYears = 0;
+  clearLoanState(s);
   s.freeAgent = false;
   s._rescindClubId = null;
   s._rescindName = null;
@@ -1129,10 +1150,160 @@ function moveTo(s, club) {
 
 function loanTo(s, club) {
   if (!club) return;
-  s.loanFrom = s.clubId;
+  /* Preserva o clube-mãe em empréstimos seguidos (não sobrescreve com o clube atual de emp.). */
+  if (!s.loanFrom) s.loanFrom = s.clubId;
+  s.parentClubId = s.loanFrom;
   s.clubId = club.id;
   s.loanYears = 1;
+  s.onLoan = true;
+  s._loanResolve = false;
+  s.freeAgent = false;
   s.role = roleOf(s, club);
+  applyMarketValue(s);
+}
+
+function returnFromLoan(s) {
+  if (!s.loanFrom) return;
+  var parent = clubOf(s.loanFrom);
+  s.clubId = s.loanFrom;
+  clearLoanState(s);
+  s.freeAgent = false;
+  if (parent) s.role = roleOf(s, parent);
+  applyMarketValue(s);
+}
+
+/* Bom rendimento no emp. → resolve em 2 temporadas; senão até 3. */
+function loanPerfGood(s) {
+  var last = s.seasons && s.seasons.length ? s.seasons[s.seasons.length - 1] : null;
+  if (!last || !last.loan) return false;
+  var score = 0;
+  if ((last.delta || 0) >= 3) score += 2;
+  else if ((last.delta || 0) >= 1) score += 1;
+  if ((last.rating || 0) >= 7.05) score += 1;
+  if ((last.apps || 0) >= 18) score += 1;
+  if ((s.form || 50) >= 64) score += 1;
+  if ((s.confidence || 50) >= 58) score += 1;
+  /* notas / tema da temporada (fun packs) contam como "notes" */
+  if (last.themeTitle || (last.note && String(last.note).length > 8)) score += 1;
+  return score >= 3;
+}
+
+function loanSpellTarget(s) {
+  return loanPerfGood(s) ? 2 : 3;
+}
+
+function pickLoanPermanentClubs(s, n) {
+  n = n || 2;
+  var parent = s.loanFrom ? clubOf(s.loanFrom) : null;
+  var cur = s.clubId ? clubOf(s.clubId) : null;
+  var parentLv = parent ? parent.level : currentClubLevel(s);
+  var pool = CLUBS.filter(function (c) {
+    if (!c || c.id === s.clubId) return false;
+    if (s.loanFrom && c.id === s.loanFrom) return false;
+    if (!reachableClub(s, c)) return false;
+    /* definitivo: clube melhor que o emp. atual, ou o emp. se for forte o bastante */
+    return c.level >= parentLv - 0.05 || (cur && c.id === cur.id);
+  });
+  /* preferir acima do clube-mãe */
+  var better = pool.filter(function (c) { return c.level >= parentLv + 0.15; });
+  var wave = shuffled(better.length ? better : pool, s);
+  var out = [];
+  var seen = {};
+  for (var i = 0; i < wave.length && out.length < n; i++) {
+    if (seen[wave[i].id]) continue;
+    seen[wave[i].id] = 1;
+    out.push(wave[i]);
+  }
+  /* loan club as permanent if strong enough vs parent / OVR */
+  if (cur && out.length < n && !seen[cur.id]) {
+    var need = cur.level * 18;
+    if (cur.level >= parentLv - 0.25 && s.ovr >= need - 6) {
+      out.push(cur);
+      seen[cur.id] = 1;
+    }
+  }
+  return out;
+}
+
+function permanentOfferChoice(s, club) {
+  var lg = leagueOf(club.leagueId);
+  var ghost = { ovr: s.ovr, age: s.age, clubId: club.id };
+  var role = roleOf(ghost, club);
+  var curLevel = currentClubLevel(s);
+  var step = club.level - curLevel;
+  var euro = EURO_LEAGUES[club.leagueId] ? "Europa · " : "";
+  return {
+    label: "Definitivo · " + club.name,
+    hint: euro + lg.name + " · " + ROLE_NAME[role],
+    crest: club.crest,
+    leagueId: club.leagueId,
+    nation: club.nation,
+    colors: club.colors,
+    fx: { sign: club.id, ambition: step >= 0.2 ? 6 : 3, loyalty: -3, resilience: 2 }
+  };
+}
+
+function buildLoanResolveWindow(s) {
+  var parent = clubOf(s.loanFrom);
+  var cur = clubOf(s.clubId);
+  var spell = s.loanSpell || 0;
+  var target = loanSpellTarget(s);
+  var done = spell >= target;
+  var good = loanPerfGood(s);
+  var parentName = parent ? parent.name : "clube de origem";
+  var curName = cur ? cur.name : "clube atual";
+  var blurb;
+  if (done) {
+    blurb = good
+      ? ("Após " + spell + " empréstimo(s) com bom rendimento, o mercado abriu. Retorno ao " + parentName + " ou contrato definitivo.")
+      : ("Acabaram os " + spell + " empréstimos. Hora do Retorno ao " + parentName + " — ou um definitivo se aparecer.");
+  } else {
+    blurb = "Fim da temporada de empréstimo no " + curName + " (" + spell + "/" + target + "). Pode rolar outro Empréstimo, Retorno ao " + parentName + ", ou um definitivo.";
+  }
+  var ev = {
+    id: "loan_resolve",
+    title: done ? "Fim do empréstimo" : "Empréstimo · decisão",
+    text: blurb
+  };
+  ev.a = {
+    label: "Retorno · " + parentName,
+    hint: "Voltar ao clube-mãe",
+    crest: parent ? parent.crest : null,
+    leagueId: parent ? parent.leagueId : null,
+    nation: parent ? parent.nation : null,
+    colors: parent ? parent.colors : null,
+    fx: { returnLoan: 1, loyalty: 5, confidence: 2 }
+  };
+  if (!done) {
+    var nextLoan = pickClub(s, "loan");
+    if (nextLoan) {
+      ev.b = {
+        label: "Empréstimo · " + nextLoan.name,
+        hint: "Empréstimo · mais uma temporada",
+        crest: nextLoan.crest,
+        leagueId: nextLoan.leagueId,
+        nation: nextLoan.nation,
+        colors: nextLoan.colors,
+        fx: { loanTo: nextLoan.id, resilience: 3 }
+      };
+    } else {
+      ev.b = permanentOfferChoice(s, cur || parent);
+    }
+    var perms = pickLoanPermanentClubs(s, 1);
+    if (perms[0]) ev.c = permanentOfferChoice(s, perms[0]);
+    else if (good && cur) ev.c = permanentOfferChoice(s, cur);
+  } else {
+    var perms2 = pickLoanPermanentClubs(s, 2);
+    if (perms2[0]) ev.b = permanentOfferChoice(s, perms2[0]);
+    else if (cur) ev.b = permanentOfferChoice(s, cur);
+    if (perms2[1]) ev.c = permanentOfferChoice(s, perms2[1]);
+    else if (cur && (!ev.b || ev.b.fx.sign !== cur.id)) ev.c = permanentOfferChoice(s, cur);
+  }
+  /* garantir ao menos Retorno + uma alternativa */
+  if (!ev.b) {
+    ev.b = ev.a;
+  }
+  return ev;
 }
 
 function advance(s) {

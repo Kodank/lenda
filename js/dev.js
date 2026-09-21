@@ -284,12 +284,13 @@
       signAcademy(S, clubId);
       UI.offers = null;
       UI.event = null;
-      UI.reports = [];
-      if (typeof nextDecision === "function") nextDecision();
-      else UI.screen = "decision";
+      UI._prevOvr = S.ovr;
+      UI.reports = typeof simSeason === "function" ? [simSeason(S)] : [];
+      UI.screen = "report";
       save();
       render();
-      toast("Base em " + c.name);
+      if (typeof startTrophyQueue === "function") startTrophyQueue(trophiesFromReports(UI.reports));
+      toast("Base em " + c.name + " · temporada 16");
       return;
     }
     moveTo(S, c);

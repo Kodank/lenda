@@ -194,8 +194,8 @@ function pickSeasonTheme(s, season) {
 function miniRelatoFor(s, ev, side) {
   var ch = ev && ev[side];
   var out = s && s._lastOutcome;
-  var risk = s && s._lastRisk;
-  if (risk && risk.text) return String(risk.text).slice(0, 120);
+  /* Risco já vira .risk-toast no relatório — nunca duplicar o mesmo texto no mini-relato. */
+  if (s && s._lastRisk && s._lastRisk.text) return "";
   var label = (ch && ch.label) || (out && out.label) || "a escolha";
   var bits = [
     "A decisão ficou: " + label + ".",

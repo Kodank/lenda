@@ -215,11 +215,15 @@ function simSeason(s) {
   s.ntSaves = (s.ntSaves || 0) + (nt.saves || 0);
   if (nt.youth) s.youthCaps += nt.apps;
 
+  var onLoanSeason = !!(s.loanFrom || s.onLoan);
+  if (onLoanSeason) s.loanSpell = (s.loanSpell || 0) + 1;
+
   if (s.loanYears > 0) {
     s.loanYears--;
+    /* Fim do contrato de empréstimo: não volta sozinho — janela Retorno / definitivo / novo emp. */
     if (s.loanYears === 0 && s.loanFrom) {
-      s.clubId = s.loanFrom;
-      s.loanFrom = null;
+      s._loanResolve = true;
+      s.onLoan = true;
     }
   }
 
@@ -245,7 +249,9 @@ function simSeason(s) {
     awards: awards.slice(),
     nt: nt,
     injuryWeeks: inj,
-    suspended: suspended
+    suspended: suspended,
+    loan: onLoanSeason,
+    loanFrom: onLoanSeason ? (s.loanFrom || s.parentClubId || null) : null
   };
   if (suspended) {
     season.themeTitle = "Suspenso · temporada perdida";

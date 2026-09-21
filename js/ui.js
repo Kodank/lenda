@@ -270,7 +270,8 @@ function identityStrip(s) {
     '<span class="pill">#' + s.number + " " + POS[s.pos].short + "</span>" +
     (free
       ? '<span class="club-name">Sem clube</span>'
-      : clubNameHtml(club.name, "club-name") + imgCrest(club.crest, 'crest sm', club.name)) +
+      : clubNameHtml(club.name, "club-name") + imgCrest(club.crest, 'crest sm', club.name) +
+        ((s.loanFrom || s.onLoan) ? '<span class="pill loan-pill" title="Empréstimo">Emp.</span>' : "")) +
     "</div>" +
     '<div class="id-kpis">' +
     "<div><b>" + apps + "</b><span>JOGOS</span></div>" +
@@ -525,6 +526,19 @@ function viewAcademy() {
 }
 
 
+
+function consequenceLineHtml(s) {
+  /* Uma só caixa de consequência: risco colorido OU mini-relato — nunca os dois com o mesmo texto. */
+  if (!s) return "";
+  if (s._lastRisk && s._lastRisk.text) {
+    return '<div class="risk-toast ' + (s._lastRisk.ok ? "ok" : "bad") + '">' + esc(s._lastRisk.text) + "</div>";
+  }
+  if (s._lastOutcome && s._lastOutcome.relato) {
+    return '<div class="mini-relato loud">' + esc(s._lastOutcome.relato) + "</div>";
+  }
+  return "";
+}
+
 function outcomeBoardHtml(out) {
   if (!out) return "";
   var pills = (typeof sanitizePillsList === "function") ? sanitizePillsList(out.pills || []) : (out.pills || []);
@@ -607,6 +621,7 @@ function timelineHtml(s, hiN, choosing) {
       var a = s.pos === "GOL" ? r.ga : r.assists;
       var cups = (r.trophies || []).concat(r.awards || []);
       var cupDot = cups.length ? '<i class="tl-cup" title="' + esc(cups.map(function (id) { return trophyOf(id).name; }).join(", ")) + '">🏆</i>' : "";
+      var loanDot = r.loan ? '<i class="tl-loan" title="Empréstimo">E</i>' : "";
       var dlt = "";
       if (r.delta != null && r.delta !== 0) {
         var big = Math.abs(r.delta) >= 2 ? " big" : "";
@@ -618,7 +633,7 @@ function timelineHtml(s, hiN, choosing) {
         (r.delta > 0 ? " ovr-up" : r.delta < 0 ? " ovr-dn" : "") + '">' +
         '<span class="tl-age">' + age + "</span>" +
         '<span class="tl-club" title="' + esc(club.name) + '">' + imgCrest(club.crest, 'tl-crest', club.name) +
-        clubNameHtml(clubDisplayName(club, true), "tl-name", { title: club.name }) + cupDot + "</span>" +
+        clubNameHtml(clubDisplayName(club, true), "tl-name", { title: club.name }) + loanDot + cupDot + "</span>" +
         ovrTlHtml(r.ovr, dlt) +
         '<span class="tl-n">' + r.apps + "</span>" +
         '<span class="tl-n">' + g + "</span>" +
@@ -833,9 +848,7 @@ function viewReport() {
     '<div class="career-body">' +
     recap +
     (typeof JUICE !== "undefined" && last ? JUICE.seasonSurpriseHtml(last) : "") +
-    (S._lastRisk ? '<div class="risk-toast ' + (S._lastRisk.ok ? "ok" : "bad") + '">' + esc(S._lastRisk.text) + "</div>" : "") +
-    (S._lastOutcome && S._lastOutcome.relato
-      ? '<div class="mini-relato loud">' + esc(S._lastOutcome.relato) + "</div>" : "") +
+    consequenceLineHtml(S) +
     outcomeBoardHtml(S._lastOutcome) +
     '<div class="report-actions">' +
     '<button class="btn" data-go="' + next + '">' + (s.retired ? "Ver o quadro" : "Próxima decisão") + "</button>" +
@@ -1074,10 +1087,15 @@ function bind() {
   }
   document.querySelectorAll("[data-sign]").forEach(function (b) {
     b.onclick = function () {
+      /* Escolha da base = já simula a temporada dos 16 (OVR incluso); próxima decisão parte dos 17. */
       signAcademy(S, b.getAttribute("data-sign"));
-      nextDecision();
+      UI.offers = null;
+      UI._prevOvr = S ? S.ovr : null;
+      UI.reports = [simSeason(S)];
+      UI.screen = "report";
       save();
       render();
+      startTrophyQueue(trophiesFromReports(UI.reports));
     };
   });
   document.querySelectorAll("[data-choice]").forEach(function (b) {
