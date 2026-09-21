@@ -355,7 +355,7 @@ function marketStage(s) {
 }
 
 
-/* ---- Substâncias ilícitas (raro): auge 90+ / idade 21 / carreira em queda ---- */
+/* ---- Substâncias ilícitas (raro): auge 90+ / idade 21 / queda / nunca 80 ---- */
 var SUBSTANCES = {
   boostMin: 4,
   boostMax: 8,
@@ -363,6 +363,10 @@ var SUBSTANCES = {
   appearAge21: 0.24,
   appearAuge: 0.16,
   appearCollapse: 0.22,
+  appearStagnant: 0.20,  /* vários anos sem nunca chegar a 80 OVR */
+  stagnantMinAge: 24,
+  stagnantMinSeasons: 6,
+  stagnantPeakMax: 80,   /* peakOvr < 80 */
   cooldownYears: 8       /* se recusar sem consumir id, ainda há freio temporal */
 };
 
@@ -395,6 +399,16 @@ function careerCollapseScore(s) {
   return score;
 }
 
+
+function isStagnantNever80(s) {
+  if (!s) return false;
+  var seasons = (s.seasons || []).length;
+  if ((s.age || 0) < (SUBSTANCES.stagnantMinAge || 24)) return false;
+  if (seasons < (SUBSTANCES.stagnantMinSeasons || 6)) return false;
+  if ((s.peakOvr || s.ovr || 0) >= (SUBSTANCES.stagnantPeakMax || 80)) return false;
+  return true;
+}
+
 function substancesEligibleReason(s) {
   if (!s || !s.clubId || s.freeAgent) return null;
   if ((s.usedEvents || []).indexOf("substancias") >= 0) return null;
@@ -405,6 +419,8 @@ function substancesEligibleReason(s) {
   if ((s.ovr || 0) >= 90 || (s.peakOvr || 0) >= 90) return "auge";
   if (s.age === 21) return "age21";
   if (s.age >= 19 && careerCollapseScore(s) >= 4) return "collapse";
+  /* Carreira longa sem nunca chegar a 80 OVR — "indo mal" no longo prazo */
+  if (isStagnantNever80(s)) return "stagnant";
   return null;
 }
 
@@ -414,6 +430,7 @@ function shouldOfferSubstances(s) {
   var p = SUBSTANCES.appearCollapse;
   if (reason === "auge") p = SUBSTANCES.appearAuge;
   else if (reason === "age21") p = SUBSTANCES.appearAge21;
+  else if (reason === "stagnant") p = SUBSTANCES.appearStagnant;
   return rnd(s) < p;
 }
 
@@ -436,6 +453,10 @@ function buildSubstancesEvent(s) {
     collapse: [
       "A carreira sangra. Surge o atalho sujo: recuperar o OVR rápido — ou ser suspenso o ano inteiro se pegarem.",
       "Na pior fase, alguém oferece substâncias. Pode salvar o overall. Pode te tirar de todos os jogos da temporada."
+    ],
+    stagnant: [
+      "Anos de carreira e o overall nunca chegou a 80. Alguém oferece o atalho sujo — salto real, risco de suspensão.",
+      "Você já jogou várias temporadas sem estourar. A proposta ilícita promete finalmente cruzar o teto. Se pegarem, o ano acaba."
     ]
   };
   var pool = blurbs[reason] || blurbs.auge;
