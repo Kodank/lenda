@@ -94,7 +94,7 @@ var PACE = {
 };
 
 var POS = {
-  ATA: { name: "Atacante", short: "ATA", line: "ata" },
+  ATA: { name: "Centroavante", short: "CA", line: "ata" },
   PE: { name: "Ponta esquerda", short: "PE", line: "ata" },
   PD: { name: "Ponta direita", short: "PD", line: "ata" },
   MEI: { name: "Meia-atacante", short: "MEI", line: "mei" },
