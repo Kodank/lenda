@@ -354,6 +354,123 @@ function marketStage(s) {
   return clampMarketStage(s, stage);
 }
 
+
+/* ---- Substâncias ilícitas (raro): auge 90+ / idade 21 / carreira em queda ---- */
+var SUBSTANCES = {
+  boostMin: 4,
+  boostMax: 8,
+  catchP: 0.38,          /* chance de ser pego ao aceitar */
+  appearAge21: 0.24,
+  appearAuge: 0.16,
+  appearCollapse: 0.22,
+  cooldownYears: 8       /* se recusar sem consumir id, ainda há freio temporal */
+};
+
+function careerCollapseScore(s) {
+  if (!s || !s.seasons || !s.seasons.length) return 0;
+  var peakDrop = Math.max(0, (s.peakOvr || s.ovr) - s.ovr);
+  var score = 0;
+  if (peakDrop >= 10) score += 3;
+  else if (peakDrop >= 7) score += 2;
+  else if (peakDrop >= 5) score += 1;
+
+  if ((s.form || 50) < 38) score += 1;
+  if ((s.confidence || 50) < 34) score += 1;
+  if ((s.coach || 50) < 28) score += 1;
+  if (s.role === "bench" || s.role === "youth") score += 1;
+
+  var streak = 0;
+  for (var i = s.seasons.length - 1; i >= 0 && streak < 3; i--) {
+    var se = s.seasons[i];
+    var bad = (se.delta || 0) <= -2 || (se.apps || 0) < 10 || (se.rating || 7) < 6.2;
+    if (!bad) break;
+    streak++;
+  }
+  score += Math.min(2, streak);
+
+  /* Destino ruim + luta: espelha sinais da rescisão / fase ruim */
+  if (s.destiny === "ruim" && (peakDrop >= 4 || (s.form || 50) < 42 || (s.confidence || 50) < 40)) {
+    score += 1;
+  }
+  return score;
+}
+
+function substancesEligibleReason(s) {
+  if (!s || !s.clubId || s.freeAgent) return null;
+  if ((s.usedEvents || []).indexOf("substancias") >= 0) return null;
+  if (s.substancesTaken) return null;
+  if (s.lastSubstancesYear != null && (s.year - s.lastSubstancesYear) < SUBSTANCES.cooldownYears) return null;
+  if (s.age < 18 || s.age > 34) return null;
+
+  if ((s.ovr || 0) >= 90 || (s.peakOvr || 0) >= 90) return "auge";
+  if (s.age === 21) return "age21";
+  if (s.age >= 19 && careerCollapseScore(s) >= 4) return "collapse";
+  return null;
+}
+
+function shouldOfferSubstances(s) {
+  var reason = substancesEligibleReason(s);
+  if (!reason) return false;
+  var p = SUBSTANCES.appearCollapse;
+  if (reason === "auge") p = SUBSTANCES.appearAuge;
+  else if (reason === "age21") p = SUBSTANCES.appearAge21;
+  return rnd(s) < p;
+}
+
+function buildSubstancesEvent(s) {
+  var reason = substancesEligibleReason(s) || "auge";
+  var boost = SUBSTANCES.boostMin + Math.floor(rnd(s) * (SUBSTANCES.boostMax - SUBSTANCES.boostMin + 1));
+  var catchP = SUBSTANCES.catchP;
+  var safeP = Math.round((1 - catchP) * 100);
+  var caughtP = 100 - safeP;
+
+  var blurbs = {
+    auge: [
+      "No auge, alguém do círculo íntimo oferece um atalho químico. OVR sobe — se o exame não te pegar.",
+      "Você está entre os melhores. Uma proposta ilícita promete mais um degrau. O risco é perder a temporada."
+    ],
+    age21: [
+      "Aos 21, a pressão por explodir é absurda. Aparece a oferta proibida: salto grande de OVR, com risco de suspensão.",
+      "Um intermediário te procura na base da idade de ouro. Substâncias. Boost real. Pegos, a temporada acaba."
+    ],
+    collapse: [
+      "A carreira sangra. Surge o atalho sujo: recuperar o OVR rápido — ou ser suspenso o ano inteiro se pegarem.",
+      "Na pior fase, alguém oferece substâncias. Pode salvar o overall. Pode te tirar de todos os jogos da temporada."
+    ]
+  };
+  var pool = blurbs[reason] || blurbs.auge;
+  var text = pool[Math.floor(rnd(s) * pool.length)];
+
+  return {
+    id: "substancias",
+    theme: "party",
+    title: "Atalho proibido",
+    text: text,
+    a: {
+      label: "Aceitar o atalho",
+      hint: safeP + "% limpo · " + caughtP + "% suspenso (OVR fica)",
+      theme: "party",
+      fx: {
+        ambition: 4,
+        discipline: -8,
+        risk: {
+          p: 1 - catchP,
+          win: { ovr: boost, form: 6, confidence: 6 },
+          lose: { ovr: boost, suspendSeason: 1, confidence: -10, coach: -14, form: -6, discipline: -10 },
+          winText: "O corpo respondeu. Ninguém desconfiou. O OVR subiu de verdade.",
+          loseText: "Exame positivo. O OVR ficou — mas você está suspenso a temporada inteira."
+        }
+      }
+    },
+    b: {
+      label: "Recusar na hora",
+      hint: "Sem boost · consciência limpa",
+      theme: "safe",
+      fx: { discipline: 6, confidence: 2 }
+    }
+  };
+}
+
 function pickEvent(s) {
   /* Agente livre: obrigado a escolher oferta (pós-rescisão). */
   if (s.freeAgent || !s.clubId) return buildFreeAgentWindow(s);
@@ -373,6 +490,11 @@ function pickEvent(s) {
     return buildRescissionEvent(s);
   }
   if (shouldRescind(s)) return buildRescissionEvent(s);
+  if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.forceSubstances) {
+    DEV.flags.forceSubstances = false;
+    return buildSubstancesEvent(s);
+  }
+  if (shouldOfferSubstances(s)) return buildSubstancesEvent(s);
   if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.alwaysTransfers) {
     return buildTransferWindow(s);
   }
@@ -710,6 +832,15 @@ function applyChoice(s, ev, side) {
   if (fx.ntNo) s.ntNoStreak = 2;
   if (fx.clubApps) s._clubAppsMod = true;
   if (fx.injuryRisk && !(typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.ignoreInjury) && rnd(s) < 0.35) s.injuryWeeks = (s.injuryWeeks || 0) + 10;
+  if (fx.suspendSeason) {
+    s._seasonSuspended = true;
+    s.substancesTaken = true;
+    s.lastSubstancesYear = s.year;
+  }
+  if (ev.id === "substancias" && side === "a") {
+    s.substancesTaken = true;
+    s.lastSubstancesYear = s.year;
+  }
   if (fx.retire) s.retireForce = true;
   if (fx.extraYear) s.extraYears = (s.extraYears || 0) + 2;
   if (fx.shiftPos) s.pos = neighborPos(s.pos);
@@ -767,11 +898,19 @@ function signedNum(n) {
   return (n > 0 ? "+" : "") + n;
 }
 
-/* Visible pills: OVR up/down (+ temporary) only. Other fx still apply in applyChoiceFx. */
+/* Visible pills: OVR up/down (+ temporary) + suspensão. Other fx still apply silently. */
 function isOvrPillText(t) {
   t = String(t == null ? "" : t).trim();
   if (!t || isEmptyPillLabel(t)) return false;
   return /\bOVR\b/i.test(t);
+}
+
+function isVisibleFxPill(t) {
+  t = String(t == null ? "" : t).trim();
+  if (!t || isEmptyPillLabel(t)) return false;
+  if (isOvrPillText(t)) return true;
+  if (/suspens/i.test(t)) return true;
+  return false;
 }
 
 function collectFxPillParts(fx) {
@@ -790,6 +929,7 @@ function collectFxPillParts(fx) {
       add(td >= 0 ? "temp-good" : "temp-bad", signedNum(td) + " OVR·" + ts + "t");
     }
   }
+  if (fx.suspendSeason) add("bad", "Suspenso");
   return parts;
 }
 
@@ -841,7 +981,7 @@ function sanitizePillsList(list) {
       var chunks = raw.split(/\s*\|\s*/);
       for (var c = 0; c < chunks.length; c++) {
         var s = shortenPillText(chunks[c]);
-        if (s && isOvrPillText(s)) out.push({ kind: "neutral", text: s });
+        if (s && isVisibleFxPill(s)) out.push({ kind: "neutral", text: s });
       }
       continue;
     }
@@ -850,7 +990,7 @@ function sanitizePillsList(list) {
     var bits = text.split(/\s*\|\s*/);
     for (var b = 0; b < bits.length; b++) {
       var st = shortenPillText(bits[b]);
-      if (st && isOvrPillText(st)) out.push({ kind: p.kind || "neutral", text: st, landed: p.landed });
+      if (st && isVisibleFxPill(st)) out.push({ kind: p.kind || "neutral", text: st, landed: p.landed });
     }
   }
   return out;
@@ -867,7 +1007,7 @@ function buildChoicePills(ch) {
   var pills = [];
   function push(kind, text) {
     text = humanPillText(text);
-    if (!text || !isOvrPillText(text)) return;
+    if (!text || !isVisibleFxPill(text)) return;
     pills.push({ kind: kind, text: text });
   }
   if (fx.risk) {
@@ -892,7 +1032,7 @@ function buildChoicePills(ch) {
   return summarizeLandedPills(fx).map(function (p) {
     return { kind: p.kind, text: p.text };
   }).filter(function (p) {
-    return p.text && isOvrPillText(p.text);
+    return p.text && isVisibleFxPill(p.text);
   });
 }
 

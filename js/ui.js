@@ -810,13 +810,14 @@ function viewReport() {
         " vs " + esc(vsClub.name) + (last.derby.crisis ? " · crise" : "") + "</div>";
     }
     var rivalLine = last.rivalNote ? '<div class="flavor-line rival">Rival · ' + esc(last.rivalNote) + "</div>" : "";
+    var susLine = last.suspended ? '<div class="flavor-line suspended">Suspenso por substâncias · temporada comprometida</div>' : "";
     recap = '<div class="story compact"><div class="meta">Temporada encerrada</div>' +
       (!juiceSurprise && theme ? '<div class="season-theme" role="status">' + esc(theme) + "</div>" : "") +
       "<h2 class=\"club-title\" style=\"color:#ffffff !important;-webkit-text-fill-color:#ffffff !important\">" + esc(club.name) + "</h2>" +
       '<p class="lead tight">OVR ' + last.ovr + " (" + fmtDelta(last.delta) + ") · " +
       last.apps + " jogos · " + (s.pos === "GOL" ? resolveGkSaves(last) + " DEF / " + last.ga + " GS" : last.goals + " gols / " + last.assists + " ASS") +
       " · #" + last.leaguePos + nt + "</p>" +
-      pathLine + derbyLine + rivalLine +
+      pathLine + derbyLine + rivalLine + susLine +
       (cups.length ? '<div class="report-cups">' + cups.map(function (id) {
         return '<div class="report-cup"><img src="' + trophyOf(id).img + '" alt=""><b>' + esc(trophyOf(id).name) + "</b></div>";
       }).join("") + "</div>" : "") +

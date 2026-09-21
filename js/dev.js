@@ -12,7 +12,7 @@
 
   var DEV = {
     unlocked: false,
-    flags: { ignoreInjury: false, alwaysTransfers: false, godGrowth: false, forceRescind: false, nextDestiny: null },
+    flags: { ignoreInjury: false, alwaysTransfers: false, godGrowth: false, forceRescind: false, forceSubstances: false, nextDestiny: null },
     on: function () { return !!DEV.unlocked; }
   };
 
@@ -318,6 +318,24 @@
     if (S.age <= 20) S.youthCaps = (S.youthCaps || 0) + Math.min(apps, 8);
     refresh();
     toast("Selecao +" + apps + " J / +" + goals + " G");
+  }
+
+
+  function forceSubstances() {
+    if (!needCareer()) return;
+    if (typeof buildSubstancesEvent !== "function") {
+      toast("Substancias indisponivel", true);
+      return;
+    }
+    /* Limpa cooldown/uso para o force funcionar mesmo em carreiras que já viram o evento */
+    S.usedEvents = (S.usedEvents || []).filter(function (id) { return id !== "substancias"; });
+    S.substancesTaken = false;
+    S.lastSubstancesYear = null;
+    UI.event = buildSubstancesEvent(S);
+    UI.screen = "decision";
+    save();
+    render();
+    toast("Substancias forcadas");
   }
 
   function forceRescission() {
@@ -675,7 +693,8 @@
       '<div class="dev-sec"><div class="dev-h">Presets</div><div class="dev-btns">' +
       '<button type="button" class="btn sm" data-dev="apex">Apice max.</button>' +
       '<button type="button" class="btn sm" data-dev="break">Breakthrough raro</button>' +
-      '<button type="button" class="btn sm danger" data-dev="rescind">Forcar rescisao</button></div></div>' +
+      '<button type="button" class="btn sm danger" data-dev="rescind">Forcar rescisao</button>' +
+      '<button type="button" class="btn sm danger" data-dev="substances">Forcar substancias</button></div></div>' +
       '<div class="dev-sec"><div class="dev-h">Toggles</div><div class="dev-checks">' +
       '<label><input type="checkbox" id="dev-f-inj"' +
       (DEV.flags.ignoreInjury ? " checked" : "") +
@@ -851,6 +870,7 @@
         else if (act === "apex") maxApex();
         else if (act === "break") triggerBreakthrough();
         else if (act === "rescind") forceRescission();
+        else if (act === "substances") forceSubstances();
         else if (act === "reload") location.reload();
         else if (act === "new") {
           if (typeof go === "function") go("new");

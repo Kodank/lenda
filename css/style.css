@@ -1849,6 +1849,11 @@ input[type="text"] {
 }
 .flavor-line.nt-path { color: #9ad7f2; }
 .flavor-line.derby { color: #f0a0ae; }
+.flavor-line.suspended {
+  color: #9ca3af;
+  border-left: 3px solid #6b7280;
+  padding-left: 8px;
+}
 .flavor-line.rival { color: #c4b5fd; }
 .mini-relato {
   margin: 8px 0;

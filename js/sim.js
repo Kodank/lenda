@@ -40,8 +40,11 @@ function simSeason(s) {
   var inj = s.injuryWeeks || 0;
   if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.ignoreInjury) inj = 0;
   s.injuryWeeks = 0;
+  var suspended = !!s._seasonSuspended;
+  if (suspended) s._seasonSuspended = false;
   var mins = ROLE_MINS[role] * (0.84 + s.energy / 550) * (1 - Math.min(0.65, inj / 40));
-  if (s.ovr >= 99) mins = Math.max(mins, 0.99);
+  if (suspended) mins = 0;
+  else if (s.ovr >= 99) mins = Math.max(mins, 0.99);
   else if (s.ovr >= 95) mins = Math.max(mins, 0.97);
   else if (s.ovr >= 92) mins = Math.max(mins, 0.93);
   /* pool = liga + copa/continental; elite OVR ocupa quase o teto */
@@ -56,6 +59,10 @@ function simSeason(s) {
   if (s._clubAppsMod) {
     apps = Math.max(2, Math.round(apps * 0.72));
     s._clubAppsMod = false;
+  }
+  if (suspended) {
+    /* Suspensão: quase zero jogos; sem títulos/prêmios/seleção na temporada */
+    apps = rnd(s) < 0.35 ? 1 : 0;
   }
 
   var ovrF = perfOvrFactor(effectiveOvr(s));
@@ -137,6 +144,18 @@ function simSeason(s) {
 
   var nt = simNational(s);
   if (nt.trophies) for (var i = 0; i < nt.trophies.length; i++) trophies.push(nt.trophies[i]);
+  if (suspended) {
+    apps = Math.min(apps, 1);
+    goals = 0;
+    assists = 0;
+    cs = 0;
+    ga = 0;
+    saves = 0;
+    rating = 5.5;
+    trophies = [];
+    awards = [];
+    nt = { apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, saves: 0, youth: false, trophies: [] };
+  }
 
   var hasCont = trophies.indexOf("ucl") >= 0 || trophies.indexOf("libertadores") >= 0 || trophies.indexOf("worldcup") >= 0;
   /* Bola de Ouro: pico realista fica em ~88–92; taxas altas nessa faixa + monstro em 95–99 */
@@ -224,8 +243,13 @@ function simSeason(s) {
     trophies: trophies.slice(),
     awards: awards.slice(),
     nt: nt,
-    injuryWeeks: inj
+    injuryWeeks: inj,
+    suspended: suspended
   };
+  if (suspended) {
+    season.themeTitle = "Suspenso · temporada perdida";
+    season.note = "Suspensão por substâncias — OVR mantido, jogos e títulos zerados.";
+  }
   s.seasons.push(season);
   if (!s.clubs.length || s.clubs[s.clubs.length - 1].id !== s.clubId) {
     s.clubs.push({ id: s.clubId, from: s.year });

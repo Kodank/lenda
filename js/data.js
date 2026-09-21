@@ -386,7 +386,8 @@ var EVENT_CHOICE_THEMES = {
   rivalspot: ["rival", "safe"],
   rivalaward: ["media", "captain"],
   market: ["transfer", "transfer", "stay"],
-  quiet: ["training", "safe"]
+  quiet: ["training", "safe"],
+  substancias: ["party", "safe"]
 };
 
 

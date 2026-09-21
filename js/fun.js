@@ -41,7 +41,8 @@ var SEASON_THEMES = {
   decline: ["O ano do freio", "Temporada de gestão", "Menos fogo, mais cabeça"],
   crisis: ["Ano de crise", "Temporada no fio", "O barco balançou"],
   solid: ["Temporada sólida", "Ano de trabalho", "Sem holofote, com entrega"],
-  rival: ["Sombra do rival", "Briga de posição", "Ano de pressão"]
+  rival: ["Sombra do rival", "Briga de posição", "Ano de pressão"],
+  suspended: ["Suspenso · temporada perdida", "Ano da banimento", "Fora do gramado"]
 };
 
 var CAREER_GOAL_POOL = [
@@ -325,7 +326,8 @@ function buildRivalEvent(s) {
 function pickSeasonTheme(s, season) {
   if (season.themeTitle) return season.themeTitle;
   var pool;
-  if (season.farewell) pool = SEASON_THEMES.farewell;
+  if (season.suspended) pool = SEASON_THEMES.suspended;
+  else if (season.farewell) pool = SEASON_THEMES.farewell;
   else if (season.nt && season.nt.path && (season.nt.path.stage === "champion" || season.nt.path.stage === "final" || season.nt.path.stage === "sf")) pool = SEASON_THEMES.nt;
   else if ((season.injuryWeeks || 0) >= 12) pool = SEASON_THEMES.injury;
   else if ((season.awards || []).length) pool = SEASON_THEMES.awards;
