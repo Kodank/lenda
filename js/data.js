@@ -186,7 +186,7 @@ var TROPHIES = {
   clubworldcup: { name: "Mundial de Clubes", img: "img/trophies/clubworldcup.png?v=indiv-hq-1", kind: "continental", w: 8 },
   worldcup: { name: "Copa do Mundo", img: "img/trophies/worldcup.png", kind: "nt", w: 16 },
   copaamerica: { name: "Copa América", img: "img/trophies/copaamerica.png?v=ca2", kind: "nt", w: 9 },
-  euro: { name: "Eurocopa", img: "img/trophies/euro.png", kind: "nt", w: 9 },
+  euro: { name: "Eurocopa", img: "img/trophies/euro.png?v=eurocopa-alpha-1", kind: "nt", w: 9 },
   youth: { name: "Título Sub-20", img: "img/trophies/youth.png?v=sub20-hq-1", kind: "nt", w: 2 },
   balon: { name: "Bola de Ouro", img: "img/trophies/balon.png?v=indiv-hq-1", kind: "indiv", w: 14 },
   bota: { name: "Chuteira de Ouro", img: "img/trophies/bota.png?v=indiv-hq-1", kind: "indiv", w: 5 },

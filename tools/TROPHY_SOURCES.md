@@ -38,7 +38,7 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 | `clubworldcup` | pngdownload.io FIFA Club World Cup 2025 product cutout + rembg alpha; cache-bust `?v=indiv-hq-1` — replaces prior stylized Commons Inkscape icon |
 | `worldcup` | TheSportsDB (verified league name) |
 | `copaamerica` | pngdownload.io studio cutout (Oct 2025 AVIF → PNG) + rembg alpha; cache-bust `?v=ca2` — replaces prior stadium-reflection cutout that still looked like the museum photo |
-| `euro` | Wikimedia Commons — Henri Delaunay / Euro trophy |
+| `euro` | Wikimedia Commons Henri Delaunay museum photo + rembg alpha (pedestal removed); cache-bust `?v=eurocopa-alpha-1` |
 | `youth` | FIFA U-20 World Cup trophy studio cutout (pngitem 569-5697471) + rembg alpha; cache-bust `?v=sub20-hq-1` — Título Sub-20 |
 | `balon` | pngdownload.io Ballon d'Or studio cutout (AVIF→PNG) + rembg alpha; cache-bust `?v=indiv-hq-1` |
 | `bota` | Wikimedia Commons — Messi's Golden Shoe (51937265513).jpg crop + rembg; European Golden Shoe / Chuteira de Ouro; cache-bust `?v=indiv-hq-1` |

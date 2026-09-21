@@ -181,10 +181,17 @@ function nationShirt(nation) {
   };
 }
 
+/** Default setup surname is lowercase "nome" until the player edits it. */
+function normalizePlayerName(raw) {
+  var v = String(raw == null ? "" : raw).slice(0, 12);
+  if (!v || v === "nome") return "nome";
+  return v.toUpperCase();
+}
+
 /** Photo NT shirt + editable name/number overlay (Barlow Condensed) */
 function shirtHtml(c1, c2, number, name, nation) {
   var kit = nationShirt(nation);
-  var nm = esc((name || "SILVA").toUpperCase().slice(0, 12));
+  var nm = esc(normalizePlayerName(name));
   var num = esc(String(number == null ? 10 : number));
   var ink = kit.ink;
   var sh = kit.inkShadow;
@@ -197,7 +204,7 @@ function shirtHtml(c1, c2, number, name, nation) {
     "</div></div></div>";
 }
 
-/** Scale down only long surnames; never shrink short defaults like SILVA. */
+/** Scale down only long surnames; never shrink short defaults like nome. */
 function fitShirtNames() {
   document.querySelectorAll(".shirt-lettering").forEach(function (box) {
     var name = box.querySelector(".shirt-name");
@@ -401,7 +408,7 @@ function viewCreate() {
       "<h2>Nacionalidade</h2>" +
       '<p class="lead tight">Escolhe o país. A camisa ganha as cores da seleção.</p>' +
       '<div class="nation-split">' +
-      '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA", d.nation) + "</div>" +
+      '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "nome", d.nation) + "</div>" +
       '<div class="nation-panel"><input id="nat-search" type="text" placeholder="Buscar país…" autocomplete="off">' +
       '<div class="flag-list" id="flag-list">' + flags + "</div></div>" +
       "</div>" +
@@ -427,7 +434,7 @@ function viewCreate() {
       '<div class="step-card focus-shirt">' +
       "<h2>Define a camisa</h2>" +
       '<p class="lead tight">Nome, número e perna — com as cores da seleção.</p>' +
-      '<div class="shirt-panel">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA", d.nation) + "</div>" +
+      '<div class="shirt-panel">' + shirtHtml(kit[0], kit[1], d.number, d.name || "nome", d.nation) + "</div>" +
       '<div class="field-grid">' +
       '<div><div class="label">Sobrenome</div><input id="nm" type="text" maxlength="12" value="' + esc(d.name) + '" placeholder="SOBRENOME"></div>' +
       '<div><div class="label">Número</div><div class="dorsal compact"><button type="button" class="chip" data-num="-1">−</button><b class="num">' + d.number + '</b><button type="button" class="chip" data-num="1">+</button></div></div>' +
@@ -453,7 +460,7 @@ function viewCreate() {
     '<p class="lead tight">16 anos · OVR 50 · toca no campo para escolher.</p>' +
     '<div class="pos-split">' +
     '<div class="pos-summary">' +
-    '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "SILVA", d.nation) + "</div>" +
+    '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "nome", d.nation) + "</div>" +
     '<div class="pos-now"><span class="label">Posição</span><b>' + POS[d.pos].name + "</b>" +
     "<small>" + POS[d.pos].short + "</small></div></div>" +
     '<div class="pitch-wrap compact"><div class="pitch">' + pitchMarkingsSvg() + '</div>' + slots + "</div>" +
@@ -1004,9 +1011,9 @@ function nextDecision() {
 function syncShirtTexts() {
   var nm = document.getElementById("nm");
   if (!nm || !UI.draft) return;
-  UI.draft.name = nm.value.toUpperCase().slice(0, 12);
+  UI.draft.name = normalizePlayerName(nm.value);
   var el = document.querySelector(".shirt-name");
-  if (el) el.textContent = UI.draft.name || "SILVA";
+  if (el) el.textContent = UI.draft.name || "nome";
   var numEl = document.querySelector(".shirt-num");
   if (numEl) numEl.textContent = String(UI.draft.number);
   fitShirtNames();
@@ -1020,7 +1027,7 @@ function bind() {
     b.onclick = function () {
       if (!UI.draft) return;
       var nm = document.getElementById("nm");
-      if (nm) UI.draft.name = nm.value.toUpperCase().slice(0, 12) || "SILVA";
+      if (nm) UI.draft.name = normalizePlayerName(nm.value);
       var next = Number(b.getAttribute("data-step")) || 0;
       var cur = UI.draft.step || 0;
       /* País first: must pick nationality before Camisa / Posição. */
@@ -1152,7 +1159,7 @@ function bind() {
 function go(to) {
   if (to === "home") UI.screen = "home";
   else if (to === "create") {
-    UI.draft = { name: "SILVA", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
+    UI.draft = { name: "nome", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
     UI.screen = "create";
   } else if (to === "continue") {
     var s = load();
@@ -1171,7 +1178,7 @@ function go(to) {
       return;
     }
     var inp = document.getElementById("nm");
-    if (inp) UI.draft.name = inp.value.toUpperCase().slice(0, 12) || "SILVA";
+    if (inp) UI.draft.name = normalizePlayerName(inp.value);
     if (UI.draft) UI.draft.step = 2;
     S = newCareer(UI.draft);
     UI.offers = academyOffers(S);
@@ -1194,7 +1201,7 @@ function go(to) {
     UI.event = null;
     UI.reports = [];
     UI.offers = null;
-    UI.draft = { name: "SILVA", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
+    UI.draft = { name: "nome", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
     UI.screen = "create";
   } else if (to === "reset") {
     if (!window.confirm("Apagar a carreira salva e recomeçar do zero?")) return;
