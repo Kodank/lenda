@@ -483,18 +483,18 @@ function simNational(s) {
   }
   /* NT gates = eligibility floors only; base chance rare at floor, then scales with OVR (never auto-win). */
   if (isWC && starter && s.ovr >= 86) {
-    var wcP = 0.10 + (s.ovr - 86) * 0.016;
-    if (s.ovr >= 95) wcP += 0.18;
-    if (s.ovr >= 99) wcP += 0.22;
-    if (rnd(s) < Math.min(0.85, wcP)) out.trophies.push("worldcup");
+    var wcP = 0.17 + (s.ovr - 86) * 0.021;
+    if (s.ovr >= 95) wcP += 0.22;
+    if (s.ovr >= 99) wcP += 0.26;
+    if (rnd(s) < Math.min(0.90, wcP)) out.trophies.push("worldcup");
   }
   if (isCont && starter && s.ovr >= 84) {
     /* Gated ids in data: euro, copaamerica (AFCON/Asian/Gold Cup trophies not in data yet). */
     var tid = nat.conf === "uefa" ? "euro" : nat.conf === "conmebol" ? "copaamerica" : null;
-    var contNatP = 0.10 + Math.max(0, s.ovr - 84) * 0.011;
-    if (s.ovr >= 95) contNatP += 0.14;
-    if (s.ovr >= 99) contNatP += 0.18;
-    if (tid && rnd(s) < Math.min(0.80, contNatP)) out.trophies.push(tid);
+    var contNatP = 0.14 + Math.max(0, s.ovr - 84) * 0.014;
+    if (s.ovr >= 95) contNatP += 0.17;
+    if (s.ovr >= 99) contNatP += 0.21;
+    if (tid && rnd(s) < Math.min(0.85, contNatP)) out.trophies.push(tid);
   }
   return out;
 }
