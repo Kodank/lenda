@@ -456,7 +456,7 @@ function viewCreate() {
   /* step 2 — position */
   var slots = PITCH.map(function (p) {
     return '<button type="button" class="slot' + (d.pos === p.pos ? " on" : "") + '" data-pos="' + p.pos +
-      '" style="left:' + p.x + "%;top:" + p.y + '%">' + p.pos + "</button>";
+      '" style="left:' + p.x + "%;top:" + p.y + '%">' + ((POS[p.pos] && POS[p.pos].short) || p.pos) + "</button>";
   }).join("");
   return top +
     '<div class="step-card focus-pos">' +
