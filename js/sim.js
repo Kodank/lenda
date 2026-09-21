@@ -66,7 +66,7 @@ function eliteClubSets() {
 }
 
 function canWinUcl(club, ovr) {
-  if (!club || ovr < 90) return false;
+  if (!club || ovr < 88) return false;
   return !!eliteClubSets().europeTop20[club.id];
 }
 
@@ -178,7 +178,7 @@ function simSeason(s) {
   if (s.contQual) {
     var cont = league.continental;
     var contId = cont === "lib" ? "libertadores" : cont === "ucl" ? "ucl" : cont;
-    /* UCL: Europe top-20 + OVR >= 90. Lib (BR): OVR >= 81. */
+    /* UCL: Europe top-20 + OVR >= 88. Lib (BR): OVR >= 81. */
     var canCont = !!contId;
     if (contId === "ucl") canCont = canWinUcl(club, s.ovr);
     else if (contId === "libertadores") canCont = canWinLibertadores(club, s.ovr);
