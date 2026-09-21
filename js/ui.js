@@ -175,7 +175,7 @@ function nationShirt(nation) {
   var map = (typeof NATION_SHIRT !== "undefined" && NATION_SHIRT) || {};
   var base = map[nation] || { shirt: "img/shirts/br.png", ink: "#186531", inkShadow: "rgba(0,0,0,.22)" };
   return {
-    shirt: base.shirt + (base.shirt.indexOf("?") >= 0 ? "&" : "?") + "v=valor-peak-setup-1",
+    shirt: base.shirt + (base.shirt.indexOf("?") >= 0 ? "&" : "?") + "v=role-rotacao-1",
     ink: base.ink || "#111111",
     inkShadow: base.inkShadow || "rgba(0,0,0,.25)"
   };

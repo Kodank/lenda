@@ -146,7 +146,7 @@ var PROD = {
 };
 
 var ROLE_MINS = { youth: 0.16, bench: 0.3, rotation: 0.55, starter: 0.90, star: 0.98 };
-var ROLE_NAME = { youth: "base", bench: "banco", rotation: "rodízio", starter: "titular", star: "estrela" };
+var ROLE_NAME = { youth: "base", bench: "banco", rotation: "rotação", starter: "titular", star: "estrela" };
 
 var TROPHIES = {
   /* Ligas */
