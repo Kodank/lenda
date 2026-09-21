@@ -383,6 +383,30 @@ var LEAGUES = [
     "trophy": "copa",
     "logo": "img/leagues/fra.png",
     "color": "#091C3E"
+  },
+  {
+    "id": "esp2",
+    "name": "Segunda División",
+    "nation": "es",
+    "tier": 2,
+    "level": 3.1,
+    "continental": null,
+    "size": 22,
+    "trophy": "copa",
+    "logo": "img/leagues/esp.png",
+    "color": "#EE334E"
+  },
+  {
+    "id": "ita2",
+    "name": "Serie B",
+    "nation": "it",
+    "tier": 2,
+    "level": 3.0,
+    "continental": null,
+    "size": 20,
+    "trophy": "copa",
+    "logo": "img/leagues/ita.png",
+    "color": "#024494"
   }
 ];
 var CLUBS = [

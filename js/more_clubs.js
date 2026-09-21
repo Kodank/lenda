@@ -30,13 +30,21 @@ CLUBS = CLUBS.concat([
   _xc("wol", "Wolves", "Wolverhampton", "en", "eng2", 3.3, "#FDB913", "#111111"),
   _xc("nfo", "Nottingham Forest", "Nottingham", "en", "eng", 3.9, "#DD0000", "#FFFFFF"),
   _xc("ath", "Athletic Bilbao", "Bilbao", "es", "esp", 4.1, "#EE2523", "#FFFFFF"),
-  _xc("val", "Valencia", "Valência", "es", "esp", 3.9, "#EEEEEE", "#D50032"),
+  _xc("val", "Valencia", "Valência", "es", "esp2", 3.4, "#EEEEEE", "#D50032"),
   _xc("bet", "Betis", "Sevilha", "es", "esp", 3.9, "#00954C", "#FFFFFF"),
-  _xc("celv", "Celta", "Vigo", "es", "esp", 3.6, "#8AC3E8", "#FFFFFF"),
+  _xc("celv", "Celta", "Vigo", "es", "esp2", 3.2, "#8AC3E8", "#FFFFFF"),
   _xc("ata", "Atalanta", "Bérgamo", "it", "ita", 4.2, "#1E71B8", "#000000"),
   _xc("fio", "Fiorentina", "Florença", "it", "ita", 4.0, "#482E92", "#FFFFFF"),
-  _xc("bol", "Bologna", "Bolonha", "it", "ita", 3.8, "#A20A28", "#1A1A6C"),
-  _xc("tor", "Torino", "Turim", "it", "ita", 3.7, "#8B1A1A", "#FFFFFF"),
+  _xc("bol", "Bologna", "Bolonha", "it", "ita2", 3.3, "#A20A28", "#1A1A6C"),
+  _xc("tor", "Torino", "Turim", "it", "ita2", 3.2, "#8B1A1A", "#FFFFFF"),
+  _xc("espy", "Espanyol", "Barcelona", "es", "esp2", 3.3, "#1E5AA8", "#FFFFFF"),
+  _xc("elc", "Elche", "Elche", "es", "esp2", 3.0, "#FFFFFF", "#007A33"),
+  _xc("levt", "Levante", "Valência", "es", "esp2", 3.1, "#B5003C", "#0057A8"),
+  _xc("vll", "Valladolid", "Valladolid", "es", "esp2", 3.0, "#6C1D45", "#FFFFFF"),
+  _xc("pal", "Palermo", "Palermo", "it", "ita2", 3.1, "#FFD100", "#E30613"),
+  _xc("bari", "Bari", "Bari", "it", "ita2", 3.0, "#FFFFFF", "#E30613"),
+  _xc("cre", "Cremonese", "Cremona", "it", "ita2", 2.9, "#E30613", "#999999"),
+  _xc("parm", "Parma", "Parma", "it", "ita2", 3.2, "#FFE200", "#0033A0"),
   _xc("wlf", "Wolfsburg", "Wolfsburg", "de", "ger2", 3.2, "#65B32E", "#FFFFFF"),
   _xc("bmg", "Gladbach", "Mönchengladbach", "de", "ger", 3.8, "#000000", "#FFFFFF"),
   _xc("fre", "Freiburg", "Freiburg", "de", "ger", 3.8, "#000000", "#E30613"),
@@ -83,7 +91,9 @@ CLUBS = CLUBS.concat([
     brc: { trophy: "copa", cupTrophy: "copa_br" },
     eng2: { trophy: "copa", cupTrophy: "fa_cup" },
     ger2: { trophy: "copa", cupTrophy: "dfb_pokal" },
-    fra2: { trophy: "copa", cupTrophy: "coupe_fr" }
+    fra2: { trophy: "copa", cupTrophy: "coupe_fr" },
+    esp2: { trophy: "copa", cupTrophy: "copa_rey" },
+    ita2: { trophy: "copa", cupTrophy: "coppa_ita" }
   };
   for (var i = 0; i < LEAGUES.length; i++) {
     var m = map[LEAGUES[i].id];

@@ -6,12 +6,164 @@ function nationOf(id) {
   return NATIONS[0];
 }
 function clubOf(id) {
-  for (var i = 0; i < CLUBS.length; i++) if (CLUBS[i].id === id) return CLUBS[i];
-  return CLUBS[0];
+  var base = null;
+  for (var i = 0; i < CLUBS.length; i++) if (CLUBS[i].id === id) { base = CLUBS[i]; break; }
+  if (!base) base = CLUBS[0];
+  var ov = (typeof S !== "undefined" && S && S.clubOverrides) ? S.clubOverrides[id] : null;
+  if (!ov) return base;
+  /* Career-local copy — never mutate global CLUBS (other careers / fresh starts stay clean). */
+  var out = {};
+  for (var k in base) if (Object.prototype.hasOwnProperty.call(base, k)) out[k] = base[k];
+  if (ov.leagueId != null) out.leagueId = ov.leagueId;
+  if (ov.level != null) out.level = ov.level;
+  return out;
 }
 function leagueOf(id) {
   for (var i = 0; i < LEAGUES.length; i++) if (LEAGUES[i].id === id) return LEAGUES[i];
   return LEAGUES[0];
+}
+
+/* Multi-tier ladders (BR A/B/C, ENG/ESP/ITA/GER/FRA 1↔2). Single-tier nations: no-op. */
+var LEAGUE_LADDER = {
+  bra: { up: null, down: "brb", promoSpots: 0, relegSpots: 4 },
+  brb: { up: "bra", down: "brc", promoSpots: 4, relegSpots: 4 },
+  brc: { up: "brb", down: null, promoSpots: 4, relegSpots: 0 },
+  eng: { up: null, down: "eng2", promoSpots: 0, relegSpots: 3 },
+  eng2: { up: "eng", down: null, promoSpots: 3, relegSpots: 0 },
+  esp: { up: null, down: "esp2", promoSpots: 0, relegSpots: 3 },
+  esp2: { up: "esp", down: null, promoSpots: 3, relegSpots: 0 },
+  ita: { up: null, down: "ita2", promoSpots: 0, relegSpots: 3 },
+  ita2: { up: "ita", down: null, promoSpots: 3, relegSpots: 0 },
+  ger: { up: null, down: "ger2", promoSpots: 0, relegSpots: 3 },
+  ger2: { up: "ger", down: null, promoSpots: 3, relegSpots: 0 },
+  fra: { up: null, down: "fra2", promoSpots: 0, relegSpots: 3 },
+  fra2: { up: "fra", down: null, promoSpots: 3, relegSpots: 0 }
+};
+
+function setClubOverride(s, clubId, patch) {
+  if (!s || !clubId || !patch) return;
+  s.clubOverrides = s.clubOverrides || {};
+  var prev = s.clubOverrides[clubId] || {};
+  var next = {};
+  if (prev.leagueId != null) next.leagueId = prev.leagueId;
+  if (prev.level != null) next.level = prev.level;
+  if (patch.leagueId != null) next.leagueId = patch.leagueId;
+  if (patch.level != null) next.level = patch.level;
+  s.clubOverrides[clubId] = next;
+}
+
+function divisionMoveLabel(kind, fromLg, toLg) {
+  var toName = (toLg && toLg.name) || "";
+  var fromId = fromLg && fromLg.id;
+  var toId = toLg && toLg.id;
+  if (kind === "promo") {
+    if (toId === "bra") return "Acesso à Série A";
+    if (toId === "brb") return "Acesso à Série B";
+    if (toId === "eng") return "Acesso à Premier League";
+    if (toId === "esp") return "Acesso à La Liga";
+    if (toId === "ita") return "Acesso à Serie A";
+    if (toId === "ger") return "Acesso à Bundesliga";
+    if (toId === "fra") return "Acesso à Ligue 1";
+    return "Acesso · " + toName;
+  }
+  if (toId === "brb") return "Rebaixamento à Série B";
+  if (toId === "brc") return "Rebaixamento à Série C";
+  if (toId === "eng2") return "Rebaixamento ao Championship";
+  if (toId === "esp2") return "Rebaixamento à Segunda División";
+  if (toId === "ita2") return "Rebaixamento à Serie B";
+  if (toId === "ger2") return "Rebaixamento à 2. Bundesliga";
+  if (toId === "fra2") return "Rebaixamento à Ligue 2";
+  return "Rebaixamento · " + toName;
+}
+
+function playerDivisionContrib(s, season, club, league) {
+  var role = season.role || "bench";
+  var apps = season.apps || 0;
+  var rating = season.rating || 6;
+  var form = s.form || 50;
+  var size = (league && league.size) || 20;
+  var gap = (s.ovr || 50) - (club.level || 3) * 18;
+  var roleW = role === "star" ? 0.35 : role === "starter" ? 0.25 : role === "rotation" ? 0.12 : 0.04;
+  var c = roleW +
+    clamp(gap / 20, -0.15, 0.35) +
+    (rating - 6.5) * 0.12 +
+    (apps / Math.max(1, size)) * 0.15 +
+    (form - 50) / 200;
+  return clamp(c, 0, 1);
+}
+
+function applyDivisionMove(s, season, club, newLeagueId, kind) {
+  var fromLg = leagueOf(club.leagueId);
+  var toLg = leagueOf(newLeagueId);
+  if (!toLg || toLg.id === club.leagueId) return false;
+  var newLevel;
+  if (kind === "promo") {
+    newLevel = Math.max(club.level + 0.35, club.level * 0.45 + toLg.level * 0.55);
+    newLevel = Math.min(newLevel, toLg.level + 0.2);
+  } else {
+    newLevel = Math.min(club.level - 0.35, club.level * 0.5 + toLg.level * 0.5);
+    newLevel = Math.max(newLevel, toLg.level - 0.15);
+  }
+  newLevel = Math.round(clamp(newLevel, 1.4, 5.0) * 10) / 10;
+  setClubOverride(s, club.id, { leagueId: newLeagueId, level: newLevel });
+  var label = divisionMoveLabel(kind, fromLg, toLg);
+  season.divisionChange = {
+    kind: kind,
+    from: fromLg.id,
+    to: newLeagueId,
+    fromName: fromLg.name,
+    toName: toLg.name,
+    label: label,
+    level: newLevel
+  };
+  season.themeTitle = label;
+  season.note = (kind === "promo"
+    ? (club.name + " conquista o acesso a " + toLg.name + ".")
+    : (club.name + " cai para " + toLg.name + "."));
+  return true;
+}
+
+function resolveDivisionChange(s, season, club, league) {
+  if (!s || !season || !club || !league) return;
+  if (season.suspended) return;
+  if (typeof LEAGUE_LADDER === "undefined") return;
+  var lad = LEAGUE_LADDER[league.id];
+  if (!lad) return;
+  var pos = season.leaguePos || league.size;
+  var size = league.size || 20;
+  var contrib = playerDivisionContrib(s, season, club, league);
+  var gap = (s.ovr || 50) - club.level * 18;
+  var role = season.role || "bench";
+  var form = s.form || 50;
+
+  if (lad.up && lad.promoSpots > 0 && pos <= lad.promoSpots) {
+    var pPromo;
+    if (pos === 1) pPromo = 1;
+    else if (pos === 2) pPromo = 0.9 + contrib * 0.1;
+    else if (pos === 3) pPromo = 0.68 + contrib * 0.25;
+    else pPromo = 0.42 + contrib * 0.4;
+    if (club.level >= league.level + 0.25) pPromo = Math.min(1, pPromo + 0.1);
+    if (season.trophies && season.trophies.indexOf(league.trophy) >= 0) pPromo = 1;
+    if (rnd(s) < clamp(pPromo, 0, 1)) {
+      applyDivisionMove(s, season, club, lad.up, "promo");
+      return;
+    }
+  }
+
+  if (lad.down && lad.relegSpots > 0) {
+    var zoneStart = size - lad.relegSpots + 1;
+    if (pos >= zoneStart) {
+      var depth = lad.relegSpots <= 1 ? 1 : (pos - zoneStart) / (lad.relegSpots - 1);
+      var pRel = 0.32 + depth * 0.48 + (1 - contrib) * 0.22;
+      if (club.level < league.level - 0.35) pRel += 0.14;
+      if (form < 40) pRel += 0.1;
+      if (role === "star" && gap > 8) pRel -= 0.22;
+      else if ((role === "star" || role === "starter") && (season.rating || 0) >= 7.2) pRel -= 0.1;
+      if (pos === size) pRel = Math.max(pRel, 0.88);
+      pRel = clamp(pRel, 0.1, 0.97);
+      if (rnd(s) < pRel) applyDivisionMove(s, season, club, lad.down, "releg");
+    }
+  }
 }
 function trophyOf(id) {
   return TROPHIES[id] || { name: id, img: "img/trophies/copa.png", kind: "cup", w: 2 };

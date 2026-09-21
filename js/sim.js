@@ -92,10 +92,14 @@ function simSeason(s) {
   var noise = s.ovr >= 96 ? 4 : s.ovr >= 90 ? 7 : 10;
   power += (rnd(s) - 0.5) * noise;
   var leaguePos = rankFromPower(power, league.size, s);
-  if ((role === "star" || role === "starter") && tBoost.leagueForce > 0 && club.level >= 3.5 && rnd(s) < tBoost.leagueForce) {
+  /* Tier 2+: allow title force at lower club.level so Série B / Championship stars can win the league */
+  var forceLvl = (league.tier && league.tier >= 2) ? 2.2 : 3.5;
+  if ((role === "star" || role === "starter") && tBoost.leagueForce > 0 && club.level >= forceLvl && rnd(s) < tBoost.leagueForce) {
     leaguePos = 1;
   } else if (s.ovr >= 93 && (role === "star" || role === "starter") && leaguePos > 3 && rnd(s) < 0.55) {
     leaguePos = 1 + Math.floor(rnd(s) * 2);
+  } else if (league.tier >= 2 && s.ovr >= 82 && (role === "star" || role === "starter") && leaguePos > 4 && rnd(s) < 0.4) {
+    leaguePos = 1 + Math.floor(rnd(s) * Math.min(3, league.size - 1));
   }
   var trophies = [];
   var awards = [];
@@ -121,12 +125,15 @@ function simSeason(s) {
   }
   s.contQual = leaguePos <= (league.continental === "ucl" ? 4 : 3);
 
+  /* Luva / Chuteira / Bola: só a partir de OVR 90 (temporada). Abaixo = chance zero. */
   if (s.pos === "GOL") {
-    var luvaNeed = s.ovr >= 95 ? Math.max(7, apps * 0.32) : Math.max(8, apps * 0.38);
-    if (cs >= luvaNeed && (role === "starter" || role === "star") && s.ovr >= 78) awards.push("luva");
-    else if (s.ovr >= 96 && (role === "starter" || role === "star") && cs >= Math.max(6, apps * 0.28) && rnd(s) < 0.55) awards.push("luva");
+    if (s.ovr >= 90) {
+      var luvaNeed = s.ovr >= 95 ? Math.max(7, apps * 0.32) : Math.max(8, apps * 0.38);
+      if (cs >= luvaNeed && (role === "starter" || role === "star")) awards.push("luva");
+      else if (s.ovr >= 96 && (role === "starter" || role === "star") && cs >= Math.max(6, apps * 0.28) && rnd(s) < 0.55) awards.push("luva");
+    }
   } else if (
-    s.ovr >= 82 &&
+    s.ovr >= 90 &&
     s.age >= 20 && s.age <= 34 &&
     (role === "starter" || role === "star")
   ) {
@@ -158,8 +165,8 @@ function simSeason(s) {
   }
 
   var hasCont = trophies.indexOf("ucl") >= 0 || trophies.indexOf("libertadores") >= 0 || trophies.indexOf("worldcup") >= 0;
-  /* Bola de Ouro: pico realista fica em ~88–92; taxas altas nessa faixa + monstro em 95–99 */
-  if (s.ovr >= 88 && s.age >= 21 && s.age <= 35 && (role === "starter" || role === "star" || role === "rotation")) {
+  /* Bola de Ouro: só OVR 90+ (temporada). Abaixo de 90 = zero chance. */
+  if (s.ovr >= 90 && s.age >= 21 && s.age <= 35 && (role === "starter" || role === "star" || role === "rotation")) {
     var pBalon = 0;
     var strong = goals >= 8 || assists >= 7 || (s.pos === "GOL" && cs >= 8) || rating >= 7.3;
     var contOrTitle = hasCont || leaguePos === 1;
@@ -171,11 +178,9 @@ function simSeason(s) {
       pBalon = contOrTitle && strong ? 0.78 : (strong || contOrTitle ? 0.55 : 0.32);
     } else if (s.ovr >= 92) {
       pBalon = contOrTitle && strong ? 0.72 : (strong || contOrTitle ? 0.50 : 0.30);
-    } else if (s.ovr >= 90) {
-      pBalon = contOrTitle && strong ? 0.62 : (strong || contOrTitle ? 0.42 : 0.24);
     } else {
-      /* 88–89: porta de entrada do auge — ainda especial, mas alcançável */
-      pBalon = contOrTitle && strong ? 0.48 : (strong || contOrTitle ? 0.30 : 0.16);
+      /* 90–91: porta de entrada do auge */
+      pBalon = contOrTitle && strong ? 0.62 : (strong || contOrTitle ? 0.42 : 0.24);
     }
     if (role === "rotation") pBalon *= 0.55;
     /* Destino baixo: Bola de Ouro quase impossível; extraordinária mantém taxas atuais. */
@@ -256,6 +261,10 @@ function simSeason(s) {
   if (suspended) {
     season.themeTitle = "Suspenso · temporada perdida";
     season.note = "Suspensão por substâncias — OVR mantido, jogos e títulos zerados.";
+  }
+  /* Promo/releg before theme so Acesso/Rebaixamento can own themeTitle */
+  if (typeof resolveDivisionChange === "function" && !suspended) {
+    resolveDivisionChange(s, season, club, league);
   }
   s.seasons.push(season);
   if (!s.clubs.length || s.clubs[s.clubs.length - 1].id !== s.clubId) {

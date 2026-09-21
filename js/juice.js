@@ -550,6 +550,11 @@
       noteNewCups(s, ids);
       checkFirsts(s, last);
       maybeJackpot(s, last);
+      if (last.divisionChange && last.divisionChange.label) {
+        var dcls = last.divisionChange.kind === "promo" ? "fanfare" : "tension";
+        showToast(last.divisionChange.label, dcls, 2600);
+        if (last.divisionChange.kind === "promo") beep("fanfare");
+      }
     } else {
       syncSeenCupsQuiet(s);
     }

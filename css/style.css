@@ -1941,6 +1941,9 @@ input[type="text"] {
   border-left: 3px solid #6b7280;
   padding-left: 8px;
 }
+.flavor-line.promo { color: #9af7c8; }
+.flavor-line.releg { color: #ff8a8a; }
+
 .mini-relato {
   margin: 8px 0;
   font-size: 13px;
