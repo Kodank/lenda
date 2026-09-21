@@ -423,6 +423,21 @@ function applyDeltaToAttrs(s, delta) {
   }
 }
 
+/* WC win P: piecewise-linear through anchors 86→27%, 90→55%, 95→78%, 99→89% (teto). Never auto-win. */
+function worldCupWinP(ovr) {
+  var pts = [[86, 0.27], [90, 0.55], [95, 0.78], [99, 0.89]];
+  if (ovr <= pts[0][0]) return pts[0][1];
+  if (ovr >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
+  for (var i = 0; i < pts.length - 1; i++) {
+    var a = pts[i], b = pts[i + 1];
+    if (ovr <= b[0]) {
+      var t = (ovr - a[0]) / (b[0] - a[0]);
+      return a[1] + t * (b[1] - a[1]);
+    }
+  }
+  return pts[pts.length - 1][1];
+}
+
 function simNational(s) {
   var nat = nationOf(s.nation);
   var cut = 74 + (nat.ntCut || 0);
@@ -483,10 +498,7 @@ function simNational(s) {
   }
   /* NT gates = eligibility floors only; base chance rare at floor, then scales with OVR (never auto-win). */
   if (isWC && starter && s.ovr >= 86) {
-    var wcP = 0.17 + (s.ovr - 86) * 0.021;
-    if (s.ovr >= 95) wcP += 0.22;
-    if (s.ovr >= 99) wcP += 0.26;
-    if (rnd(s) < Math.min(0.90, wcP)) out.trophies.push("worldcup");
+    if (rnd(s) < worldCupWinP(s.ovr)) out.trophies.push("worldcup");
   }
   if (isCont && starter && s.ovr >= 84) {
     /* Gated ids in data: euro, copaamerica (AFCON/Asian/Gold Cup trophies not in data yet). */
