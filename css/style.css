@@ -177,8 +177,9 @@ input[type="text"] {
 .shirt-stage { display: flex; justify-content: center; padding: 4px 0; }
 .shirt-photo {
   position: relative;
-  width: min(220px, 72vw);
+  width: min(260px, 78vw);
   aspect-ratio: 720 / 852;
+  container-type: size;
   filter: drop-shadow(0 18px 26px rgba(0, 0, 0, .55));
 }
 .shirt-photo .shirt-img {
@@ -192,14 +193,14 @@ input[type="text"] {
 .shirt-lettering {
   position: absolute;
   left: 50%;
-  top: 28%;
-  width: 68%;
+  top: 25%;
+  width: 78%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 1%;
+  gap: 0.5%;
   font-family: "Barlow Condensed", "Arial Black", sans-serif;
   font-weight: 800;
   line-height: 1;
@@ -208,36 +209,108 @@ input[type="text"] {
 }
 .shirt-lettering .shirt-name {
   display: block;
-  font-size: clamp(16px, 5.4vw, 24px);
-  letter-spacing: 0.18em;
-  text-indent: 0.18em;
+  /* ~9% of shirt height — clearly readable above the number */
+  font-size: 32px;
+  font-size: clamp(26px, 10.5cqh, 38px);
+  letter-spacing: 0.1em;
+  text-indent: 0.1em;
   text-transform: uppercase;
   max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
-  margin-bottom: 1%;
+  margin-bottom: 0;
   transform-origin: center top;
 }
 .shirt-lettering .shirt-num {
   display: block;
-  font-size: clamp(72px, 26vw, 104px);
-  letter-spacing: -0.02em;
-  line-height: 0.86;
+  /* ~40% of shirt height — dominates the back */
+  font-size: 120px;
+  font-size: clamp(96px, 40cqh, 148px);
+  letter-spacing: -0.04em;
+  line-height: 0.82;
 }
 .shirt-mini { display: flex; justify-content: center; align-items: flex-start; }
 .shirt-mini .shirt-photo {
-  width: 132px;
+  width: 168px;
   filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .45));
 }
-.shirt-mini .shirt-lettering { top: 28%; width: 68%; }
-.shirt-mini .shirt-lettering .shirt-name { font-size: 11px; letter-spacing: 0.16em; text-indent: 0.16em; }
-.shirt-mini .shirt-lettering .shirt-num { font-size: 52px; }
+.shirt-mini .shirt-lettering { top: 26%; width: 74%; }
+.shirt-mini .shirt-lettering .shirt-name {
+  font-size: 16px;
+  font-size: clamp(14px, 9cqh, 20px);
+  letter-spacing: 0.1em;
+  text-indent: 0.1em;
+}
+.shirt-mini .shirt-lettering .shirt-num {
+  font-size: 78px;
+  font-size: clamp(64px, 40cqh, 92px);
+}
+
+/* Phones: larger kit + lettering (high specificity so .shirt-mini rules cannot win) */
+@media (max-width: 900px) {
+  .shirt-panel .shirt-photo,
+  .focus-shirt .shirt-photo {
+    width: min(280px, 86vw);
+  }
+  .shirt-panel .shirt-lettering,
+  .focus-shirt .shirt-lettering,
+  .shirt-mini .shirt-lettering {
+    top: 25%;
+    width: 78%;
+  }
+  .shirt-panel .shirt-lettering .shirt-name,
+  .focus-shirt .shirt-lettering .shirt-name,
+  .shirt-mini .shirt-lettering .shirt-name {
+    font-size: 30px;
+    font-size: clamp(26px, 10.5cqh, 34px);
+    letter-spacing: 0.08em;
+    text-indent: 0.08em;
+  }
+  .shirt-panel .shirt-lettering .shirt-num,
+  .focus-shirt .shirt-lettering .shirt-num,
+  .shirt-mini .shirt-lettering .shirt-num {
+    font-size: clamp(110px, 42cqh, 150px);
+    line-height: 0.8;
+  }
+  .nation-split .shirt-mini .shirt-photo,
+  .pos-summary .shirt-mini .shirt-photo {
+    width: min(200px, 58vw);
+  }
+  .nation-split .shirt-mini .shirt-lettering .shirt-name,
+  .pos-summary .shirt-mini .shirt-lettering .shirt-name {
+    font-size: clamp(18px, 9cqh, 24px);
+  }
+  .nation-split .shirt-mini .shirt-lettering .shirt-num,
+  .pos-summary .shirt-mini .shirt-lettering .shirt-num {
+    font-size: clamp(88px, 40cqh, 120px);
+  }
+}
 
 @media (max-width: 520px) {
-  .shirt-photo { width: min(210px, 72vw); }
-  .shirt-lettering { top: 27%; width: 70%; }
-  .shirt-lettering .shirt-name { font-size: 18px; }
-  .shirt-lettering .shirt-num { font-size: 80px; }
+  .shirt-panel .shirt-photo,
+  .focus-shirt .shirt-photo {
+    width: min(270px, 88vw);
+  }
+  .shirt-panel .shirt-lettering .shirt-name,
+  .focus-shirt .shirt-lettering .shirt-name {
+    font-size: 30px;
+  }
+  .shirt-panel .shirt-lettering .shirt-num,
+  .focus-shirt .shirt-lettering .shirt-num {
+    font-size: 132px;
+  }
+  .nation-split .shirt-mini .shirt-photo,
+  .pos-summary .shirt-mini .shirt-photo {
+    width: min(190px, 56vw);
+  }
+  .nation-split .shirt-mini .shirt-lettering .shirt-name,
+  .pos-summary .shirt-mini .shirt-lettering .shirt-name {
+    font-size: 20px;
+  }
+  .nation-split .shirt-mini .shirt-lettering .shirt-num,
+  .pos-summary .shirt-mini .shirt-lettering .shirt-num {
+    font-size: 96px;
+  }
 }
 
 .field-grid {
@@ -1371,7 +1444,7 @@ input[type="text"] {
   }
   .nation-split .shirt-mini .shirt-photo,
   .pos-summary .shirt-mini .shirt-photo {
-    width: min(156px, 46vw);
+    width: min(200px, 58vw);
   }
   .nation-panel { width: 100%; }
   .field-grid { grid-template-columns: 1fr; }

@@ -166,7 +166,7 @@ function nationShirt(nation) {
   var map = (typeof NATION_SHIRT !== "undefined" && NATION_SHIRT) || {};
   var base = map[nation] || { shirt: "img/shirts/br.png", ink: "#186531", inkShadow: "rgba(0,0,0,.22)" };
   return {
-    shirt: base.shirt + (base.shirt.indexOf("?") >= 0 ? "&" : "?") + "v=camisa-setup-1",
+    shirt: base.shirt + (base.shirt.indexOf("?") >= 0 ? "&" : "?") + "v=camisa-setup-2",
     ink: base.ink || "#111111",
     inkShadow: base.inkShadow || "rgba(0,0,0,.25)"
   };
@@ -188,18 +188,19 @@ function shirtHtml(c1, c2, number, name, nation) {
     "</div></div></div>";
 }
 
-/** Shrink long surnames to fit the lettering band without making short names tiny. */
+/** Scale down only long surnames; never shrink short defaults like SILVA. */
 function fitShirtNames() {
   document.querySelectorAll(".shirt-lettering").forEach(function (box) {
     var name = box.querySelector(".shirt-name");
     if (!name) return;
     name.style.transform = "";
     name.style.fontSize = "";
+    var text = String(name.textContent || "").trim();
     var max = box.clientWidth;
-    if (!max) return;
+    if (!max || text.length <= 7) return;
     var overflow = name.scrollWidth - max;
-    if (overflow <= 1) return;
-    var scale = Math.max(0.55, max / name.scrollWidth);
+    if (overflow <= 4) return;
+    var scale = Math.max(0.68, max / name.scrollWidth);
     name.style.transform = "scale(" + scale.toFixed(3) + ")";
   });
 }
