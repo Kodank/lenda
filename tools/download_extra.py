@@ -15,7 +15,7 @@ EXTRA_IDS = [
     "avl", "whu", "bha", "eve", "cry", "ful", "wol", "nfo",
     "ath",  # Athletic Bilbao — MUST be 133727, never fuzzy Athletic Club
     "val", "bet", "celv",
-    "ata", "fio", "bol", "tor",
+    "ata", "fio", "bol", "tor", "bari",
     "wlf", "bmg", "fre", "hof",
     "renn", "len", "str", "nte",
     "bra", "vgu", "az", "twt",

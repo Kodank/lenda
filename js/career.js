@@ -324,6 +324,37 @@ function sameContinentClub(s, c) {
   return !!(a && b && a === b);
 }
 
+/* Current club's country (fallback: player nation before signing). */
+function clubNationOf(s) {
+  var cur = s.clubId ? clubOf(s.clubId) : null;
+  return cur ? cur.nation : (s.nation || "");
+}
+
+function sameClubCountry(s, c) {
+  return !!(c && c.nation && c.nation === clubNationOf(s));
+}
+
+/* Hard rule: until OVR passes 70, only the current club's country — no foreign. */
+function earlyCountryLock(s) {
+  return (s.ovr || 0) < 70;
+}
+
+/*
+ * Market geography for early / "home" stage:
+ *  - ovr < 70: current club nation only (everyone; wonderkid/elite must not bypass).
+ *  - ovr ≥ 70 + current club in Europe: same conf (UEFA) — a bit more freedom.
+ *  - ovr ≥ 70 + not European: existing same-continent (player home conf) rules.
+ */
+function marketGeoOk(s, c) {
+  if (!c) return false;
+  if (earlyCountryLock(s)) return sameClubCountry(s, c);
+  var cur = s.clubId ? clubOf(s.clubId) : null;
+  if (cur && clubConf(cur) === "uefa") {
+    return clubConf(c) === "uefa" || c.nation === cur.nation;
+  }
+  return sameContinentClub(s, c);
+}
+
 /*
  * Wonderkid exception: young + explosive ΔOVR in 1–3 seasons unlocks elite Europe
  * despite early same-continent gate. Tuned rare — normal careers stay home.
@@ -590,11 +621,14 @@ function pickOffers(s, n) {
     if (c.id === curId || !reachableClub(s, c)) return false;
     /* Destino baixo: bloqueia gigantes (top Europa) mesmo se o OVR “aguenta”. */
     if (dGate.maxClubLevel != null && c.level > dGate.maxClubLevel + 0.001) return false;
-    /* Early career: only same continent / country (no random Europe for SA youngster). */
-    if (stage === "home" && !sameContinentClub(s, c)) return false;
-    /* Wonderkid: home continent OR European elite / world top-10 only. */
+    /* ovr < 70: hard single-country lock (current club nation). No foreign, no wonderkid bypass. */
+    if (earlyCountryLock(s) && !sameClubCountry(s, c)) return false;
+    /* Early career (home stage, ovr ≥ 70): continent rules via marketGeoOk. */
+    if (stage === "home" && !marketGeoOk(s, c)) return false;
+    /* Wonderkid: home geo OR European elite / world top-10 — but never below OVR 70. */
     if (stage === "wonderkid") {
-      if (sameContinentClub(s, c)) return true;
+      if (earlyCountryLock(s)) return sameClubCountry(s, c);
+      if (marketGeoOk(s, c)) return true;
       if (WORLD_TOP10_IDS.indexOf(c.id) >= 0) return true;
       if (EURO_LEAGUES[c.leagueId] && c.level >= 4.3) return true;
       return false;
@@ -684,11 +718,14 @@ function pickOffers(s, n) {
   var pTop5 = 0.3 * (dMul.top5Mul != null ? dMul.top5Mul : 1);
   var pTop10 = 0.3 * (dMul.top10Mul != null ? dMul.top10Mul : 1);
   var pWk = 0.62 * (dMul.wonderkidMul != null ? dMul.wonderkidMul : 1);
-  if (stage === "elite" && top5[0]) {
-    if ((dMul.top5Mul != null ? dMul.top5Mul : 1) >= 0.99 || rnd(s) < Math.max(0.08, pTop5)) forceElite(top5[0]);
-    else if (top10[0] && rnd(s) < pTop10) forceElite(top10[0]);
-  } else if (stage === "world" && top10[0] && rnd(s) < pTop10) forceElite(top10[0]);
-  else if (stage === "wonderkid" && top10[0] && rnd(s) < pWk) forceElite(top10[0]);
+  /* Elite rolls never fire under the ovr < 70 single-country lock. */
+  if (!earlyCountryLock(s)) {
+    if (stage === "elite" && top5[0]) {
+      if ((dMul.top5Mul != null ? dMul.top5Mul : 1) >= 0.99 || rnd(s) < Math.max(0.08, pTop5)) forceElite(top5[0]);
+      else if (top10[0] && rnd(s) < pTop10) forceElite(top10[0]);
+    } else if (stage === "world" && top10[0] && rnd(s) < pTop10) forceElite(top10[0]);
+    else if (stage === "wonderkid" && top10[0] && rnd(s) < pWk) forceElite(top10[0]);
+  }
 
   /* 1ª carta: passo à frente (ou big step raro se o OVR aguenta) — se ainda cabe */
   if (out.length < n) {
@@ -712,7 +749,7 @@ function pickOffers(s, n) {
   }
 
   /* 89+ safety: re-force top-5 só se o destino permitir (mul alto). */
-  if (stage === "elite" && top5[0] && (dMul.top5Mul != null ? dMul.top5Mul : 1) >= 0.55) {
+  if (!earlyCountryLock(s) && stage === "elite" && top5[0] && (dMul.top5Mul != null ? dMul.top5Mul : 1) >= 0.55) {
     var hasTop5 = out.some(function (c) { return WORLD_TOP5_IDS.indexOf(c.id) >= 0; });
     if (!hasTop5) forceElite(top5[0]);
   }
@@ -770,6 +807,7 @@ function buildTransferWindow(s) {
   var stage = marketStage(s);
   var blurb;
   if (!offers.length) blurb = "Poucas ligações nesta janela. Ficar e trabalhar, ou esperar a próxima.";
+  else if (earlyCountryLock(s)) blurb = "O mercado abriu. Propostas só do seu país — ou você permanece onde está.";
   else if (stage === "home") blurb = "O mercado abriu. Propostas do seu continente — ou você permanece onde está.";
   else if (stage === "elite") blurb = "O mercado abriu. A elite mundial ligou. Duas camisas novas — ou você permanece onde está.";
   else if (stage === "world") blurb = "O mercado abriu. Gigantes do mundo podem aparecer. Duas camisas novas — ou você permanece onde está.";
@@ -1068,41 +1106,56 @@ function pickClub(s, mode) {
   var cur = clubOf(s.clubId);
   var stage = marketStage(s);
   var pool = CLUBS.filter(function (c) { return c.id !== cur.id; });
+  /* ovr < 70: every mode is hard-locked to the current club's country. */
+  if (earlyCountryLock(s)) pool = pool.filter(function (c) { return sameClubCountry(s, c); });
   var filtered;
   if (mode === "elite") {
-    if (stage === "home") {
-      /* Early: "elite" stays on-continent big clubs, not random Europe. */
+    if (stage === "home" || earlyCountryLock(s)) {
+      /* Early: "elite" stays on-geo big clubs, not random Europe. */
       filtered = pool.filter(function (c) {
-        return sameContinentClub(s, c) && c.level >= 4.0 && c.level * 18 <= s.ovr + 10;
+        return marketGeoOk(s, c) && c.level >= 4.0 && c.level * 18 <= s.ovr + 10;
       });
     } else {
       /* wonderkid / open / world / elite: real elite pool */
       filtered = pool.filter(function (c) { return c.level >= 4.5 && c.level * 18 <= s.ovr + 10; });
     }
   } else if (mode === "europe") {
-    if (stage === "home" && nationConf(s.nation) !== "uefa") {
+    if (earlyCountryLock(s)) {
+      filtered = pool.filter(function (c) {
+        return sameClubCountry(s, c) && reachableClub(s, c);
+      });
+    } else if (stage === "home" && nationConf(s.nation) !== "uefa") {
       /* SA/etc youngster: treat "europe" as continental step-up at home. */
       filtered = pool.filter(function (c) {
-        return sameContinentClub(s, c) && reachableClub(s, c) && c.level >= cur.level;
+        return marketGeoOk(s, c) && reachableClub(s, c) && c.level >= cur.level;
       });
     } else {
       filtered = pool.filter(function (c) {
         return EURO_LEAGUES[c.leagueId] && reachableClub(s, c);
       });
     }
-  } else if (mode === "home") filtered = pool.filter(function (c) { return c.nation === s.nation; });
-  else if (mode === "down") filtered = pool.filter(function (c) { return c.level < cur.level - 0.3 && c.level >= 2.4; });
-  else if (mode === "loan") {
+  } else if (mode === "home") {
+    filtered = pool.filter(function (c) {
+      return earlyCountryLock(s) ? sameClubCountry(s, c) : c.nation === s.nation;
+    });
+  } else if (mode === "down") {
+    filtered = pool.filter(function (c) {
+      return c.level < cur.level - 0.3 && c.level >= 2.4 && (!earlyCountryLock(s) || sameClubCountry(s, c));
+    });
+  } else if (mode === "loan") {
     var owner = s.loanFrom ? clubOf(s.loanFrom) : cur;
     filtered = pool.filter(function (c) {
       if (c.id === s.clubId) return false;
       if (s.loanFrom && c.id === s.loanFrom) return false;
+      if (earlyCountryLock(s) && !sameClubCountry(s, c)) return false;
       return c.level < owner.level && (s.ovr - c.level * 18) >= -3;
     });
     var same = filtered.filter(function (c) { return c.nation === owner.nation; });
     if (same.length) filtered = same;
-    if (stage === "home") {
-      var homeLoan = filtered.filter(function (c) { return sameContinentClub(s, c); });
+    if (earlyCountryLock(s)) {
+      filtered = filtered.filter(function (c) { return sameClubCountry(s, c); });
+    } else if (stage === "home") {
+      var homeLoan = filtered.filter(function (c) { return marketGeoOk(s, c); });
       if (homeLoan.length) filtered = homeLoan;
     }
   } else if (mode === "rival") {
@@ -1110,20 +1163,22 @@ function pickClub(s, mode) {
   } else {
     filtered = pool.filter(function (c) {
       if (Math.abs(c.level - cur.level) >= 0.7 || c.level * 18 > s.ovr + 14) return false;
-      if (stage === "home" && !sameContinentClub(s, c)) return false;
+      if ((stage === "home" || earlyCountryLock(s)) && !marketGeoOk(s, c)) return false;
       return true;
     });
   }
   if (!filtered.length) {
     filtered = pool.filter(function (c) {
       if (Math.abs(c.level * 18 - s.ovr) > 14) return false;
-      if (stage === "home" && !sameContinentClub(s, c)) return false;
+      if ((stage === "home" || earlyCountryLock(s)) && !marketGeoOk(s, c)) return false;
       return true;
     });
   }
-  if (!filtered.length) filtered = pool.filter(function (c) { return c.level <= cur.level && (stage !== "home" || sameContinentClub(s, c)); });
-  if (!filtered.length) filtered = stage === "home" ? pool.filter(function (c) { return sameContinentClub(s, c); }) : pool;
-  if (!filtered.length) filtered = pool;
+  if (!filtered.length) filtered = pool.filter(function (c) { return c.level <= cur.level && ((stage !== "home" && !earlyCountryLock(s)) || marketGeoOk(s, c)); });
+  if (!filtered.length) filtered = (stage === "home" || earlyCountryLock(s)) ? pool.filter(function (c) { return marketGeoOk(s, c); }) : pool;
+  /* Last resort: still never break the ovr < 70 country lock. */
+  if (!filtered.length) filtered = earlyCountryLock(s) ? pool.slice() : pool;
+  if (!filtered.length && !earlyCountryLock(s)) filtered = CLUBS.filter(function (c) { return c.id !== cur.id; });
   return filtered[Math.floor(rnd(s) * filtered.length)];
 }
 

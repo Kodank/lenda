@@ -14,6 +14,9 @@ TEAM_IDS = {
     "ath": 133727,
     "athm": 147142,
 
+    # Bari (SSC Bari)
+    "bari": 133688,
+
     # Inter* collision (Milan ≠ Internacional ≠ Miami)
     "intm": 133681,
     "inter": 134281,
