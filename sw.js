@@ -1,5 +1,5 @@
 /* Lenda minimal service worker — cache app shell for offline-ish LAN/localhost use */
-const CACHE = "lenda-shell-v27-valor-peak-setup-1";
+const CACHE = "lenda-shell-v28-no-rival-metas-1";
 const SHELL = [
   "./manifest.webmanifest",
   "./css/style.css",

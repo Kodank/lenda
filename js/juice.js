@@ -7,7 +7,6 @@
   var BIG_TROPHIES = { balon: 1, worldcup: 1, ucl: 1, libertadores: 1, clubworldcup: 1 };
 
   var ctx = null;
-  var lastRivalToastAt = 0;
 
   function reducedMotion() {
     try {
@@ -27,8 +26,7 @@
         jackpotDone: 0,
         hypeMax: 0,
         seenCups: {},
-        lastNewCup: null,
-        rivalToastN: 0
+        lastNewCup: null
       };
     }
     var j = s.juice;
@@ -38,7 +36,6 @@
     if (j.goodStreak == null) j.goodStreak = 0;
     if (j.jackpotDone == null) j.jackpotDone = 0;
     if (j.hypeMax == null) j.hypeMax = 0;
-    if (j.rivalToastN == null) j.rivalToastN = 0;
     return j;
   }
 
@@ -105,8 +102,6 @@
     } else if (kind === "trophy") {
       tone(520, 0.07, "triangle", 0.04);
       tone(780, 0.1, "triangle", 0.03, 0.06);
-    } else if (kind === "rival") {
-      tone(280, 0.08, "square", 0.02);
     } else if (kind === "click") {
       tone(880, 0.03, "sine", 0.02);
     } else if (kind === "fanfare") {
@@ -428,20 +423,6 @@
     }, 4000);
   }
 
-  function maybeRivalToast(s) {
-    var j = ensureJuice(s);
-    if (!j || !s.rival) return;
-    var press = s.rival.pressure || 0;
-    if (press < 6) return;
-    var now = Date.now();
-    if (now - lastRivalToastAt < 45000) return;
-    if ((j.rivalToastN || 0) > 4) return;
-    if (Math.random() > 0.28) return;
-    lastRivalToastAt = now;
-    j.rivalToastN = (j.rivalToastN || 0) + 1;
-    showToast("Rival · pressão alta (" + s.rival.name + ")", "rival", 2000);
-    beep("rival");
-  }
 
   function maybeJackpot(s, season) {
     var j = ensureJuice(s);
@@ -573,7 +554,6 @@
       syncSeenCupsQuiet(s);
     }
     checkMilestones(s, prevOvr);
-    maybeRivalToast(s);
     maybeCelebrateHype(s);
     requestAnimationFrame(function () {
       if (prevOvr != null && s.ovr != null && prevOvr !== s.ovr) {

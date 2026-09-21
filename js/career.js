@@ -525,14 +525,6 @@ function pickEvent(s) {
     return buildFarewellEvent(s);
   }
 
-  /* Rivalidade gerada — pressão de titularidade / prêmios */
-  if (typeof ensureRival === "function") ensureRival(s);
-  if (s.rival && s.age >= 18 && s.ovr >= 64 && (s.usedEvents || []).indexOf("rivalspot") < 0) {
-    var rivalChance = s.pace === "rapido" ? 0.1 : 0.16;
-    if ((s.rival.pressure || 0) >= 5) rivalChance += 0.12;
-    if (rnd(s) < rivalChance) return buildRivalEvent(s);
-  }
-
   /* ~9% chance de evento raro de salto (não frequente; 1x cada id por carreira) */
   var rarePool = [];
   for (var ri = 0; ri < EVENTS.length; ri++) {
@@ -819,7 +811,7 @@ function applyChoice(s, ev, side) {
     delete fx.risk;
   }
   s.usedEvents = s.usedEvents || [];
-  if (ev.id && ev.id !== "market" && ev.id !== "rescisao" && ev.id !== "quiet" && ev.id !== "muscle" && ev.id !== "formdip" && ev.id !== "rivalaward" && s.usedEvents.indexOf(ev.id) < 0) {
+  if (ev.id && ev.id !== "market" && ev.id !== "rescisao" && ev.id !== "quiet" && ev.id !== "muscle" && ev.id !== "formdip" && s.usedEvents.indexOf(ev.id) < 0) {
     s.usedEvents.push(ev.id);
   }
   if (fx.loyalty) touchTrait(s.traits, "loyalty", fx.loyalty);

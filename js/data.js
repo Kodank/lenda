@@ -383,8 +383,6 @@ var EVENT_CHOICE_THEMES = {
   ultras: ["home", "safe"],
   recovery: ["physio", "injury"],
   farewell: ["retire", "focus"],
-  rivalspot: ["rival", "safe"],
-  rivalaward: ["media", "captain"],
   market: ["transfer", "transfer", "stay"],
   quiet: ["training", "safe"],
   substancias: ["party", "safe"]

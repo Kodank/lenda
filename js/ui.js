@@ -432,18 +432,11 @@ function viewCreate() {
       "</div></div>";
   }
 
-  /* step 2 — position + career goals */
-  if (!d.goalIds) d.goalIds = [];
+  /* step 2 — position */
   var slots = PITCH.map(function (p) {
     return '<button type="button" class="slot' + (d.pos === p.pos ? " on" : "") + '" data-pos="' + p.pos +
       '" style="left:' + p.x + "%;top:" + p.y + '%">' + p.pos + "</button>";
   }).join("");
-  var goalPool = (typeof CAREER_GOAL_POOL !== "undefined" ? CAREER_GOAL_POOL : []);
-  var goalChips = goalPool.map(function (g) {
-    var on = d.goalIds.indexOf(g.id) >= 0;
-    return '<button type="button" class="chip goal-pick' + (on ? " on" : "") + '" data-goal="' + g.id + '">' + esc(g.label) + "</button>";
-  }).join("");
-  var gCount = d.goalIds.length;
   return top +
     '<div class="step-card focus-pos">' +
     "<h2>Posição</h2>" +
@@ -454,11 +447,6 @@ function viewCreate() {
     '<div class="pos-now"><span class="label">Posição</span><b>' + POS[d.pos].name + "</b>" +
     "<small>" + POS[d.pos].short + "</small></div></div>" +
     '<div class="pitch-wrap compact"><div class="pitch">' + pitchMarkingsSvg() + '</div>' + slots + "</div>" +
-    "</div>" +
-    '<div class="goals-pick-block">' +
-    '<div class="label">Metas da carreira <span class="goals-count">' + gCount + "/2</span></div>" +
-    '<p class="lead tight goals-lead">Escolhe 2 objetivos — eles ficam no painel durante a carreira.</p>' +
-    '<div class="row goals-pick-row">' + goalChips + "</div>" +
     "</div>" +
     '<div class="step-actions">' +
     '<button class="btn alt" data-step="1">Voltar</button>' +
@@ -757,26 +745,7 @@ function retireBtnHtml(s) {
   return '<button class="btn alt retire-btn" data-go="retire" type="button">Aposentar</button>';
 }
 
-function goalsStripHtml(s) {
-  if (!s || typeof ensureCareerGoals !== "function") return "";
-  var goals = ensureCareerGoals(s);
-  if (!goals.length) return "";
-  return '<div class="goals-strip"><span class="goals-strip-lab">Metas</span>' + goals.map(function (g) {
-    return '<span class="goal-pill' + (g.done ? " done" : "") + '">' + (g.done ? "✓ " : "○ ") + esc(g.label) + "</span>";
-  }).join("") + "</div>";
-}
 
-function rivalChipHtml(s) {
-  if (!s || !s.rival) return "";
-  var r = s.rival;
-  var gap = (s.ovr || 0) - (r.ovr || 0);
-  var tone = gap >= 2 ? "up" : gap <= -2 ? "dn" : "flat";
-  var gapTxt = gap > 0 ? "+" + gap : String(gap);
-  return '<div class="rival-chip ' + tone + '">' +
-    '<span>Rival</span><b>' + esc(r.name) + "</b>" +
-    '<em>' + r.ovr + " OVR</em>" +
-    '<i class="rival-gap">' + gapTxt + " vs você</i></div>";
-}
 
 function viewDecision() {
   var ev = UI.event;
@@ -790,9 +759,7 @@ function viewDecision() {
     identityStrip(s) +
     trophyCaseHtml(s) +
     (typeof JUICE !== "undefined" ? JUICE.hypeBarHtml(s) : "") +
-    rivalChipHtml(s) +
     (typeof JUICE !== "undefined" ? JUICE.streakChipHtml(s) : "") +
-    goalsStripHtml(s) +
     "</div>" +
     '<div class="career-body">' +
     '<div class="story compact">' +
@@ -830,7 +797,6 @@ function viewReport() {
       derbyLine = '<div class="flavor-line derby">' + (last.derby.won ? "Clássico ganho" : "Clássico perdido") +
         " vs " + esc(vsClub.name) + (last.derby.crisis ? " · crise" : "") + "</div>";
     }
-    var rivalLine = last.rivalNote ? '<div class="flavor-line rival">Rival · ' + esc(last.rivalNote) + "</div>" : "";
     var susLine = last.suspended ? '<div class="flavor-line suspended">Suspenso por substâncias · temporada comprometida</div>' : "";
     recap = '<div class="story compact"><div class="meta">Temporada encerrada</div>' +
       (!juiceSurprise && theme ? '<div class="season-theme" role="status">' + esc(theme) + "</div>" : "") +
@@ -838,7 +804,7 @@ function viewReport() {
       '<p class="lead tight">OVR ' + last.ovr + " (" + fmtDelta(last.delta) + ") · " +
       last.apps + " jogos · " + (s.pos === "GOL" ? resolveGkSaves(last) + " DEF / " + last.ga + " GS" : last.goals + " gols / " + last.assists + " ASS") +
       " · #" + last.leaguePos + nt + "</p>" +
-      pathLine + derbyLine + rivalLine + susLine +
+      pathLine + derbyLine + susLine +
       (cups.length ? '<div class="report-cups">' + cups.map(function (id) {
         return '<div class="report-cup"><img src="' + trophyOf(id).img + '" alt=""><b>' + esc(trophyOf(id).name) + "</b></div>";
       }).join("") + "</div>" : "") +
@@ -852,14 +818,11 @@ function viewReport() {
     identityStrip(s) +
     trophyCaseHtml(s) +
     (typeof JUICE !== "undefined" ? JUICE.hypeBarHtml(s) : "") +
-    rivalChipHtml(s) +
     (typeof JUICE !== "undefined" ? JUICE.streakChipHtml(s) : "") +
-    goalsStripHtml(s) +
     "</div>" +
     '<div class="career-body">' +
     recap +
     (typeof JUICE !== "undefined" && last ? JUICE.seasonSurpriseHtml(last) : "") +
-    (S._goalToast ? '<div class="goal-toast">Meta: ' + esc(S._goalToast) + "</div>" : "") +
     (S._lastRisk ? '<div class="risk-toast ' + (S._lastRisk.ok ? "ok" : "bad") + '">' + esc(S._lastRisk.text) + "</div>" : "") +
     (S._lastOutcome && S._lastOutcome.relato
       ? '<div class="mini-relato loud">' + esc(S._lastOutcome.relato) + "</div>" : "") +
@@ -1005,7 +968,7 @@ function viewLegacy() {
 }
 
 function nextDecision() {
-  if (S) { S._lastRisk = null; S._lastOutcome = null; S._goalToast = null; }
+  if (S) { S._lastRisk = null; S._lastOutcome = null; }
   if (shouldRetire(S)) {
     S.retired = true;
     UI.screen = "legacy";
@@ -1064,21 +1027,6 @@ function bind() {
   });
   document.querySelectorAll("[data-pace]").forEach(function (b) {
     b.onclick = function () { UI.draft.pace = b.getAttribute("data-pace"); render(); };
-  });
-  document.querySelectorAll("[data-goal]").forEach(function (b) {
-    b.onclick = function () {
-      if (!UI.draft) return;
-      if (!UI.draft.goalIds) UI.draft.goalIds = [];
-      var id = b.getAttribute("data-goal");
-      var i = UI.draft.goalIds.indexOf(id);
-      if (i >= 0) UI.draft.goalIds.splice(i, 1);
-      else if (UI.draft.goalIds.length < 2) UI.draft.goalIds.push(id);
-      else {
-        UI.draft.goalIds.shift();
-        UI.draft.goalIds.push(id);
-      }
-      render();
-    };
   });
   document.querySelectorAll("[data-num]").forEach(function (b) {
     b.onclick = function () {
@@ -1176,7 +1124,7 @@ function bind() {
 function go(to) {
   if (to === "home") UI.screen = "home";
   else if (to === "create") {
-    UI.draft = { name: "SILVA", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", goalIds: [], step: 0 };
+    UI.draft = { name: "SILVA", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
     UI.screen = "create";
   } else if (to === "continue") {
     var s = load();
@@ -1218,7 +1166,7 @@ function go(to) {
     UI.event = null;
     UI.reports = [];
     UI.offers = null;
-    UI.draft = { name: "SILVA", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", goalIds: [], step: 0 };
+    UI.draft = { name: "SILVA", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
     UI.screen = "create";
   } else if (to === "reset") {
     if (!window.confirm("Apagar a carreira salva e recomeçar do zero?")) return;

@@ -495,9 +495,7 @@ input[type="text"] {
 .career-head > .id-strip,
 .career-head > .trophy-case,
 .career-head > .juice-hype-bar,
-.career-head > .rival-chip,
-.career-head > .juice-streak-chip,
-.career-head > .goals-strip {
+.career-head > .juice-streak-chip {
   flex: 0 0 auto;
 }
 .career-body {
@@ -1846,12 +1844,8 @@ input[type="text"] {
 }
 #app.screen-decision .juice-hype-bar,
 #app.screen-report .juice-hype-bar,
-#app.screen-decision .rival-chip,
-#app.screen-report .rival-chip,
 #app.screen-decision .juice-streak-chip,
 #app.screen-report .juice-streak-chip,
-#app.screen-decision .goals-strip,
-#app.screen-report .goals-strip,
 #app.screen-decision .id-strip,
 #app.screen-report .id-strip {
   flex: 0 0 auto;
@@ -1861,11 +1855,7 @@ input[type="text"] {
 #app.screen-report .juice-hype-bar {
   margin: 2px 0 4px;
 }
-#app.screen-decision .goals-strip,
-#app.screen-report .goals-strip {
-  margin: 4px 0 2px;
-}
-/* Cap growing vitrine; scroll inside so rival/metas stay readable */
+/* Cap growing vitrine; scroll inside so header chips stay readable */
 #app.screen-decision .trophy-case:not(.empty-case),
 #app.screen-report .trophy-case:not(.empty-case) {
   max-height: 112px;
@@ -1904,13 +1894,6 @@ input[type="text"] {
   .story h2 { font-size: 18px; margin: 2px 0 2px; }
   .story.compact p { -webkit-line-clamp: 2; font-size: 12px; }
   #app.screen-decision .career-left { gap: 5px; padding: 8px; }
-  /* Rival lives in career-head — never squash on short viewports */
-  .rival-chip {
-    flex: 0 0 auto !important;
-    min-height: 2.5em;
-    height: auto !important;
-    max-height: none !important;
-  }
   #app.screen-decision .trophy-case:not(.empty-case),
   #app.screen-report .trophy-case:not(.empty-case) { max-height: 88px; }
 }
@@ -1920,7 +1903,7 @@ input[type="text"] {
   .event-hero img { max-height: 120px; }
 }
 
-/* —— Fun packs: compact narrative / meta —— */
+/* —— Fun packs: compact narrative —— */
 .season-theme {
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 800;
@@ -1944,7 +1927,6 @@ input[type="text"] {
   border-left: 3px solid #6b7280;
   padding-left: 8px;
 }
-.flavor-line.rival { color: #c4b5fd; }
 .mini-relato {
   margin: 8px 0;
   font-size: 13px;
@@ -1963,97 +1945,6 @@ input[type="text"] {
   background: rgba(245, 197, 66, .08);
   color: #f3f5f7;
 }
-.goals-strip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px;
-  margin: 6px 0 2px;
-  flex-shrink: 0;
-  min-height: 22px;
-}
-.goals-strip-lab {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--gold, #f5c542);
-  margin-right: 2px;
-}
-.goal-pill {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(245, 197, 66, .35);
-  color: #e8edf4;
-  background: rgba(245, 197, 66, .07);
-  line-height: 1.3;
-  max-width: 100%;
-}
-.goal-pill.done {
-  color: var(--green);
-  border-color: rgba(61, 214, 140, .45);
-  background: rgba(61, 214, 140, .12);
-}
-.goal-toast {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--green);
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: rgba(61, 214, 140, .1);
-  border: 1px solid rgba(61, 214, 140, .3);
-  margin: 6px 0;
-}
-.rival-chip {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 6px 8px;
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(167, 139, 250, .55);
-  background: rgba(124, 58, 237, .14);
-  margin: 4px 0 2px;
-  max-width: 100%;
-  min-width: 0;
-  /* Outside shrinking body; overflow:hidden on THIS box zeros flex min-size — ellipsis only on b */
-  flex: 0 0 auto !important;
-  flex-shrink: 0 !important;
-  height: auto !important;
-  max-height: none !important;
-  min-height: 2.5em;
-  overflow: visible;
-  box-sizing: border-box;
-  box-shadow: 0 0 0 1px rgba(124, 58, 237, .15);
-}
-.rival-chip span {
-  color: #c4b5fd; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 10px;
-  flex: 0 0 auto;
-}
-.rival-chip b {
-  color: var(--ink); font-size: 13px; line-height: 1.2;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  min-width: 0; flex: 1 1 auto;
-}
-.rival-chip em {
-  font-style: normal; font-weight: 800; font-family: "Barlow Condensed", sans-serif; font-size: 15px;
-  flex: 0 0 auto; line-height: 1;
-}
-.rival-chip .rival-gap {
-  font-style: normal;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  margin-left: auto;
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-.rival-chip.up em { color: var(--green); }
-.rival-chip.dn em { color: var(--red); }
-.rival-chip.flat em { color: #e9d5ff; }
 .pace-row { gap: 8px; }
 .pace-chip { position: relative; }
 .pace-chip.pace-rapido {
@@ -2080,33 +1971,6 @@ input[type="text"] {
   font-size: 12px;
   color: #c5ccd6;
   line-height: 1.3;
-}
-.goals-pick-block {
-  margin-top: 12px;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(245, 197, 66, .28);
-  background: rgba(245, 197, 66, .05);
-}
-.goals-pick-block .label { display: flex; align-items: baseline; gap: 8px; }
-.goals-count {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--gold, #f5c542);
-}
-.goals-lead { margin: 4px 0 8px !important; }
-.goals-pick-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.chip.goal-pick {
-  font-size: 11px;
-  padding: 6px 10px;
-  line-height: 1.25;
-  white-space: normal;
-  text-align: left;
-  max-width: 100%;
 }
 .btn.season-dl {
   background: linear-gradient(180deg, rgba(245, 197, 66, .95), rgba(214, 160, 40, .95));
@@ -2223,7 +2087,6 @@ input[type="text"] {
 .juice-toast.out { opacity: 0; transform: translateY(-4px); }
 .juice-toast.milestone { border-color: rgba(245, 197, 66, .45); color: #f5c542; }
 .juice-toast.fanfare { border-color: rgba(109, 255, 168, .4); color: #9af7c8; }
-.juice-toast.rival { border-color: rgba(255, 107, 107, .4); color: #ffb0b0; }
 .juice-toast.jackpot {
   border-color: rgba(245, 197, 66, .65);
   color: #ffe7a0;
