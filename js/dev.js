@@ -2,7 +2,14 @@
 (function (global) {
   var SS = "DEV_SANDBOX";
   var FK = "lenda_dev_flags_v1";
-  var GATE = [atob("Vmtq"), atob("MTJi"), atob("eW56"), atob("azMz"), atob("IQ==")].join("");
+  /* Unlock: SHA-256(salt|password) via Web Crypto — no plaintext password in source. */
+  var PW_SALT = "lenda.sandbox.v1";
+  var PW_HASH = "de0b2d66684740c7a808a4f7adbfcdba75362f855dfae240a2234d34c687d286";
+  var LOCK_KEY = "lenda_dev_lock_v1";
+  var MAX_FAIL = 5;
+  var LOCK_MS = 60000;
+  var failN = 0;
+  var lockUntil = 0;
 
   var tapN = 0;
   var tapAt = 0;
@@ -452,26 +459,93 @@
     toast("Janela de ouro");
   }
 
-  function tryUnlock(pw) {
-    if (pw === GATE) {
-      DEV.unlocked = true;
-      persist();
-      closeModal();
-      toast("Sandbox ON");
-      panelOpen = true;
-      render();
-      return true;
+  function loadLock() {
+    try {
+      var n = parseInt(sessionStorage.getItem(LOCK_KEY) || "0", 10);
+      if (n && n > Date.now()) lockUntil = n;
+      else sessionStorage.removeItem(LOCK_KEY);
+    } catch (e) {}
+  }
+
+  function setLock(until) {
+    lockUntil = until || 0;
+    try {
+      if (lockUntil) sessionStorage.setItem(LOCK_KEY, String(lockUntil));
+      else sessionStorage.removeItem(LOCK_KEY);
+    } catch (e) {}
+  }
+
+  function sha256Hex(str) {
+    if (!global.crypto || !crypto.subtle || !crypto.subtle.digest) {
+      return Promise.reject(new Error("subtle"));
     }
-    toast("Senha incorreta", true);
+    var data = new TextEncoder().encode(str);
+    return crypto.subtle.digest("SHA-256", data).then(function (buf) {
+      var a = new Uint8Array(buf);
+      var hex = "";
+      for (var i = 0; i < a.length; i++) {
+        var h = a[i].toString(16);
+        hex += h.length < 2 ? "0" + h : h;
+      }
+      return hex;
+    });
+  }
+
+  function clearPwField() {
     var inp = document.getElementById("dev-pw");
     if (inp) {
-      inp.classList.add("dev-shake");
-      setTimeout(function () {
-        inp.classList.remove("dev-shake");
-      }, 400);
       inp.value = "";
-      inp.focus();
+      try { inp.blur(); } catch (e) {}
     }
+  }
+
+
+  function tryUnlock(pw) {
+    loadLock();
+    if (Date.now() < lockUntil) {
+      var left = Math.ceil((lockUntil - Date.now()) / 1000);
+      toast("Aguarde " + left + "s", true);
+      clearPwField();
+      return false;
+    }
+    var typed = String(pw == null ? "" : pw);
+    clearPwField();
+    if (!typed) {
+      toast("Negado", true);
+      return false;
+    }
+    sha256Hex(PW_SALT + "|" + typed).then(function (hex) {
+      typed = "";
+      if (hex === PW_HASH) {
+        failN = 0;
+        setLock(0);
+        DEV.unlocked = true;
+        persist();
+        closeModal();
+        toast("OK");
+        panelOpen = true;
+        render();
+        return;
+      }
+      failN++;
+      if (failN >= MAX_FAIL) {
+        failN = 0;
+        setLock(Date.now() + LOCK_MS);
+        closeModal();
+        toast("Bloqueado", true);
+      } else {
+        toast("Negado", true);
+        var inp = document.getElementById("dev-pw");
+        if (inp) {
+          inp.classList.add("dev-shake");
+          setTimeout(function () { inp.classList.remove("dev-shake"); }, 400);
+          setTimeout(function () { try { inp.focus(); } catch (e) {} }, 50);
+        }
+      }
+    }).catch(function () {
+      typed = "";
+      toast("Negado", true);
+    });
     return false;
   }
 
@@ -521,7 +595,7 @@
       if (DEV.unlocked) {
         panelOpen = !panelOpen;
         mountChrome();
-        toast(panelOpen ? "Painel DEV" : "Painel fechado");
+        toast(panelOpen ? "Painel" : "Fechado");
       } else openModal();
     }
   }
@@ -895,6 +969,7 @@
   DEV.startAcademyAt = startAcademyAt;
 
   load();
+  loadLock();
   persist();
   global.DEV = DEV;
   global.devAfterRender = afterRender;

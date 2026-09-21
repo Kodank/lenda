@@ -183,9 +183,13 @@ function nationShirt(nation) {
 
 /** Default setup surname is lowercase "nome" until the player edits it. */
 function normalizePlayerName(raw) {
-  var v = String(raw == null ? "" : raw).slice(0, 12);
-  if (!v || v === "nome") return "nome";
-  return v.toUpperCase();
+  var s = String(raw == null ? "" : raw);
+  /* Strip tags/control chars; keep letters/numbers/space/hyphen/apostrophe for shirts. */
+  s = s.replace(/<[^>]*>/g, "").replace(/[\u0000-\u001F\u007F]/g, "");
+  s = s.replace(/[^\w\s\-\'À-ÖØ-öø-ÿ]/gi, "");
+  s = s.replace(/\s+/g, " ").trim();
+  if (s.length > 12) s = s.slice(0, 12);
+  return s;
 }
 
 /** Photo NT shirt + editable name/number overlay (Barlow Condensed) */

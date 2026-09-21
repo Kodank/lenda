@@ -13,3 +13,13 @@
   }
   render();
 })();
+
+/* Register SW from script (keeps CSP free of inline handlers). */
+(function registerSw() {
+  if (!("serviceWorker" in navigator)) return;
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js?v=security-1").then(function (reg) {
+      try { reg.update(); } catch (e) {}
+    }).catch(function () {});
+  });
+})();
