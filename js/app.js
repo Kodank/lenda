@@ -18,7 +18,7 @@
 (function registerSw() {
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./sw.js?v=nt-gates-1").then(function (reg) {
+    navigator.serviceWorker.register("./sw.js?v=title-scale-1").then(function (reg) {
       try { reg.update(); } catch (e) {}
     }).catch(function () {});
   });
