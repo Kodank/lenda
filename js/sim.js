@@ -28,6 +28,63 @@ function titleOvrBoost(ovr) {
   return { power: 0, cup: 0, cont: 0, cwc: 0, leagueForce: 0 };
 }
 
+
+/* Elite club sets from static CLUBS[].level (data ranking). Cached once. */
+var _eliteClubSets = null;
+function eliteClubSets() {
+  if (_eliteClubSets) return _eliteClubSets;
+  function topIds(pred, n) {
+    var list = [];
+    for (var i = 0; i < CLUBS.length; i++) {
+      var c = CLUBS[i];
+      if (pred(c)) list.push(c);
+    }
+    list.sort(function (a, b) {
+      if (b.level !== a.level) return b.level - a.level;
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+    });
+    var set = {};
+    for (var j = 0; j < list.length && j < n; j++) set[list[j].id] = 1;
+    return set;
+  }
+  function isUefaClub(c) {
+    var n = typeof nationOf === "function" ? nationOf(c.nation) : null;
+    return !!(n && n.conf === "uefa");
+  }
+  function topInNation(nation, n) {
+    return topIds(function (c) { return c.nation === nation; }, n);
+  }
+  _eliteClubSets = {
+    europeTop20: topIds(isUefaClub, 20),
+    brazilTop5: topInNation("br", 5),
+    /* CONMEBOL non-BR: top-2 per nation keeps Mundial rare outside BR giants */
+    argTop2: topInNation("ar", 2),
+    uyTop2: topInNation("uy", 2),
+    coTop2: topInNation("co", 2)
+  };
+  return _eliteClubSets;
+}
+
+function canWinUcl(club, ovr) {
+  if (!club || ovr < 90) return false;
+  return !!eliteClubSets().europeTop20[club.id];
+}
+
+/* Club World Cup gates after winning continental. Domestic leagues untouched. */
+function canWinClubWorldCup(club, ovr) {
+  if (!club) return false;
+  var elite = eliteClubSets();
+  var nat = club.nation;
+  var conf = (typeof nationOf === "function" && nationOf(nat)) ? nationOf(nat).conf : null;
+  if (nat === "br") return !!elite.brazilTop5[club.id];
+  if (conf === "uefa") return ovr >= 90;
+  if (nat === "ar") return !!elite.argTop2[club.id];
+  if (nat === "uy") return !!elite.uyTop2[club.id];
+  if (nat === "co") return !!elite.coTop2[club.id];
+  /* Other continents: rare — need strong club + high OVR */
+  return club.level >= 4.0 && ovr >= 88;
+}
+
 function simSeason(s) {
   var club = clubOf(s.clubId);
   var league = leagueOf(club.leagueId);
@@ -113,14 +170,18 @@ function simSeason(s) {
   if (s.contQual) {
     var cont = league.continental;
     var contId = cont === "lib" ? "libertadores" : cont === "ucl" ? "ucl" : cont;
+    /* UCL: only Europe top-20 by club.level + OVR >= 90. Libertadores unchanged. */
+    var canCont = !!contId;
+    if (contId === "ucl") canCont = canWinUcl(club, s.ovr);
     var cP = 0.03 + club.level * 0.025 + (s.ovr >= 86 ? 0.06 : 0) + tBoost.cont;
     if (s.ovr >= 99) cP = Math.min(0.88, Math.max(cP, 0.72));
     else if (s.ovr >= 95) cP = Math.min(0.78, cP);
-    if (contId && rnd(s) < cP) {
+    if (canCont && rnd(s) < cP) {
       trophies.push(contId);
       var cwcP = 0.22 + tBoost.cwc;
       if (s.ovr >= 99) cwcP = Math.min(0.90, cwcP);
-      if (rnd(s) < cwcP) trophies.push("clubworldcup");
+      /* Mundial: BR top-5 / Europe OVR>=90 / other CONMEBOL top-2 / else rare */
+      if (canWinClubWorldCup(club, s.ovr) && rnd(s) < cwcP) trophies.push("clubworldcup");
     }
   }
   s.contQual = leaguePos <= (league.continental === "ucl" ? 4 : 3);
