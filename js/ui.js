@@ -114,12 +114,21 @@ function ovrTlHtml(ovr, deltaHtml) {
     'max-width:100%;height:18px;line-height:1;overflow:hidden;box-sizing:border-box">' +
     ovr + (deltaHtml || "") + "</span>";
 }
-function clubNameHtml(name, cls) {
+function clubNameHtml(name, cls, opts) {
   cls = cls || "club-name";
+  opts = opts || {};
+  var compact = cls === "tl-name" || opts.compact;
+  var size = opts.size != null ? opts.size : (compact ? 11 : 15);
+  var weight = opts.weight != null ? opts.weight : (compact ? 600 : 700);
+  var lh = opts.lh || (compact ? "1.1" : "1.25");
+  var extra = compact
+    ? "max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;"
+    : "";
+  var title = opts.title ? ' title="' + esc(opts.title) + '"' : "";
   /* inline + chip: readable even if Brave auto-dark inverts fill */
-  return '<span class="' + cls + '" style="color:#f4f6f8 !important;-webkit-text-fill-color:#f4f6f8 !important;' +
+  return '<span class="' + cls + '"' + title + ' style="color:#f4f6f8 !important;-webkit-text-fill-color:#f4f6f8 !important;' +
     'forced-color-adjust:none;filter:none;opacity:1;display:inline-block;' +
-    'font-weight:700;font-size:15px;line-height:1.25;letter-spacing:.01em">' +
+    'font-weight:' + weight + ';font-size:' + size + 'px;line-height:' + lh + ';letter-spacing:.01em;' + extra + '">' +
     esc(name) + "</span>";
 }
 
@@ -608,7 +617,8 @@ function timelineHtml(s, hiN, choosing) {
       html += '<div class="tl-row filled' + (hi ? " hi" : "") + (cups.length ? " won" : "") +
         (r.delta > 0 ? " ovr-up" : r.delta < 0 ? " ovr-dn" : "") + '">' +
         '<span class="tl-age">' + age + "</span>" +
-        '<span class="tl-club">' + imgCrest(club.crest, 'tl-crest', club.name) + clubNameHtml(club.name, "tl-name") + cupDot + "</span>" +
+        '<span class="tl-club" title="' + esc(club.name) + '">' + imgCrest(club.crest, 'tl-crest', club.name) +
+        clubNameHtml(clubDisplayName(club, true), "tl-name", { title: club.name }) + cupDot + "</span>" +
         ovrTlHtml(r.ovr, dlt) +
         '<span class="tl-n">' + r.apps + "</span>" +
         '<span class="tl-n">' + g + "</span>" +

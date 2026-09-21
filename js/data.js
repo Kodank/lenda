@@ -427,3 +427,53 @@ function resolveEventImg(ev) {
   if (themes[0]) return choiceThemeImg(themes[0]);
   return choiceThemeImg(ev.id || "default");
 }
+
+
+/* Compact career-timeline labels — only widely-known shorts / common forms */
+var CLUB_DISPLAY_SHORT = {
+  psg: "PSG",
+  mun: "Man United",
+  mci: "Man City",
+  atm: "Atlético",
+  bvb: "Dortmund",
+  rbb: "Bragantino",
+  nal: "Atl. Nacional",
+  yok: "Yokohama FM",
+  nfo: "Nott'm Forest",
+  cry: "Palace",
+  vgu: "Guimarães",
+  ath: "Athletic",
+  kaw: "Kawasaki",
+  sea: "Sounders",
+  amea: "América",
+  amec: "América Cali",
+  dep: "Dep. Cali",
+  az: "AZ",
+  rso: "Sociedad",
+  kas: "Kashima",
+  atl: "Atlanta",
+  rivu: "River UY",
+  gen: "Génération",
+  boc: "Boca"
+};
+
+(function applyClubShortLabels() {
+  if (typeof CLUBS === "undefined" || !CLUBS) return;
+  for (var i = 0; i < CLUBS.length; i++) {
+    var c = CLUBS[i];
+    if (!c || !c.id) continue;
+    if (c.displayShort || c.short) continue;
+    if (CLUB_DISPLAY_SHORT[c.id]) c.short = CLUB_DISPLAY_SHORT[c.id];
+  }
+})();
+
+/** Compact label for dense UI (timeline); full name elsewhere. */
+function clubDisplayName(club, compact) {
+  if (!club) return "";
+  if (compact) {
+    if (club.displayShort) return club.displayShort;
+    if (club.short) return club.short;
+    if (club.id && CLUB_DISPLAY_SHORT[club.id]) return CLUB_DISPLAY_SHORT[club.id];
+  }
+  return club.name || "";
+}
