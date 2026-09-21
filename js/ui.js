@@ -166,7 +166,7 @@ function nationShirt(nation) {
   var map = (typeof NATION_SHIRT !== "undefined" && NATION_SHIRT) || {};
   var base = map[nation] || { shirt: "img/shirts/br.png", ink: "#186531", inkShadow: "rgba(0,0,0,.22)" };
   return {
-    shirt: base.shirt + (base.shirt.indexOf("?") >= 0 ? "&" : "?") + "v=shirts-png-1",
+    shirt: base.shirt + (base.shirt.indexOf("?") >= 0 ? "&" : "?") + "v=camisa-setup-1",
     ink: base.ink || "#111111",
     inkShadow: base.inkShadow || "rgba(0,0,0,.25)"
   };
@@ -181,11 +181,27 @@ function shirtHtml(c1, c2, number, name, nation) {
   var sh = kit.inkShadow;
   return '<div class="shirt-stage" aria-hidden="true">' +
     '<div class="shirt-photo">' +
-    '<img class="shirt-img" src="' + kit.shirt + '" alt="" draggable="false">' +
+    '<img class="shirt-img" src="' + kit.shirt + '" alt="" draggable="false" decoding="async">' +
     '<div class="shirt-lettering" style="color:' + ink + ';text-shadow:0 1px 2px ' + sh + '">' +
     '<span class="shirt-name">' + nm + "</span>" +
     '<span class="shirt-num">' + num + "</span>" +
     "</div></div></div>";
+}
+
+/** Shrink long surnames to fit the lettering band without making short names tiny. */
+function fitShirtNames() {
+  document.querySelectorAll(".shirt-lettering").forEach(function (box) {
+    var name = box.querySelector(".shirt-name");
+    if (!name) return;
+    name.style.transform = "";
+    name.style.fontSize = "";
+    var max = box.clientWidth;
+    if (!max) return;
+    var overflow = name.scrollWidth - max;
+    if (overflow <= 1) return;
+    var scale = Math.max(0.55, max / name.scrollWidth);
+    name.style.transform = "scale(" + scale.toFixed(3) + ")";
+  });
 }
 
 function trophyCaseHtml(s) {
@@ -270,6 +286,8 @@ function render() {
   root.className = "screen-" + UI.screen + (UI.screen === "create" ? " step-" + ((UI.draft && UI.draft.step) || 0) : "");
   bind();
   enforceLightInk();
+  fitShirtNames();
+  requestAnimationFrame(fitShirtNames);
   if (typeof JUICE !== "undefined") {
     JUICE.bindSoundToggle();
     if (UI.screen === "report" && S) {
@@ -1002,6 +1020,7 @@ function syncShirtTexts() {
   if (el) el.textContent = UI.draft.name || "SILVA";
   var numEl = document.querySelector(".shirt-num");
   if (numEl) numEl.textContent = String(UI.draft.number);
+  fitShirtNames();
 }
 
 function bind() {
@@ -1018,7 +1037,13 @@ function bind() {
     };
   });
   document.querySelectorAll("[data-nation]").forEach(function (b) {
-    b.onclick = function () { UI.draft.nation = b.getAttribute("data-nation"); render(); };
+    b.onclick = function () {
+      if (!UI.draft) return;
+      var id = b.getAttribute("data-nation");
+      if (!id) return;
+      UI.draft.nation = id;
+      render();
+    };
   });
   document.querySelectorAll("[data-pos]").forEach(function (b) {
     b.onclick = function () { UI.draft.pos = b.getAttribute("data-pos"); render(); };

@@ -178,7 +178,7 @@ input[type="text"] {
 .shirt-photo {
   position: relative;
   width: min(220px, 72vw);
-  aspect-ratio: 720 / 840;
+  aspect-ratio: 720 / 852;
   filter: drop-shadow(0 18px 26px rgba(0, 0, 0, .55));
 }
 .shirt-photo .shirt-img {
@@ -192,14 +192,14 @@ input[type="text"] {
 .shirt-lettering {
   position: absolute;
   left: 50%;
-  top: 22%;
-  width: 58%;
+  top: 28%;
+  width: 68%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 0;
+  gap: 1%;
   font-family: "Barlow Condensed", "Arial Black", sans-serif;
   font-weight: 800;
   line-height: 1;
@@ -208,34 +208,36 @@ input[type="text"] {
 }
 .shirt-lettering .shirt-name {
   display: block;
-  font-size: clamp(11px, 3.6vw, 15px);
-  letter-spacing: 0.22em;
-  text-indent: 0.22em;
+  font-size: clamp(16px, 5.4vw, 24px);
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
   text-transform: uppercase;
   max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
-  margin-bottom: 2%;
+  margin-bottom: 1%;
+  transform-origin: center top;
 }
 .shirt-lettering .shirt-num {
   display: block;
-  font-size: clamp(52px, 18vw, 78px);
+  font-size: clamp(72px, 26vw, 104px);
   letter-spacing: -0.02em;
-  line-height: 0.9;
+  line-height: 0.86;
 }
 .shirt-mini { display: flex; justify-content: center; align-items: flex-start; }
 .shirt-mini .shirt-photo {
   width: 132px;
   filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .45));
 }
-.shirt-mini .shirt-lettering .shirt-name { font-size: 9px; letter-spacing: 0.18em; text-indent: 0.18em; }
-.shirt-mini .shirt-lettering .shirt-num { font-size: 44px; }
+.shirt-mini .shirt-lettering { top: 28%; width: 68%; }
+.shirt-mini .shirt-lettering .shirt-name { font-size: 11px; letter-spacing: 0.16em; text-indent: 0.16em; }
+.shirt-mini .shirt-lettering .shirt-num { font-size: 52px; }
 
 @media (max-width: 520px) {
-  .shirt-photo { width: min(200px, 68vw); }
-  .shirt-lettering { top: 21%; width: 60%; }
-  .shirt-lettering .shirt-name { font-size: 12px; }
-  .shirt-lettering .shirt-num { font-size: 58px; }
+  .shirt-photo { width: min(210px, 72vw); }
+  .shirt-lettering { top: 27%; width: 70%; }
+  .shirt-lettering .shirt-name { font-size: 18px; }
+  .shirt-lettering .shirt-num { font-size: 80px; }
 }
 
 .field-grid {
@@ -1295,7 +1297,6 @@ input[type="text"] {
   }
   .timeline-panel { max-height: 420px; height: 420px; }
   .nation-split, .pos-split { grid-template-columns: 1fr; }
-  .shirt-mini { display: none; }
   .field-grid { grid-template-columns: 1fr; }
 }
 
@@ -1359,7 +1360,20 @@ input[type="text"] {
   .pos-split {
     grid-template-columns: 1fr;
   }
-  .shirt-mini { display: none; }
+  /* Keep kit preview visible while picking nationality/position on phones
+     (previous display:none made nation changes look broken on mobile). */
+  .nation-split .shirt-mini,
+  .pos-summary .shirt-mini {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin: 0 0 10px;
+  }
+  .nation-split .shirt-mini .shirt-photo,
+  .pos-summary .shirt-mini .shirt-photo {
+    width: min(156px, 46vw);
+  }
+  .nation-panel { width: 100%; }
   .field-grid { grid-template-columns: 1fr; }
   .academy-grid { grid-template-columns: 1fr; }
   .trophy-pop {
