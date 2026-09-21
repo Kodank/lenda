@@ -86,7 +86,7 @@
     if (typeof clampOvrToDestiny === "function") S.ovr = clampOvrToDestiny(S, S.ovr);
     S.peakOvr = Math.max(S.peakOvr || 0, S.ovr);
     S.role = roleOf(S, clubOf(S.clubId));
-    S.value = marketValue(S);
+    applyMarketValue(S);
     refresh();
     toast("OVR " + S.ovr + " / Pot " + S.pot);
   }
@@ -99,7 +99,7 @@
     }
     var d = applyDestiny(S, id);
     S.role = roleOf(S, clubOf(S.clubId));
-    S.value = marketValue(S);
+    applyMarketValue(S);
     refresh();
     toast("Destino: " + d.label + " (teto " + d.ovrSoftCap + ")");
   }
@@ -426,7 +426,7 @@
     S.traits = S.traits || {};
     S.traits.discipline = 85;
     S.role = roleOf(S, clubOf(S.clubId));
-    S.value = marketValue(S);
+    applyMarketValue(S);
     refresh();
     toast("Apice maximo");
   }

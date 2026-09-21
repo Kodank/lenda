@@ -945,7 +945,7 @@ function viewLegacy() {
     '<span class="cc-pill pos">' + esc(pos.short) + "</span>" +
     "</div></div>" +
     '<div class="cc-player-right">' +
-    '<div class="cc-value"><span>VALOR</span><b>' + fmtMoney(s.value) + "</b></div>" +
+    '<div class="cc-value"><span>VALOR</span><b>' + fmtMoney(peakMarketValue(s)) + "</b></div>" +
     ovrBadgeHtml(s.peakOvr, "OVR") +
     "</div></div>" +
     (function () {

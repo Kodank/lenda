@@ -136,7 +136,7 @@ function drawCareerCompleteCanvas(s) {
   ctx.fillText("VALOR", xPlayer + wPlayer - 86, y0 + 50);
   ctx.fillStyle = "#f4f6f8";
   ctx.font = "800 22px Barlow Condensed, sans-serif";
-  ctx.fillText(fmtMoney(s.value), xPlayer + wPlayer - 86, y0 + 74);
+  ctx.fillText(fmtMoney(peakMarketValue(s)), xPlayer + wPlayer - 86, y0 + 74);
   ctx.textAlign = "left";
   drawOvrBadge(ctx, xPlayer + wPlayer - 78, y0 + 38, s.peakOvr);
   var careerSt = gkAwareStats(s, s.career.apps, s.career.goals, s.career.assists, resolveGkSaves(s.career), s.career.ga);

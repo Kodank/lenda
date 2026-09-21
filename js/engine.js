@@ -146,6 +146,48 @@ function marketValue(s) {
   return Math.round(v / 50000) * 50000;
 }
 
+/* Best historical / derived peak from seasons (for legacy saves without peakValue). */
+function historicalPeakValue(s) {
+  if (!s) return 0;
+  var peak = 0;
+  var seasons = s.seasons || [];
+  var i;
+  for (i = 0; i < seasons.length; i++) {
+    if (seasons[i].value != null) peak = Math.max(peak, seasons[i].value);
+  }
+  var best = null;
+  for (i = 0; i < seasons.length; i++) {
+    var se = seasons[i];
+    if (!best || (se.ovr || 0) > (best.ovr || 0)) best = se;
+  }
+  var ovr = (best && best.ovr) || s.peakOvr || s.ovr;
+  if (ovr) {
+    var age = best && best.age != null ? best.age : Math.min(s.age || 27, 27);
+    var clubId = (best && best.clubId) || s.clubId;
+    peak = Math.max(peak, marketValue({
+      ovr: ovr,
+      age: age,
+      pos: s.pos,
+      clubId: clubId,
+      _rescindLevel: s._rescindLevel
+    }));
+  }
+  return peak;
+}
+
+/* Recalc current value and keep running career peak (apex record). */
+function applyMarketValue(s) {
+  s.value = marketValue(s);
+  s.peakValue = Math.max(s.peakValue || 0, s.value || 0, historicalPeakValue(s));
+  return s.value;
+}
+
+/* Career-complete / card: show peak market value, not end-of-career decline. */
+function peakMarketValue(s) {
+  if (!s) return 0;
+  return Math.max(s.peakValue || 0, s.value || 0, historicalPeakValue(s));
+}
+
 function fmtMoney(n) {
   if (n >= 1e9) {
     var bi = n / 1e9;
@@ -275,6 +317,7 @@ function newCareer(draft) {
     coach: 50,
     traits: { loyalty: 50, ambition: 50, discipline: 50, resilience: 50 },
     value: 250000,
+    peakValue: 250000,
     wage: 800,
     clubId: null,
     loanFrom: null,

@@ -41,7 +41,7 @@ function signAcademy(s, clubId) {
   /* Pot sobe com a academia, mas não passa do teto do destino. */
   s.pot = clampPotToDestiny(s, s.pot + Math.round((club.level - 3.2) * 1.2));
   s.role = roleOf(s, club);
-  s.value = marketValue(s);
+  applyMarketValue(s);
   s.clubs = [{ id: clubId, from: s.year }];
 }
 
@@ -164,7 +164,7 @@ function releaseToFreeAgent(s) {
   s.role = "bench";
   s.coach = clamp((s.coach || 40) - 12, 10, 70);
   s.confidence = clamp((s.confidence || 50) - 8, 15, 100);
-  s.value = marketValue(s);
+  applyMarketValue(s);
 }
 
 function currentClubLevel(s) {
@@ -1132,7 +1132,7 @@ function moveTo(s, club) {
   s._rescindName = null;
   s.coach = clamp(40 + rnd(s) * 20, 30, 70);
   s.role = roleOf(s, club);
-  s.value = marketValue(s);
+  applyMarketValue(s);
 }
 
 function loanTo(s, club) {

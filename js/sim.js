@@ -223,6 +223,7 @@ function simSeason(s) {
     }
   }
 
+  applyMarketValue(s);
   var season = {
     age: s.age,
     year: s.year,
@@ -254,7 +255,6 @@ function simSeason(s) {
   if (!s.clubs.length || s.clubs[s.clubs.length - 1].id !== s.clubId) {
     s.clubs.push({ id: s.clubId, from: s.year });
   }
-  s.value = marketValue(s);
   if (typeof afterSeasonFun === "function") afterSeasonFun(s, season);
   s.year++;
   s.age++;
