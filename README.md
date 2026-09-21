@@ -1,67 +1,48 @@
 # Lenda
 
-Simulador de carreira de jogador de futebol no navegador (pt-BR).
+Simulador de carreira de jogador de futebol no navegador (**pt-BR**).
 
-Cria o jogador (país, posição, camisa, perna), escolhe a base, decide a cada ~2 temporadas e termina num quadro com as cores e o escudo do clube.
+Cria o jogador, escolhe a base, decide temporada a temporada e fecha com um quadro da carreira (clubes, taças, seleção, prêmios).
 
-## Abrir
+**Jogar:** https://kodank.github.io/lenda/
 
-**Windows:** dois cliques em `abrir.bat` (sobe um servidor local na porta 8765).
+Inspiração de UX: simuladores no estilo [Copero](https://copero.com.ar/juegos/simulador-carrera) — sem copiar assets ou código proprietários.
 
-**Qualquer SO:**
+---
+
+## Como jogar
+
+1. Abra o link acima no PC ou no celular.
+2. No celular: menu do navegador → **Adicionar à tela inicial** (PWA leve).
+3. Depois de atualizações no site, faça um hard refresh se a versão antiga ficar em cache.
+
+### Rodar local (opcional)
 
 ```bash
-cd lenda-repo
 python3 -m http.server 8765
 ```
 
-Abra http://localhost:8765
+Abra http://localhost:8765  
+No Windows também dá para usar `abrir.bat`. Evite abrir via `file://`.
 
-Ou, se já houver um servidor nessa pasta, abra `index.html` via esse servidor (evite `file://` por causa de alguns browsers com módulos/assets).
+---
 
+## O que tem
 
-## Celular / PWA
+- Setup em etapas: **país → camisa → posição → base**
+- Carreira 16–40 anos, com empréstimos no começo, transferências e eventos
+- Taças, bandeiras e escudos reais; resumo final para baixar
+- Modo DEV (sandbox) para testes
 
-1. No PC, suba o servidor (`abrir.bat` no Windows, ou `./abrir-mobile.sh` / `python3 -m http.server 8765`).
-2. Celular e PC na **mesma Wi‑Fi**.
-3. No telefone, abra `http://<IP-do-PC>:8765/` (o `abrir.bat` / `abrir-mobile.sh` imprime o IP).
-4. No navegador: **Adicionar à tela inicial** / Instalar app (usa `manifest.webmanifest` + service worker leve).
+---
 
-Layout empilha o painel da carreira e a timeline em telas ≤900px; alvos de toque ≥44px. Desktop permanece em duas colunas.
-
-## Smoke test
+## Dev
 
 ```bash
 node tools/smoke.js
+python3 tools/smoke_trophies.py
 ```
 
-## Changelog (destaque)
+Fontes das imagens de taças: [`tools/TROPHY_SOURCES.md`](tools/TROPHY_SOURCES.md)
 
-- Ofertas de academia: 3 clubes **aleatórios** da nacionalidade escolhida (nunca estrangeiros)
-- Taças com nomes reais por competição (Brasileirão, Premier League, La Liga, FA Cup, Copa do Brasil, etc.)
-- Popup animado a cada conquista (liga/copa/continental/seleção/prêmios) no fim da temporada
-- Timeline fixa 24 linhas (16–39): densas, scroll interno; botões de decisão ficam visíveis
-- Botão **Aposentar** a partir dos 35; aposentadoria forçada só aos 40
-- Camisa SVG flat ilustrada estilo Copero (cores/padrões da seleção, gola/punhos, vincos sutis)
-- Bandeiras PNG reais (flagcdn) em `img/flags/`
-- Escudos PNG locais; logos de liga nas ofertas e na timeline
-- Progressão rebalanceada; eventos com risco/recompensa; UI escura estilo carreira
-
-
-Inspiração de UX: simuladores de carreira no estilo Copero — sem copiar assets/código proprietários.
-
-## Fontes das imagens de taças (`img/trophies/`)
-
-Uma PNG canônica por ID em `TROPHIES` (`js/data.js`). Preferência: fotos reais com fundo removido.
-
-Ver tabela completa em [`tools/TROPHY_SOURCES.md`](tools/TROPHY_SOURCES.md).
-
-Smoke: `python3 tools/smoke_trophies.py` (garante hashes únicos entre IDs diferentes).
-
-
-
-## Online (celular sem PC)
-
-Site: **https://kodank.github.io/lenda/**
-
-No celular: abra o link → menu do navegador → **Adicionar à tela inicial** / Instalar app.
+Repo: [github.com/Kodank/lenda](https://github.com/Kodank/lenda)
