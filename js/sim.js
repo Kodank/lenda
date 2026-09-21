@@ -474,13 +474,15 @@ function simNational(s) {
       Math.round(out.ga * 1.4)
     );
   }
-  if (isWC && starter && s.ovr >= 84) {
-    var wcP = 0.14 + (s.ovr - 84) * 0.018;
+  /* World Cup: OVR acima de 85 → >= 86. Continental NT cups: acima de 83 → >= 84. */
+  if (isWC && starter && s.ovr >= 86) {
+    var wcP = 0.14 + (s.ovr - 86) * 0.018;
     if (s.ovr >= 95) wcP += 0.22;
     if (s.ovr >= 99) wcP += 0.28;
     if (rnd(s) < Math.min(0.92, wcP)) out.trophies.push("worldcup");
   }
-  if (isCont && starter && s.ovr >= 80) {
+  if (isCont && starter && s.ovr >= 84) {
+    /* Existing NT continental trophy ids: euro, copaamerica (other confs have no NT cup trophy yet). */
     var tid = nat.conf === "uefa" ? "euro" : nat.conf === "conmebol" ? "copaamerica" : null;
     var contNatP = 0.16 + Math.max(0, s.ovr - 84) * 0.012;
     if (s.ovr >= 95) contNatP += 0.18;
