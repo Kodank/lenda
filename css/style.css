@@ -210,8 +210,8 @@ input[type="text"] {
 .shirt-lettering .shirt-name {
   display: block;
   /* Large plain px first so mobile browsers that ignore cqh still look huge */
-  font-size: 44px;
-  font-size: clamp(40px, 14cqh, 52px);
+  font-size: 38px;
+  font-size: clamp(34px, 12cqh, 44px);
   letter-spacing: 0.08em;
   text-indent: 0.08em;
   text-transform: uppercase;
@@ -236,8 +236,8 @@ input[type="text"] {
 }
 .shirt-mini .shirt-lettering { top: 24%; width: 80%; }
 .shirt-mini .shirt-lettering .shirt-name {
-  font-size: 24px;
-  font-size: clamp(22px, 12cqh, 28px);
+  font-size: 20px;
+  font-size: clamp(18px, 10cqh, 24px);
   letter-spacing: 0.08em;
   text-indent: 0.08em;
 }
@@ -261,8 +261,8 @@ input[type="text"] {
   .shirt-panel .shirt-lettering .shirt-name,
   .focus-shirt .shirt-lettering .shirt-name,
   .shirt-mini .shirt-lettering .shirt-name {
-    font-size: 42px;
-    font-size: clamp(38px, 13cqh, 48px);
+    font-size: 36px;
+    font-size: clamp(32px, 11cqh, 42px);
     letter-spacing: 0.06em;
     text-indent: 0.06em;
   }
@@ -279,8 +279,8 @@ input[type="text"] {
   }
   .nation-split .shirt-mini .shirt-lettering .shirt-name,
   .pos-summary .shirt-mini .shirt-lettering .shirt-name {
-    font-size: 28px;
-    font-size: clamp(24px, 12cqh, 32px);
+    font-size: 24px;
+    font-size: clamp(20px, 10cqh, 28px);
   }
   .nation-split .shirt-mini .shirt-lettering .shirt-num,
   .pos-summary .shirt-mini .shirt-lettering .shirt-num {
@@ -296,7 +296,7 @@ input[type="text"] {
   }
   .shirt-panel .shirt-lettering .shirt-name,
   .focus-shirt .shirt-lettering .shirt-name {
-    font-size: 40px;
+    font-size: 34px;
   }
   .shirt-panel .shirt-lettering .shirt-num,
   .focus-shirt .shirt-lettering .shirt-num {
@@ -308,7 +308,7 @@ input[type="text"] {
   }
   .nation-split .shirt-mini .shirt-lettering .shirt-name,
   .pos-summary .shirt-mini .shirt-lettering .shirt-name {
-    font-size: 26px;
+    font-size: 22px;
   }
   .nation-split .shirt-mini .shirt-lettering .shirt-num,
   .pos-summary .shirt-mini .shirt-lettering .shirt-num {
