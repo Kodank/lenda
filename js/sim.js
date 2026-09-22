@@ -327,6 +327,7 @@ function simSeason(s) {
     role: role,
     ovr: s.ovr,
     delta: s.ovr - prev,
+    prodigyLeap: s._prodigyLeap || 0,
     value: s.value,
     apps: apps,
     goals: goals,
@@ -352,6 +353,10 @@ function simSeason(s) {
   /* Promo/releg before theme so Acesso/Rebaixamento can own themeTitle */
   if (typeof resolveDivisionChange === "function" && !suspended) {
     resolveDivisionChange(s, season, club, league);
+  }
+  if (s._prodigyLeap) {
+    season.themeTitle = season.themeTitle || "Explosão de prodígio";
+    delete s._prodigyLeap;
   }
   s.seasons.push(season);
   if (!s.clubs.length || s.clubs[s.clubs.length - 1].id !== s.clubId) {
@@ -416,6 +421,20 @@ function developOvr(s, role, apps, games, inj) {
   if ((role === "starter" || role === "star") && age <= 22 && room > 6 && rnd(s) < 0.14) d += 1.2;
   /* faísca rara de pico se o potencial já foi aberto (eventos de salto) */
   if (s.pot >= 94 && age >= 22 && age <= 30 && room > 2 && (role === "starter" || role === "star") && rnd(s) < 0.08) d += 1.6;
+
+  /* Prodígio: nas 1ªs temporadas (16–20) pode estourar ~+9 a +12 OVR (limitado pelo room). */
+  if (s.prodigy && age <= 20 && (s.prodigyBursts || 0) > 0 && room >= 6) {
+    var burstP = age <= 17 ? 0.62 : age <= 18 ? 0.5 : 0.38;
+    if (rnd(s) < burstP) {
+      s.prodigyBursts = (s.prodigyBursts || 1) - 1;
+      var leap = 9 + rnd(s) * 3.2; /* ~9–12 */
+      d = Math.min(leap, room + 1.2);
+      s._prodigyLeap = Math.round(d);
+    }
+  } else if (!s.prodigy && age <= 19 && room > 14 && rnd(s) < 0.018) {
+    /* faísca rara sem ser "prodígio" marcado — bem mais fraca */
+    d = Math.max(d, 6 + rnd(s) * 2);
+  }
   if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.godGrowth) {
     if (d > 0) d = d * 1.85 + 0.6;
     else d = d * 0.25;

@@ -182,6 +182,7 @@ function pickSeasonTheme(s, season) {
   else if ((season.awards || []).length) pool = SEASON_THEMES.awards;
   else if ((season.trophies || []).length >= 1) pool = SEASON_THEMES.titles;
   else if (season.derby) pool = SEASON_THEMES.derby;
+  else if (season.prodigyLeap || (season.delta || 0) >= 9) pool = SEASON_THEMES.breakthrough;
   else if ((season.delta || 0) >= 3) pool = SEASON_THEMES.breakthrough;
   else if ((season.delta || 0) <= -2) pool = SEASON_THEMES.decline;
   else if ((s.form || 50) < 40) pool = SEASON_THEMES.crisis;

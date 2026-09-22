@@ -19,7 +19,7 @@
 
   var DEV = {
     unlocked: false,
-    flags: { ignoreInjury: false, alwaysTransfers: false, godGrowth: false, forceRescind: false, forceSubstances: false, nextDestiny: null },
+    flags: { ignoreInjury: false, alwaysTransfers: false, godGrowth: false, forceRescind: false, forceSubstances: false, forceProdigy: false, nextDestiny: null },
     on: function () { return !!DEV.unlocked; }
   };
 
@@ -33,6 +33,7 @@
           DEV.flags.ignoreInjury = !!f.ignoreInjury;
           DEV.flags.alwaysTransfers = !!f.alwaysTransfers;
           DEV.flags.godGrowth = !!f.godGrowth;
+          DEV.flags.forceProdigy = !!f.forceProdigy;
           DEV.flags.nextDestiny = f.nextDestiny && DESTINY[f.nextDestiny] ? f.nextDestiny : null;
         }
       }
@@ -881,6 +882,7 @@
     flag("dev-f-inj", "ignoreInjury", "Ignorar lesao");
     flag("dev-f-tr", "alwaysTransfers", "Sempre ofertas");
     flag("dev-f-god", "godGrowth", "God growth");
+    flag("dev-f-prodigy", "forceProdigy", "Prox. carreira = prodígio");
 
     Array.prototype.forEach.call(panel.querySelectorAll("[data-dev]"), function (b) {
       b.onclick = function () {

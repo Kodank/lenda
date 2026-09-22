@@ -8,6 +8,7 @@ var START_AGE = 16;
  * Destino oculto da carreira (rolado 1x no create).
  * Não aparece na UI normal — só tetos/portas; escolhas ainda importam dentro da faixa.
  * Pesos: 25% ruim · 35% medíocre · 25% muito boa · 15% extraordinária.
+ * Prodígio (oculto): chance extra no create — saltos ~+10 OVR nas 1ªs temporadas.
  */
 var DESTINY_IDS = ["ruim", "mediocre", "muito_boa", "extraordinaria"];
 var DESTINY = {
@@ -27,7 +28,8 @@ var DESTINY = {
     balonMul: 0.04,
     botaMul: 0.2,
     rareMul: 0.35,
-    breakMul: 0.4
+    breakMul: 0.4,
+    prodigyChance: 0.03
   },
   mediocre: {
     id: "mediocre",
@@ -45,7 +47,8 @@ var DESTINY = {
     balonMul: 0.12,
     botaMul: 0.4,
     rareMul: 0.55,
-    breakMul: 0.6
+    breakMul: 0.6,
+    prodigyChance: 0.07
   },
   muito_boa: {
     id: "muito_boa",
@@ -63,7 +66,8 @@ var DESTINY = {
     balonMul: 0.85,
     botaMul: 0.9,
     rareMul: 1,
-    breakMul: 1
+    breakMul: 1,
+    prodigyChance: 0.14
   },
   extraordinaria: {
     id: "extraordinaria",
@@ -81,7 +85,8 @@ var DESTINY = {
     balonMul: 1,
     botaMul: 1,
     rareMul: 1.15,
-    breakMul: 1
+    breakMul: 1,
+    prodigyChance: 0.22
   }
 };
 

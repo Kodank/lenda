@@ -483,6 +483,8 @@ function newCareer(draft) {
     attrs: attrs,
     ovr: START_OVR,
     pot: pot,
+    prodigy: false,
+    prodigyBursts: 0,
     peakOvr: START_OVR,
     age: START_AGE,
     year: START_YEAR,
@@ -523,6 +525,22 @@ function newCareer(draft) {
     farewellBonus: 0
   };
   s.ovr = computeOvr(s.attrs, s.pos);
+  
+  /* Prodígio oculto: chance por destino; 2–3 saltos grandes até os ~20 anos. */
+  var pChance = dest.prodigyChance != null ? dest.prodigyChance : 0.06;
+  if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags && DEV.flags.forceProdigy) {
+    pChance = 1;
+    DEV.flags.forceProdigy = false;
+  }
+  if (rnd() < pChance) {
+    s.prodigy = true;
+    s.prodigyBursts = 2 + (rnd() < 0.45 ? 1 : 0);
+    /* puxa pot pra faixa alta do destino — espaço pra explodir cedo */
+    s.pot = clampPotToDestiny(s, Math.max(s.pot, Math.round((dest.potLo + dest.potHi) / 2 + 2)));
+    touchTrait(s.traits, "ambition", 8);
+    s.confidence = clamp((s.confidence || 55) + 8, 15, 100);
+  }
+
   return s;
 }
 
