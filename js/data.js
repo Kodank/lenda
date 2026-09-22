@@ -41,7 +41,7 @@ var DESTINY = {
     ovrSoftCap: 88,
     maxStage: "world",
     maxClubLevel: 4.55,
-    top10Mul: 0.28,
+    top10Mul: 0.72,
     top5Mul: 0.05,
     wonderkidMul: 0.35,
     balonMul: 0.12,

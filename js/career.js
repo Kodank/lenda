@@ -380,7 +380,7 @@ function isWonderkid(s) {
 function marketStage(s) {
   var stage;
   if (s.ovr >= 89) stage = "elite";   /* top-5 offers guaranteed */
-  else if (s.ovr >= 85) stage = "world";   /* chance of top-10 */
+  else if (s.ovr >= 85) stage = "world";   /* top-10 chance; strong from 87 */
   else if (isWonderkid(s)) stage = "wonderkid"; /* rare: big Europe may call early */
   else if (s.ovr >= 78 && s.age >= 22) stage = "open"; /* mid: other continents ok */
   else stage = "home"; /* early / low OVR: same continent (or country) only */
@@ -854,11 +854,24 @@ function pickOffers(s, n) {
   });
   top5 = shuffled(top5, s);
   top10 = shuffled(top10, s);
-  /* Base ~0.30: "um pouco difícil" em 85; mul do destino escala. */
+  /* World (85–88): chance sobe com OVR — em 87+ deve sentir top-10 de verdade.
+     Destino ainda escala via mul (medíocre não = extraordinária). */
   var dMul = dGate;
-  var pTop5 = 0.3 * (dMul.top5Mul != null ? dMul.top5Mul : 1);
-  var pTop10 = 0.3 * (dMul.top10Mul != null ? dMul.top10Mul : 1);
+  var worldT = 0;
+  if (stage === "world") {
+    worldT = (s.ovr - 85) / 3;
+    if (worldT < 0) worldT = 0;
+    if (worldT > 1) worldT = 1;
+  }
+  var baseTop10 = stage === "world" ? (0.42 + 0.36 * worldT) : 0.32; /* ~42%@85 → ~66%@87 → 78%@88 */
+  var pTop5 = 0.34 * (dMul.top5Mul != null ? dMul.top5Mul : 1);
+  var pTop10 = baseTop10 * (dMul.top10Mul != null ? dMul.top10Mul : 1);
   var pWk = 0.62 * (dMul.wonderkidMul != null ? dMul.wonderkidMul : 1);
+  /* Em 87+ world: piso pra não “sumir” top-10 em destino medíocre. */
+  if (stage === "world" && s.ovr >= 87) {
+    var floor87 = 0.48 * Math.min(1, (dMul.top10Mul != null ? dMul.top10Mul : 1) / 0.55);
+    if (pTop10 < floor87) pTop10 = floor87;
+  }
   /* Elite rolls never fire under the ovr < 70 single-country lock. */
   if (!earlyCountryLock(s)) {
     if (stage === "elite" && top5[0]) {
