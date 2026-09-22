@@ -81,3 +81,6 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 - `copa_col`: TheSportsDB Copa Colombia trophy cutout
 - Display remap: legacy `ucl` → acl/caf/concacaf/libertadores by nation.conf for non-UEFA clubs
 - SOURCE `js/world.js` league.trophy: usa→mls, jpn→j1, mex→liga_mx, nga→npfl, sen→senliga, uy→uruprimera, col→colbetplay
+| `npfl` | Silver football cup (TheSportsDB Ghanaian Premier League trophy `5p82xy1758093176`) — no official NPFL cutout exists; previous asset was a team photo |
+| `concacaf` | Wikimedia Commons museum photo of 1972 CONCACAF Champions' Cup (CD Olimpia) + rembg; cache `npfl-concacaf-2` |
+
