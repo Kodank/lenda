@@ -10,7 +10,7 @@ var NATION_KIT = {
 
 function crestSrc(path) {
   var p = path || "img/clubs/fla.png";
-  return p + (p.indexOf("?") >= 0 ? "&" : "?") + "v=crests-fix-1";
+  return p + (p.indexOf("?") >= 0 ? "&" : "?") + "v=assets-fix-2";
 }
 
 function crestInitials(name) {
@@ -251,7 +251,8 @@ function trophyCaseHtml(s) {
     return '<div class="trophy-case empty-case"><div class="case-label">VITRINE VAZIA</div><div class="case-ghost">🏆</div></div>';
   }
   var cells = ids.map(function (id) {
-    var meta = trophyOf(id);
+    var rid = displayTrophyId(id, s);
+    var meta = trophyOf(rid);
     var n = seen[id];
     return '<div class="case-item"><img src="' + meta.img + '" alt=""><span>' + esc(meta.name) + (n > 1 ? " ×" + n : "") + "</span></div>";
   }).join("");
@@ -849,7 +850,7 @@ function viewReport() {
       " · #" + last.leaguePos + nt + "</p>" +
       pathLine + derbyLine + susLine + divLine +
       (cups.length ? '<div class="report-cups">' + cups.map(function (id) {
-        return '<div class="report-cup"><img src="' + trophyOf(id).img + '" alt=""><b>' + esc(trophyOf(id).name) + "</b></div>";
+        var _rid = displayTrophyId(id, s); return '<div class="report-cup"><img src="' + trophyOf(_rid).img + '" alt=""><b>' + esc(trophyOf(_rid).name) + "</b></div>";
       }).join("") + "</div>" : "") +
       "</div>";
   }

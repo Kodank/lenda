@@ -125,6 +125,20 @@ TEAM_IDS = {
     "vit": 134280,
     "ctb": 134298,
 
+    # Crest-fix 2026-09-21 (explicit IDs — avoid fuzzy mix-ups)
+    "cre": 134224,   # Cremonese (IT)
+    "parm": 135728,  # Parma Calcio (IT)
+    "espy": 133734,  # RCD Espanyol (ES)
+    "elc": 134384,   # Elche CF (ES)
+    "levt": 133732,  # Levante UD (ES) — not Bayer Leverkusen (lev)
+    "vll": 133841,   # Real Valladolid (ES)
+    "lil": 133711,   # Lille OSC (FR) — not Lille HC hockey
+    "new": 134777,   # Newcastle United (EN) — not Newcastle Jets
+    "mon": 133823,   # AS Monaco FC (soccer) — not AS Monaco Basket
+    "tig": 134197,   # Tigres UANL (MX) — not Tigres FC Colombia
+    "plrm": 138166,  # Palermo FC (IT) — never "pal" (Palmeiras)
+    "pal": 134465,   # Palmeiras (BR)
+
 }
 
 COLLISION_WARN = {

@@ -165,7 +165,30 @@ function resolveDivisionChange(s, season, club, league) {
     }
   }
 }
-function trophyOf(id) {
+/* Legacy saves may store ucl for non-UEFA clubs — remap art by nation.conf on display. */
+function remapLegacyContinental(id, nationId) {
+  if (id !== "ucl" || !nationId) return id;
+  var nat = typeof nationOf === "function" ? nationOf(nationId) : null;
+  var conf = nat && nat.conf;
+  if (!conf || conf === "uefa") return id;
+  if (conf === "afc") return "acl";
+  if (conf === "caf") return "caf";
+  if (conf === "concacaf") return "concacaf";
+  if (conf === "conmebol") return "libertadores";
+  return id;
+}
+
+function displayTrophyId(id, s, clubId) {
+  if (id !== "ucl") return id;
+  var cid = clubId || (s && s.clubId);
+  var club = null;
+  try { if (cid && typeof clubOf === "function") club = clubOf(cid); } catch (e) {}
+  var natId = (club && club.nation) || (s && s.nation);
+  return remapLegacyContinental(id, natId);
+}
+
+function trophyOf(id, s, clubId) {
+  id = displayTrophyId(id, s, clubId);
   return TROPHIES[id] || { name: id, img: "img/trophies/copa.png", kind: "cup", w: 2 };
 }
 
@@ -623,7 +646,7 @@ function clubStintsCareer(s) {
     st.saves += (typeof se.saves === "number" ? se.saves : resolveGkSaves(se));
     var cups = se.trophies || [];
     for (var t = 0; t < cups.length; t++) {
-      var tid = cups[t];
+      var tid = displayTrophyId(cups[t], s, id);
       var meta = trophyOf(tid);
       if (!meta || meta.kind === "nt" || meta.kind === "indiv") continue;
       st.trophies.push(tid);

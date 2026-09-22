@@ -73,3 +73,11 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 - AFC (J1) → `acl`; CAF (NPFL, Senegal) → `caf`; CONCACAF (MLS, Liga MX) → `concacaf`
 - `dev.js` `contTrophy()` never falls back null→`ucl`
 - `sim.js` never invents UCL for non-UEFA; `contQual` only when `league.continental` set
+
+## assets-fix-2 (2026-09-21)
+- `acl` / `caf` / `concacaf`: photoreal transparent rembg (AFC jpg cutout / Commons CAF / CONCACAF product photo) — never ucl.png
+- `npfl`: rembg from Commons Akwa United NPFL lift photo
+- `senliga` / `copa_ng` / `copa_sn`: distinct photoreal cup art (no shared generic `copa`)
+- `copa_col`: TheSportsDB Copa Colombia trophy cutout
+- Display remap: legacy `ucl` → acl/caf/concacaf/libertadores by nation.conf for non-UEFA clubs
+- SOURCE `js/world.js` league.trophy: usa→mls, jpn→j1, mex→liga_mx, nga→npfl, sen→senliga, uy→uruprimera, col→colbetplay

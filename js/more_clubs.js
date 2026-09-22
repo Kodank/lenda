@@ -41,7 +41,7 @@ CLUBS = CLUBS.concat([
   _xc("elc", "Elche", "Elche", "es", "esp2", 3.0, "#FFFFFF", "#007A33"),
   _xc("levt", "Levante", "Valência", "es", "esp2", 3.1, "#B5003C", "#0057A8"),
   _xc("vll", "Valladolid", "Valladolid", "es", "esp2", 3.0, "#6C1D45", "#FFFFFF"),
-  _xc("pal", "Palermo", "Palermo", "it", "ita2", 3.1, "#FFD100", "#E30613"),
+  _xc("plrm", "Palermo", "Palermo", "it", "ita2", 3.1, "#FFD100", "#E30613"),
   _xc("bari", "Bari", "Bari", "it", "ita2", 3.0, "#FFFFFF", "#E30613"),
   _xc("cre", "Cremonese", "Cremona", "it", "ita2", 2.9, "#E30613", "#999999"),
   _xc("parm", "Parma", "Parma", "it", "ita2", 3.2, "#FFE200", "#0033A0"),

@@ -152,7 +152,7 @@ var LEAGUES = [
     "level": 2.6,
     "continental": null,
     "size": 20,
-    "trophy": "copa",
+    "trophy": "serie_b",
     "logo": "img/leagues/brb.png",
     "color": "#1F4E79"
   },
@@ -164,7 +164,7 @@ var LEAGUES = [
     "level": 3.8,
     "continental": "lib",
     "size": 28,
-    "trophy": "copa",
+    "trophy": "ligapro",
     "logo": "img/leagues/arg.png",
     "color": "#75AADB"
   },
@@ -176,7 +176,7 @@ var LEAGUES = [
     "level": 3.0,
     "continental": "lib",
     "size": 16,
-    "trophy": "copa",
+    "trophy": "uruprimera",
     "logo": "img/leagues/uru.png",
     "color": "#0038A8"
   },
@@ -188,7 +188,7 @@ var LEAGUES = [
     "level": 3.1,
     "continental": "lib",
     "size": 20,
-    "trophy": "copa",
+    "trophy": "colbetplay",
     "logo": "img/leagues/col.png",
     "color": "#FCD116"
   },
@@ -200,7 +200,7 @@ var LEAGUES = [
     "level": 3.6,
     "continental": "concacaf",
     "size": 18,
-    "trophy": "copa",
+    "trophy": "liga_mx",
     "logo": "img/leagues/mex.png",
     "color": "#006847"
   },
@@ -212,7 +212,7 @@ var LEAGUES = [
     "level": 3.9,
     "continental": "ucl",
     "size": 18,
-    "trophy": "copa",
+    "trophy": "primerliga",
     "logo": "img/leagues/por.png",
     "color": "#006600"
   },
@@ -224,7 +224,7 @@ var LEAGUES = [
     "level": 4.8,
     "continental": "ucl",
     "size": 20,
-    "trophy": "premier",
+    "trophy": "laliga",
     "logo": "img/leagues/esp.png",
     "color": "#EE334E"
   },
@@ -248,7 +248,7 @@ var LEAGUES = [
     "level": 4.4,
     "continental": "ucl",
     "size": 18,
-    "trophy": "premier",
+    "trophy": "ligue1",
     "logo": "img/leagues/fra.png",
     "color": "#1E3A8A"
   },
@@ -260,7 +260,7 @@ var LEAGUES = [
     "level": 4.6,
     "continental": "ucl",
     "size": 20,
-    "trophy": "premier",
+    "trophy": "seriea",
     "logo": "img/leagues/ita.png",
     "color": "#024494"
   },
@@ -272,7 +272,7 @@ var LEAGUES = [
     "level": 4.5,
     "continental": "ucl",
     "size": 18,
-    "trophy": "premier",
+    "trophy": "bundesliga",
     "logo": "img/leagues/ger.png",
     "color": "#D20515"
   },
@@ -284,7 +284,7 @@ var LEAGUES = [
     "level": 3.7,
     "continental": "ucl",
     "size": 18,
-    "trophy": "copa",
+    "trophy": "eredivisie",
     "logo": "img/leagues/ned.png",
     "color": "#F36C21"
   },
@@ -296,7 +296,7 @@ var LEAGUES = [
     "level": 3.2,
     "continental": "concacaf",
     "size": 29,
-    "trophy": "copa",
+    "trophy": "mls",
     "logo": "img/leagues/usa.png",
     "color": "#C8102E"
   },
@@ -308,7 +308,7 @@ var LEAGUES = [
     "level": 3.0,
     "continental": "acl",
     "size": 18,
-    "trophy": "copa",
+    "trophy": "j1",
     "logo": "img/leagues/jpn.png",
     "color": "#BC002D"
   },
@@ -320,7 +320,7 @@ var LEAGUES = [
     "level": 2.4,
     "continental": "caf",
     "size": 20,
-    "trophy": "youth",
+    "trophy": "npfl",
     "logo": "img/leagues/nga.png",
     "color": "#008751"
   },
@@ -332,7 +332,7 @@ var LEAGUES = [
     "level": 2.2,
     "continental": "caf",
     "size": 14,
-    "trophy": "youth",
+    "trophy": "senliga",
     "logo": "img/leagues/sen.png",
     "color": "#00853F"
   },
