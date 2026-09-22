@@ -7,9 +7,9 @@ NATIONS = NATIONS.concat([
 
 /* LEAGUE_SEASON placements: Brasileirão 2026 + EUR 2026/27 — see LEAGUE_SEASON in world.js */
 LEAGUES = LEAGUES.concat([
-  { id: "bel", name: "Pro League", nation: "be", tier: 1, level: 3.6, continental: "ucl", size: 16, trophy: "premier", logo: "img/leagues/bel.png", color: "#FFD700" },
-  { id: "tur", name: "Süper Lig", nation: "tr", tier: 1, level: 3.7, continental: "ucl", size: 19, trophy: "premier", logo: "img/leagues/tur.png", color: "#E30A17" },
-  { id: "sco", name: "Premiership", nation: "sct", tier: 1, level: 3.3, continental: "ucl", size: 12, trophy: "copa", logo: "img/leagues/sco.png", color: "#005EB8" }
+  { id: "bel", name: "Pro League", nation: "be", tier: 1, level: 3.6, continental: "ucl", size: 16, trophy: "proleague", logo: "img/leagues/bel.png", color: "#FFD700" },
+  { id: "tur", name: "Süper Lig", nation: "tr", tier: 1, level: 3.7, continental: "ucl", size: 19, trophy: "superlig", logo: "img/leagues/tur.png", color: "#E30A17" },
+  { id: "sco", name: "Premiership", nation: "sct", tier: 1, level: 3.3, continental: "ucl", size: 12, trophy: "scottish", logo: "img/leagues/sco.png", color: "#005EB8" }
 ]);
 
 function _xc(id, name, city, nation, leagueId, level, c1, c2) {
@@ -71,23 +71,23 @@ CLUBS = CLUBS.concat([
     bra: { trophy: "brasileirao", cupTrophy: "copa_br" },
     brb: { trophy: "serie_b", cupTrophy: "copa_br" },
     arg: { trophy: "ligapro", cupTrophy: "copa_arg" },
-    uru: { trophy: "uruprimera", cupTrophy: "copa" },
-    col: { trophy: "colbetplay", cupTrophy: "copa" },
-    mex: { trophy: "liga_mx", cupTrophy: "copa" },
+    uru: { trophy: "uruprimera", cupTrophy: "copa_uy" },
+    col: { trophy: "colbetplay", cupTrophy: "copa_col" },
+    mex: { trophy: "liga_mx", cupTrophy: "copa_mx" },
     por: { trophy: "primerliga", cupTrophy: "taca_pt" },
     esp: { trophy: "laliga", cupTrophy: "copa_rey" },
     eng: { trophy: "premier", cupTrophy: "fa_cup" },
     fra: { trophy: "ligue1", cupTrophy: "coupe_fr" },
     ita: { trophy: "seriea", cupTrophy: "coppa_ita" },
     ger: { trophy: "bundesliga", cupTrophy: "dfb_pokal" },
-    ned: { trophy: "eredivisie", cupTrophy: "copa" },
-    usa: { trophy: "mls", cupTrophy: "copa" },
-    jpn: { trophy: "j1", cupTrophy: "copa" },
+    ned: { trophy: "eredivisie", cupTrophy: "knvb" },
+    usa: { trophy: "mls", cupTrophy: "us_open" },
+    jpn: { trophy: "j1", cupTrophy: "emperor" },
     nga: { trophy: "npfl", cupTrophy: "copa" },
     sen: { trophy: "senliga", cupTrophy: "copa" },
-    bel: { trophy: "proleague", cupTrophy: "copa" },
-    tur: { trophy: "superlig", cupTrophy: "copa" },
-    sco: { trophy: "scottish", cupTrophy: "copa" },
+    bel: { trophy: "proleague", cupTrophy: "copa_be" },
+    tur: { trophy: "superlig", cupTrophy: "copa_tr" },
+    sco: { trophy: "scottish", cupTrophy: "scottish_cup" },
     brc: { trophy: "copa", cupTrophy: "copa_br" },
     eng2: { trophy: "copa", cupTrophy: "fa_cup" },
     ger2: { trophy: "copa", cupTrophy: "dfb_pokal" },

@@ -180,6 +180,15 @@ var TROPHIES = {
   coupe_fr: { name: "Coupe de France", img: "img/trophies/coupe_fr.png", kind: "cup", w: 5 },
   taca_pt: { name: "Taça de Portugal", img: "img/trophies/taca_pt.png", kind: "cup", w: 4 },
   copa_arg: { name: "Copa Argentina", img: "img/trophies/copa_arg.png", kind: "cup", w: 4 },
+  knvb: { name: "KNVB Beker", img: "img/trophies/knvb.png?v=trophies-world-1", kind: "cup", w: 4 },
+  scottish_cup: { name: "Scottish Cup", img: "img/trophies/scottish_cup.png?v=trophies-world-1", kind: "cup", w: 4 },
+  copa_be: { name: "Copa da Bélgica", img: "img/trophies/copa_be.png?v=trophies-world-1", kind: "cup", w: 4 },
+  copa_tr: { name: "Copa da Turquia", img: "img/trophies/copa_tr.png?v=trophies-world-1", kind: "cup", w: 4 },
+  copa_col: { name: "Copa Colômbia", img: "img/trophies/copa_col.png?v=trophies-world-1", kind: "cup", w: 4 },
+  us_open: { name: "US Open Cup", img: "img/trophies/us_open.png?v=trophies-world-1", kind: "cup", w: 4 },
+  emperor: { name: "Copa do Imperador", img: "img/trophies/emperor.png?v=trophies-world-1", kind: "cup", w: 4 },
+  copa_uy: { name: "Copa AUF Uruguai", img: "img/trophies/copa_uy.png?v=trophies-world-1", kind: "cup", w: 4 },
+  copa_mx: { name: "Copa MX", img: "img/trophies/copa_mx.png?v=trophies-world-1", kind: "cup", w: 4 },
   /* Continentais / seleção */
   libertadores: { name: "Libertadores", img: "img/trophies/libertadores.png", kind: "continental", w: 10 },
   ucl: { name: "Champions League", img: "img/trophies/ucl.png", kind: "continental", w: 12 },
@@ -197,8 +206,8 @@ var TROPHIES = {
 /* Copa nacional por país (fallback: copa) */
 var NATION_CUP = {
   br: "copa_br", en: "fa_cup", es: "copa_rey", it: "coppa_ita", de: "dfb_pokal",
-  fr: "coupe_fr", pt: "taca_pt", ar: "copa_arg", uy: "copa", co: "copa", mx: "copa",
-  nl: "copa", us: "copa", jp: "copa", ng: "copa", sn: "copa", be: "copa", tr: "copa", sct: "copa"
+  fr: "coupe_fr", pt: "taca_pt", ar: "copa_arg", uy: "copa_uy", co: "copa_col", mx: "copa_mx",
+  nl: "knvb", us: "us_open", jp: "emperor", ng: "copa", sn: "copa", be: "copa_be", tr: "copa_tr", sct: "scottish_cup"
 };
 
 /* NT photo shirts + real home-kit lettering ink (name/number) */

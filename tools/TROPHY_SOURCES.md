@@ -33,6 +33,15 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 | `coupe_fr` | TheSportsDB (verified league name) |
 | `taca_pt` | TheSportsDB (verified league name) |
 | `copa_arg` | TheSportsDB (verified league name) |
+| `knvb` | TheSportsDB Dutch KNVB Cup (`4902` / `mfvzr81611677287`) + rembg/chroma; cache-bust `?v=trophies-world-1` |
+| `scottish_cup` | TheSportsDB Scottish FA Cup (`4723` / `swnyde1776706387`) + rembg/chroma; cache-bust `?v=trophies-world-1` |
+| `copa_be` | TheSportsDB Belgian Cup / Croky (`5831` / `kjcazc1782151263`) + rembg/chroma; cache-bust `?v=trophies-world-1` |
+| `copa_tr` | TheSportsDB Turkish Cup (`4960` / `djxbyv1776826375`) + rembg/chroma; cache-bust `?v=trophies-world-1` |
+| `copa_col` | Wikimedia Commons Trofeo de copa illustration (distinct from Liga BetPlay) + rembg; cache-bust `?v=trophies-world-1` |
+| `us_open` | TheSportsDB US Open Cup (`5199` / `8qs1ya1749724650`) + rembg/chroma; cache-bust `?v=trophies-world-1` |
+| `emperor` | Wikimedia Commons Emperor's Cup museum photo (`IMG_5251`) crop + rembg; cache-bust `?v=trophies-world-1` |
+| `copa_uy` | TheSportsDB Copa AUF Uruguay (`5526` / `1zx6st1761788930`) + rembg/chroma; cache-bust `?v=trophies-world-1` |
+| `copa_mx` | Wikimedia Commons Copa MX Apertura 2012 trophy photo + rembg; cache-bust `?v=trophies-world-1` |
 | `libertadores` | TheSportsDB (verified league name) |
 | `ucl` | TheSportsDB (verified league name) |
 | `clubworldcup` | pngdownload.io FIFA Club World Cup 2025 product cutout + rembg alpha; cache-bust `?v=indiv-hq-1` — replaces prior stylized Commons Inkscape icon |
@@ -48,6 +57,7 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 ## Notes
 - Prefer TheSportsDB trophy cutouts (black bg → made transparent) when league name matched.
 - Wikimedia Commons used for Euro (Henri Delaunay), Copa América, Club World Cup.
-- Obscure leagues without a free photo (NPFL, Senegal Ligue 1) and the shared generic `copa` (multi-nation national-cup fallback) still use **distinct** stylized generics — never FA Cup / Libertadores / UCL.
+- Obscure leagues without a free photo (NPFL, Senegal Ligue 1) and the shared generic `copa` (Nigeria/Senegal national-cup fallback) still use **distinct** stylized generics — never FA Cup / Libertadores / UCL.
+- World cups pack (`trophies-world-1`): KNVB, Scottish Cup, Belgian Cup, Turkish Cup, US Open Cup, Copa AUF Uruguay, Copa MX, Emperor's Cup, Copa Colômbia — wired in `NATION_CUP` + league `cupTrophy`.
 - J1 Schale + Uruguay Primera + FIFA U-20 World Cup replaced with photoreal transparent PNGs (TheSportsDB / pngitem + rembg).
 - Individual awards (balon/bota/luva/mvp) + Club World Cup replaced with photoreal transparent PNGs (pngdownload / Commons photo / adidas product shots + rembg).
