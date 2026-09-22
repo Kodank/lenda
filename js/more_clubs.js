@@ -83,17 +83,17 @@ CLUBS = CLUBS.concat([
     ned: { trophy: "eredivisie", cupTrophy: "knvb" },
     usa: { trophy: "mls", cupTrophy: "us_open" },
     jpn: { trophy: "j1", cupTrophy: "emperor" },
-    nga: { trophy: "npfl", cupTrophy: "copa" },
-    sen: { trophy: "senliga", cupTrophy: "copa" },
+    nga: { trophy: "npfl", cupTrophy: "copa_ng" },
+    sen: { trophy: "senliga", cupTrophy: "copa_sn" },
     bel: { trophy: "proleague", cupTrophy: "copa_be" },
     tur: { trophy: "superlig", cupTrophy: "copa_tr" },
     sco: { trophy: "scottish", cupTrophy: "scottish_cup" },
-    brc: { trophy: "copa", cupTrophy: "copa_br" },
-    eng2: { trophy: "copa", cupTrophy: "fa_cup" },
-    ger2: { trophy: "copa", cupTrophy: "dfb_pokal" },
-    fra2: { trophy: "copa", cupTrophy: "coupe_fr" },
-    esp2: { trophy: "copa", cupTrophy: "copa_rey" },
-    ita2: { trophy: "copa", cupTrophy: "coppa_ita" }
+    brc: { trophy: "serie_c", cupTrophy: "copa_br" },
+    eng2: { trophy: "championship", cupTrophy: "fa_cup" },
+    ger2: { trophy: "bundesliga2", cupTrophy: "dfb_pokal" },
+    fra2: { trophy: "ligue2", cupTrophy: "coupe_fr" },
+    esp2: { trophy: "segunda", cupTrophy: "copa_rey" },
+    ita2: { trophy: "serie_b_ita", cupTrophy: "coppa_ita" }
   };
   for (var i = 0; i < LEAGUES.length; i++) {
     var m = map[LEAGUES[i].id];

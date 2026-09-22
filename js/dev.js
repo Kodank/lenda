@@ -146,7 +146,11 @@
     var cont = leagueOf(clubOf(S.clubId).leagueId).continental;
     if (cont === "lib") return "libertadores";
     if (cont === "ucl") return "ucl";
-    return cont || "ucl";
+    if (cont === "acl") return "acl";
+    if (cont === "caf") return "caf";
+    if (cont === "concacaf") return "concacaf";
+    /* Never default Asia/Africa/null → UCL */
+    return cont || null;
   }
 
   function forceTrophies(opts) {
@@ -154,7 +158,7 @@
     var ids = [];
     if (opts.league) ids.push(leagueTrophy());
     if (opts.cup) ids.push(cupTrophy());
-    if (opts.continental) ids.push(contTrophy());
+    if (opts.continental) { var _ct = contTrophy(); if (_ct) ids.push(_ct); else toast("Sem continental nesta liga", true); }
     if (opts.clubWorld) ids.push("clubworldcup");
     if (opts.world) ids.push("worldcup");
     if (opts.copaAm) ids.push("copaamerica");

@@ -177,11 +177,20 @@ function simSeason(s) {
   }
   if (s.contQual) {
     var cont = league.continental;
-    var contId = cont === "lib" ? "libertadores" : cont === "ucl" ? "ucl" : cont;
+    /* Map short codes → TROPHIES ids. Never invent ucl for null/unknown. */
+    var contId = cont === "lib" ? "libertadores"
+      : cont === "ucl" ? "ucl"
+      : cont === "acl" ? "acl"
+      : cont === "caf" ? "caf"
+      : cont === "concacaf" ? "concacaf"
+      : (cont || null);
+    /* UEFA-only hard rule: non-ucl continental must never resolve to ucl */
+    if (contId === "ucl" && cont !== "ucl") contId = null;
     /* Gates = eligibility only (zero below). Win chance stays rare at floor and scales with OVR. */
     var canCont = !!contId;
     if (contId === "ucl") canCont = canWinUcl(club, s.ovr);
     else if (contId === "libertadores") canCont = canWinLibertadores(club, s.ovr);
+    else if (contId === "acl" || contId === "caf" || contId === "concacaf") canCont = s.ovr >= 72;
     var cP = 0.025 + club.level * 0.02 + tBoost.cont;
     if (contId === "ucl") cP += Math.min(0.14, Math.max(0, s.ovr - 88) * 0.014);
     else if (contId === "libertadores" && club.nation === "br") cP += Math.min(0.14, Math.max(0, s.ovr - 81) * 0.012);
@@ -200,7 +209,8 @@ function simSeason(s) {
       if (canWinClubWorldCup(club, s.ovr) && rnd(s) < cwcP) trophies.push("clubworldcup");
     }
   }
-  s.contQual = leaguePos <= (league.continental === "ucl" ? 4 : 3);
+  /* Only leagues with a real continental competition qualify */
+  s.contQual = !!league.continental && leaguePos <= (league.continental === "ucl" ? 4 : 3);
 
   /* Luva / Chuteira / Bola: só a partir de OVR 90 (temporada). Abaixo = chance zero. */
   if (s.pos === "GOL") {
@@ -241,7 +251,7 @@ function simSeason(s) {
     nt = { apps: 0, goals: 0, assists: 0, cs: 0, ga: 0, saves: 0, youth: false, trophies: [] };
   }
 
-  var hasCont = trophies.indexOf("ucl") >= 0 || trophies.indexOf("libertadores") >= 0 || trophies.indexOf("worldcup") >= 0;
+  var hasCont = trophies.indexOf("ucl") >= 0 || trophies.indexOf("libertadores") >= 0 || trophies.indexOf("acl") >= 0 || trophies.indexOf("caf") >= 0 || trophies.indexOf("concacaf") >= 0 || trophies.indexOf("worldcup") >= 0;
   /* Bola de Ouro: só OVR 90+ (temporada). Abaixo de 90 = zero chance. */
   if (s.ovr >= 90 && s.age >= 21 && s.age <= 35 && (role === "starter" || role === "star" || role === "rotation")) {
     var pBalon = 0;

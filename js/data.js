@@ -170,8 +170,16 @@ var TROPHIES = {
   proleague: { name: "Pro League", img: "img/trophies/proleague.png", kind: "league", w: 5 },
   superlig: { name: "Süper Lig", img: "img/trophies/superlig.png", kind: "league", w: 5 },
   scottish: { name: "Premiership", img: "img/trophies/scottish.png", kind: "league", w: 4 },
+  serie_c: { name: "Série C", img: "img/trophies/serie_c.png?v=trophies-alpha-1", kind: "league", w: 2 },
+  championship: { name: "Championship", img: "img/trophies/championship.png?v=trophies-alpha-1", kind: "league", w: 3 },
+  bundesliga2: { name: "2. Bundesliga", img: "img/trophies/bundesliga2.png?v=trophies-alpha-1", kind: "league", w: 3 },
+  ligue2: { name: "Ligue 2", img: "img/trophies/ligue2.png?v=trophies-alpha-1", kind: "league", w: 3 },
+  segunda: { name: "Segunda División", img: "img/trophies/segunda.png?v=trophies-alpha-1", kind: "league", w: 3 },
+  serie_b_ita: { name: "Serie B", img: "img/trophies/serie_b_ita.png?v=trophies-alpha-1", kind: "league", w: 3 },
   /* Copas nacionais */
   copa: { name: "Copa nacional", img: "img/trophies/copa.png", kind: "cup", w: 4 },
+  copa_ng: { name: "Copa da Nigéria", img: "img/trophies/copa_ng.png?v=trophies-alpha-1", kind: "cup", w: 3 },
+  copa_sn: { name: "Coupe du Sénégal", img: "img/trophies/copa_sn.png?v=trophies-alpha-1", kind: "cup", w: 3 },
   copa_br: { name: "Copa do Brasil", img: "img/trophies/copa_br.png", kind: "cup", w: 4 },
   fa_cup: { name: "FA Cup", img: "img/trophies/fa_cup.png", kind: "cup", w: 5 },
   copa_rey: { name: "Copa del Rey", img: "img/trophies/copa_rey.png", kind: "cup", w: 5 },
@@ -192,6 +200,9 @@ var TROPHIES = {
   /* Continentais / seleção */
   libertadores: { name: "Libertadores", img: "img/trophies/libertadores.png", kind: "continental", w: 10 },
   ucl: { name: "Champions League", img: "img/trophies/ucl.png", kind: "continental", w: 12 },
+  acl: { name: "Liga dos Campeões da AFC", img: "img/trophies/acl.png?v=trophies-alpha-1", kind: "continental", w: 8 },
+  caf: { name: "Liga dos Campeões da CAF", img: "img/trophies/caf.png?v=trophies-alpha-1", kind: "continental", w: 8 },
+  concacaf: { name: "Concacaf Champions Cup", img: "img/trophies/concacaf.png?v=trophies-alpha-1", kind: "continental", w: 8 },
   clubworldcup: { name: "Mundial de Clubes", img: "img/trophies/clubworldcup.png?v=indiv-hq-1", kind: "continental", w: 8 },
   worldcup: { name: "Copa do Mundo", img: "img/trophies/worldcup.png", kind: "nt", w: 16 },
   copaamerica: { name: "Copa América", img: "img/trophies/copaamerica.png?v=ca2", kind: "nt", w: 9 },
@@ -207,7 +218,7 @@ var TROPHIES = {
 var NATION_CUP = {
   br: "copa_br", en: "fa_cup", es: "copa_rey", it: "coppa_ita", de: "dfb_pokal",
   fr: "coupe_fr", pt: "taca_pt", ar: "copa_arg", uy: "copa_uy", co: "copa_col", mx: "copa_mx",
-  nl: "knvb", us: "us_open", jp: "emperor", ng: "copa", sn: "copa", be: "copa_be", tr: "copa_tr", sct: "scottish_cup"
+  nl: "knvb", us: "us_open", jp: "emperor", ng: "copa_ng", sn: "copa_sn", be: "copa_be", tr: "copa_tr", sct: "scottish_cup"
 };
 
 /* NT photo shirts + real home-kit lettering ink (name/number) */

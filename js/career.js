@@ -310,6 +310,9 @@ function clubConf(c) {
   if (lg) {
     if (lg.continental === "ucl") return "uefa";
     if (lg.continental === "lib") return "conmebol";
+    if (lg.continental === "acl") return "afc";
+    if (lg.continental === "caf") return "caf";
+    if (lg.continental === "concacaf") return "concacaf";
     conf = nationConf(lg.nation);
     if (conf) return conf;
   }
@@ -1405,7 +1408,7 @@ function verdict(s, score) {
   var nClubs = clubAppsMap(s).length;
   if (s.peakOvr >= 92 && countTrophy(s, "worldcup") >= 1) return "Fenômeno";
   if (nClubs === 1 && s.career.apps >= 300) return "Ídolo de uma camisa";
-  if (countTrophy(s, "ucl") + countTrophy(s, "libertadores") >= 3) return "Rei de copas";
+  if (countTrophy(s, "ucl") + countTrophy(s, "libertadores") + countTrophy(s, "acl") + countTrophy(s, "caf") + countTrophy(s, "concacaf") >= 3) return "Rei de copas";
   if (s.caps >= 60 && (countTrophy(s, "worldcup") + countTrophy(s, "copaamerica") + countTrophy(s, "euro")) >= 1) return "Herói da seleção";
   if (s.age >= 36 && s.peakOvr < 74 && s.caps < 15) return "Sobrevivente";
   if (score.total >= 86) return "Lenda";

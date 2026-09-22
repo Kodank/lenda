@@ -61,3 +61,15 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 - World cups pack (`trophies-world-1`): KNVB, Scottish Cup, Belgian Cup, Turkish Cup, US Open Cup, Copa AUF Uruguay, Copa MX, Emperor's Cup, Copa Colômbia — wired in `NATION_CUP` + league `cupTrophy`.
 - J1 Schale + Uruguay Primera + FIFA U-20 World Cup replaced with photoreal transparent PNGs (TheSportsDB / pngitem + rembg).
 - Individual awards (balon/bota/luva/mvp) + Club World Cup replaced with photoreal transparent PNGs (pngdownload / Commons photo / adidas product shots + rembg).
+
+| `acl` | Stylized AFC Champions League cup (transparent); cache-bust `trophies-alpha-1` |
+| `caf` | Stylized CAF Champions League cup (transparent); cache-bust `trophies-alpha-1` |
+| `concacaf` | Stylized Concacaf Champions Cup (transparent); cache-bust `trophies-alpha-1` |
+| `serie_c` / `championship` / `bundesliga2` / `ligue2` / `segunda` / `serie_b_ita` | Distinct copies of nearest league art for 2nd-div titles (no more generic `copa` as league trophy) |
+| `copa_ng` / `copa_sn` | Distinct national-cup art for Nigeria / Senegal (no shared generic `copa`) |
+
+## Continental wiring (trophies-alpha-1)
+- UEFA leagues → `ucl`; CONMEBOL → `lib`/`libertadores`
+- AFC (J1) → `acl`; CAF (NPFL, Senegal) → `caf`; CONCACAF (MLS, Liga MX) → `concacaf`
+- `dev.js` `contTrophy()` never falls back null→`ucl`
+- `sim.js` never invents UCL for non-UEFA; `contQual` only when `league.continental` set
