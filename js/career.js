@@ -585,8 +585,8 @@ function homecomingClubChoice(s, club, kind) {
     loyalty = 10;
     ambition = -2;
   } else if (kind === "home") {
-    label = "Clube do país · " + club.name;
-    hint = "Mesma nacionalidade · onde mais jogou · " + (lg ? lg.name : "");
+    label = "Clube que mais jogou · " + club.name;
+    hint = "Clube que mais jogou · " + (lg ? lg.name : "");
     loyalty = 8;
     ambition = 0;
   } else {
@@ -619,15 +619,15 @@ function buildHomecomingWindow(s) {
   var peak = s.peakOvr || s.ovr;
   var drop = Math.max(0, peak - (s.ovr || 0));
   var blurb = drop >= 2
-    ? ("O auge (" + peak + " OVR) ficou pra trás. Voltar à base, ao clube da sua nacionalidade onde mais jogou, ou seguir no atual.")
-    : ("A carreira entrou na reta pós-auge. Escolha: base, clube da sua nacionalidade onde mais jogou, ou continuar no atual.");
+    ? ("O auge (" + peak + " OVR) ficou pra trás. Voltar à base, ao clube em que mais jogou no país, ou seguir no atual.")
+    : ("A carreira entrou na reta pós-auge. Escolha: base, clube em que mais jogou no país, ou continuar no atual.");
 
   var choices = [];
   /* 1) Base — só se não for o clube atual */
   if (base && base.id !== curId) {
     choices.push(homecomingClubChoice(s, base, "base"));
   }
-  /* 2) Mesma nacionalidade · mais jogado — distinto da base e do atual */
+  /* 2) Clube do país em que mais jogou — distinto da base e do atual */
   if (home && home.id !== curId && (!base || home.id !== base.id)) {
     choices.push(homecomingClubChoice(s, home, "home"));
   }
