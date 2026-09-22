@@ -226,7 +226,8 @@ input[type="text"] {
   /* ~half shirt height visually — plain px floor, cqh only as optional boost */
   font-size: 168px;
   font-size: clamp(156px, 52cqh, 196px);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.015em;
+  margin-right: -0.015em; /* keep optical center (letter-spacing adds after last digit) */
   line-height: 0.78;
 }
 .shirt-mini { display: flex; justify-content: center; align-items: flex-start; }
@@ -271,7 +272,8 @@ input[type="text"] {
   .shirt-mini .shirt-lettering .shirt-num {
     font-size: 170px;
     font-size: clamp(158px, 54cqh, 200px);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.015em;
+    margin-right: -0.015em;
     line-height: 0.76;
   }
   .nation-split .shirt-mini .shirt-photo,
