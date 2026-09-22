@@ -1208,7 +1208,7 @@ function moveTo(s, club) {
 
 function loanTo(s, club) {
   if (!club) return;
-  /* Preserva o clube-mãe em empréstimos seguidos (não sobrescreve com o clube atual de emp.). */
+  /* Preserva o clube original em empréstimos seguidos (não sobrescreve com o clube atual de emp.). */
   if (!s.loanFrom) s.loanFrom = s.clubId;
   s.parentClubId = s.loanFrom;
   s.clubId = club.id;
@@ -1262,7 +1262,7 @@ function pickLoanPermanentClubs(s, n) {
     /* definitivo: clube melhor que o emp. atual, ou o emp. se for forte o bastante */
     return c.level >= parentLv - 0.05 || (cur && c.id === cur.id);
   });
-  /* preferir acima do clube-mãe */
+  /* preferir acima do clube original */
   var better = pool.filter(function (c) { return c.level >= parentLv + 0.15; });
   var wave = shuffled(better.length ? better : pool, s);
   var out = [];
@@ -1325,7 +1325,7 @@ function buildLoanResolveWindow(s) {
   };
   ev.a = {
     label: "Retorno · " + parentName,
-    hint: "Voltar ao clube-mãe",
+    hint: "Voltar ao clube original",
     crest: parent ? parent.crest : null,
     leagueId: parent ? parent.leagueId : null,
     nation: parent ? parent.nation : null,
