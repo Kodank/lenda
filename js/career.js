@@ -525,11 +525,149 @@ function buildSubstancesEvent(s) {
   };
 }
 
+
+function academyClubId(s) {
+  if (!s) return null;
+  if (s.clubs && s.clubs.length && s.clubs[0].id) return s.clubs[0].id;
+  if (s.seasons && s.seasons.length) {
+    for (var i = 0; i < s.seasons.length; i++) {
+      if (s.seasons[i].clubId) return s.seasons[i].clubId;
+    }
+  }
+  return null;
+}
+
+/* Entre clubes da MESMA nacionalidade do jogador, o que mais jogou (apps, depois anos). */
+function mostPlayedHomeClubId(s) {
+  if (!s || !s.nation) return null;
+  var map = typeof clubAppsMap === "function" ? clubAppsMap(s) : [];
+  var best = null;
+  for (var i = 0; i < map.length; i++) {
+    var c = clubOf(map[i].id);
+    if (!c || c.nation !== s.nation) continue;
+    if (!best) {
+      best = map[i];
+      continue;
+    }
+    if (map[i].apps > best.apps || (map[i].apps === best.apps && map[i].years > best.years)) best = map[i];
+  }
+  return best ? best.id : null;
+}
+
+/* Fim do auge: OVR já caiu do pico, idade de transição — uma vez por carreira. */
+function isHomecomingWindow(s) {
+  if (!s || !s.clubId || s.freeAgent) return false;
+  if ((s.usedEvents || []).indexOf("homecoming") >= 0) return false;
+  if (s.age < 29 || s.age > 35) return false;
+  var peak = s.peakOvr || s.ovr || 0;
+  if (peak < 74) return false;
+  var drop = peak - (s.ovr || 0);
+  if (drop < 2 && s.age < 31) return false;
+  if (drop < 1 && s.age < 32) return false;
+  if (!academyClubId(s)) return false;
+  /* precisa de alguma história (não no primeiro ano adulto) */
+  if (!s.seasons || s.seasons.length < 6) return false;
+  return true;
+}
+
+function homecomingClubChoice(s, club, kind) {
+  if (!club) return null;
+  var lg = leagueOf(club.leagueId);
+  var ghost = { ovr: s.ovr, age: s.age, clubId: club.id };
+  var role = roleOf(ghost, club);
+  var label;
+  var hint;
+  var loyalty;
+  var ambition;
+  if (kind === "base") {
+    label = "Voltar à base · " + club.name;
+    hint = "Clube onde começou a carreira · " + (ROLE_NAME[role] || role);
+    loyalty = 10;
+    ambition = -2;
+  } else if (kind === "home") {
+    label = "Clube do país · " + club.name;
+    hint = "Mesma nacionalidade · onde mais jogou · " + (lg ? lg.name : "");
+    loyalty = 8;
+    ambition = 0;
+  } else {
+    label = "Continuar no " + club.name;
+    hint = (lg ? lg.name + " · " : "") + "continuidade";
+    loyalty = 6;
+    ambition = 2;
+  }
+  return {
+    label: label,
+    hint: hint,
+    crest: club.crest,
+    leagueId: club.leagueId,
+    nation: club.nation,
+    colors: club.colors,
+    theme: kind === "stay" ? "safe" : "home",
+    fx: kind === "stay"
+      ? { loyalty: loyalty, confidence: 3, ambition: ambition }
+      : { sign: club.id, loyalty: loyalty, confidence: 4, ambition: ambition, energy: 4 }
+  };
+}
+
+function buildHomecomingWindow(s) {
+  var baseId = academyClubId(s);
+  var homeId = mostPlayedHomeClubId(s);
+  var curId = s.clubId;
+  var base = baseId ? clubOf(baseId) : null;
+  var home = homeId ? clubOf(homeId) : null;
+  var cur = curId ? clubOf(curId) : null;
+  var peak = s.peakOvr || s.ovr;
+  var drop = Math.max(0, peak - (s.ovr || 0));
+  var blurb = drop >= 2
+    ? ("O auge (" + peak + " OVR) ficou pra trás. Voltar à base, ao clube da sua nacionalidade onde mais jogou, ou seguir no atual.")
+    : ("A carreira entrou na reta pós-auge. Escolha: base, clube da sua nacionalidade onde mais jogou, ou continuar no atual.");
+
+  var choices = [];
+  /* 1) Base — só se não for o clube atual */
+  if (base && base.id !== curId) {
+    choices.push(homecomingClubChoice(s, base, "base"));
+  }
+  /* 2) Mesma nacionalidade · mais jogado — distinto da base e do atual */
+  if (home && home.id !== curId && (!base || home.id !== base.id)) {
+    choices.push(homecomingClubChoice(s, home, "home"));
+  }
+  /* 3) Continuar no atual */
+  if (cur) {
+    choices.push(homecomingClubChoice(s, cur, "stay"));
+  }
+
+  if (choices.length === 1 && cur) {
+    blurb = "O auge (" + peak + " OVR) passou. Você já está no endereço familiar — pode seguir nele.";
+  }
+
+  var ev = {
+    id: "homecoming",
+    title: "Depois do auge",
+    text: blurb,
+    theme: "home"
+  };
+  if (choices[0]) ev.a = choices[0];
+  if (choices[1]) ev.b = choices[1];
+  if (choices[2]) ev.c = choices[2];
+  if (!ev.a) ev.a = stayChoice(s);
+  if (!ev.b) {
+    ev.b = {
+      label: "Seguir o plano atual",
+      hint: "Sem mudança de clube",
+      fx: { discipline: 3, confidence: 2 }
+    };
+  }
+  return ev;
+}
+
 function pickEvent(s) {
   /* Fim de empréstimo: Retorno / definitivo / (talvez) outro emp. */
   if (s._loanResolve && s.loanFrom) return buildLoanResolveWindow(s);
   /* Agente livre: obrigado a escolher oferta (pós-rescisão). */
   if (s.freeAgent || !s.clubId) return buildFreeAgentWindow(s);
+
+  /* Fim do auge: base / clube do país mais jogado / ficar (1x). */
+  if (isHomecomingWindow(s)) return buildHomecomingWindow(s);
 
   var marketP = 0.72;
   if (s.age <= 22) marketP = 0.82;

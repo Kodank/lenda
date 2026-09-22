@@ -403,6 +403,7 @@ var EVENT_CHOICE_THEMES = {
   ultras: ["home", "safe"],
   recovery: ["physio", "injury"],
   farewell: ["retire", "focus"],
+  homecoming: ["home", "safe"],
   market: ["transfer", "transfer", "stay"],
   quiet: ["training", "safe"],
   substancias: ["party", "safe"]
