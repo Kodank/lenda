@@ -863,14 +863,21 @@ function pickOffers(s, n) {
     if (worldT < 0) worldT = 0;
     if (worldT > 1) worldT = 1;
   }
-  var baseTop10 = stage === "world" ? (0.42 + 0.36 * worldT) : 0.32; /* ~42%@85 → ~66%@87 → 78%@88 */
+  /* 85: poucas chances mas reais; sobe até 87–88. */
+  var baseTop10 = stage === "world" ? (0.18 + 0.50 * worldT) : 0.32; /* ~18%@85 → ~51%@87 → 68%@88 */
   var pTop5 = 0.34 * (dMul.top5Mul != null ? dMul.top5Mul : 1);
   var pTop10 = baseTop10 * (dMul.top10Mul != null ? dMul.top10Mul : 1);
   var pWk = 0.62 * (dMul.wonderkidMul != null ? dMul.wonderkidMul : 1);
-  /* Em 87+ world: piso pra não “sumir” top-10 em destino medíocre. */
-  if (stage === "world" && s.ovr >= 87) {
-    var floor87 = 0.48 * Math.min(1, (dMul.top10Mul != null ? dMul.top10Mul : 1) / 0.55);
-    if (pTop10 < floor87) pTop10 = floor87;
+  if (stage === "world") {
+    var mul = dMul.top10Mul != null ? dMul.top10Mul : 1;
+    /* Piso em 85: destino medíocre+ ainda vê top-10 de vez em quando */
+    var floor85 = 0.14 * Math.min(1, mul / 0.55);
+    if (s.ovr >= 85 && pTop10 < floor85) pTop10 = floor85;
+    /* Em 87+: bem mais comum */
+    if (s.ovr >= 87) {
+      var floor87 = 0.45 * Math.min(1, mul / 0.55);
+      if (pTop10 < floor87) pTop10 = floor87;
+    }
   }
   /* Elite rolls never fire under the ovr < 70 single-country lock. */
   if (!earlyCountryLock(s)) {
