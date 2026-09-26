@@ -631,7 +631,7 @@ function resolveGkSaves(bucket) {
   var apps = bucket.apps || 0;
   var cs = bucket.cs || 0;
   if (!apps && !cs) return 0;
-  return Math.max(0, Math.round(apps * 2.6 + cs * 3));
+  return Math.max(0, Math.round(apps * 1.5));
 }
 
 function gkAwareStats(s, apps, goals, assists, saves, ga) {

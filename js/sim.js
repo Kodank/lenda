@@ -142,10 +142,12 @@ function simSeason(s) {
     cs = poisson(apps * ((pr.cs || 0.28) + ovrF * 0.22), function () { return rnd(s); });
     cs = Math.min(apps, cs);
     ga = Math.max(0, Math.round(apps * (1.35 - ovrF * 0.48) + (rnd(s) - 0.5) * 6));
-    /* Defesas: volume sobe com OVR (goleiro elite para mais chutes / taxa). */
-    saves = poisson(apps * (2.35 + ovrF * 1.15) * formF, function () { return rnd(s); });
-    saves = Math.max(saves, Math.round(ga * 1.4 + cs * 0.5));
-    rating = 6.0 + (cs / Math.max(1, apps)) * 1.6 + Math.min(1.2, saves / Math.max(1, apps) * 0.22) + ovrF * 0.15;
+    /* Defesas ~1.2–1.7/jogo (não usa ovrF — explodia em OVR alto). */
+    var savePer = 1.55 - clamp((effectiveOvr(s) - 70) / 80, -0.2, 0.35);
+    saves = poisson(apps * savePer * formF, function () { return rnd(s); });
+    saves = Math.max(saves, Math.round(ga * 1.0 + cs * 0.25));
+    saves = Math.min(saves, Math.round(apps * 2.2));
+    rating = 6.0 + (cs / Math.max(1, apps)) * 1.6 + Math.min(1.0, saves / Math.max(1, apps) * 0.35) + ovrF * 0.15;
   }
   var rateCap = s.ovr >= 96 ? 9.4 : s.ovr >= 90 ? 9.1 : 8.8;
   rating = Math.round(clamp(rating, 5.4, rateCap) * 10) / 10;
@@ -495,10 +497,12 @@ function simNational(s) {
       var yF = perfOvrFactor(s.ovr);
       out.cs = Math.min(out.apps, poisson(out.apps * 0.28, function () { return rnd(s); }));
       out.ga = Math.max(0, Math.round(out.apps * (1.25 - yF * 0.42) + (rnd(s) - 0.5) * 3));
+      var ySave = 1.5 - clamp((s.ovr - 70) / 80, -0.2, 0.3);
       out.saves = Math.max(
-        poisson(out.apps * (2.2 + yF * 1.0), function () { return rnd(s); }),
-        Math.round(out.ga * 1.4)
+        poisson(out.apps * ySave, function () { return rnd(s); }),
+        Math.round(out.ga * 1.0)
       );
+      out.saves = Math.min(out.saves, Math.round(out.apps * 2.2));
     }
     if (year % 2 === 0 && rnd(s) < 0.2) out.trophies.push("youth");
     return out;
@@ -520,10 +524,12 @@ function simNational(s) {
     var nF = perfOvrFactor(s.ovr);
     out.cs = Math.min(out.apps, poisson(out.apps * (0.28 + nF * 0.12), function () { return rnd(s); }));
     out.ga = Math.max(0, Math.round(out.apps * (1.2 - nF * 0.4) + (rnd(s) - 0.5) * 3));
+    var nSave = 1.45 - clamp((s.ovr - 70) / 80, -0.2, 0.3);
     out.saves = Math.max(
-      poisson(out.apps * (2.25 + nF * 1.05), function () { return rnd(s); }),
-      Math.round(out.ga * 1.4)
+      poisson(out.apps * nSave, function () { return rnd(s); }),
+      Math.round(out.ga * 1.0)
     );
+    out.saves = Math.min(out.saves, Math.round(out.apps * 2.2));
   }
   /* NT gates = eligibility floors only; base chance rare at floor, then scales with OVR (never auto-win). */
   if (isWC && starter && s.ovr >= 86) {
