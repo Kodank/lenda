@@ -1,5 +1,5 @@
 /* Lenda minimal service worker — cache app shell for offline-ish LAN/localhost use */
-const CACHE = "lenda-shell-v36-gk-saves-2";
+const CACHE = "lenda-shell-v37-gk-saves-3";
 const SHELL = [
   "./manifest.webmanifest",
   "./css/style.css",
@@ -69,6 +69,28 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
+
+  /* JS/CSS: network-first so balance/UI fixes are not stuck behind SW cache */
+  try {
+    const u = new URL(req.url);
+    const p = u.pathname;
+    if (p.includes("/js/") || p.includes("/css/") || p.endsWith("/sw.js")) {
+      event.respondWith(
+        fetch(req)
+          .then((res) => {
+            try {
+              if (res && res.ok) {
+                const copy = res.clone();
+                caches.open(CACHE).then((c) => c.put(req, copy));
+              }
+            } catch (_) {}
+            return res;
+          })
+          .catch(() => caches.match(req))
+      );
+      return;
+    }
+  } catch (_) {}
 
   event.respondWith(
     caches.match(req).then((cached) => {
