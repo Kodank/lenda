@@ -757,14 +757,28 @@ function showTrophyHall(ids) {
     if (bd) bd.classList.add("on");
   });
   if (typeof JUICE !== "undefined") JUICE.onTrophyShow(ids);
+  var closed = false;
+  function playOvrAfterTrophy() {
+    var pending = UI._ovrAfterTrophy;
+    UI._ovrAfterTrophy = null;
+    if (pending && typeof JUICE !== "undefined" && JUICE.tickOvrBadge) {
+      JUICE.tickOvrBadge(pending.from, pending.to);
+    }
+  }
   function closePop() {
+    if (closed) return;
+    closed = true;
     if (UI._trophyTimer) { clearTimeout(UI._trophyTimer); UI._trophyTimer = null; }
     if (bd) {
       bd.classList.remove("on");
       bd.classList.add("out");
-      setTimeout(clearTrophyPop, 200);
+      setTimeout(function () {
+        clearTrophyPop();
+        playOvrAfterTrophy();
+      }, 220);
     } else {
       clearTrophyPop();
+      playOvrAfterTrophy();
     }
   }
   root.onclick = function (e) { e.preventDefault(); closePop(); };

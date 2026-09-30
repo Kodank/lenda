@@ -599,11 +599,19 @@
     }
     checkMilestones(s, prevOvr);
     maybeCelebrateHype(s);
+    var trophyIds = (typeof trophiesFromReports === "function")
+      ? trophiesFromReports(reports)
+      : (last ? (last.trophies || []).concat(last.awards || []) : []);
+    var wantTick = prevOvr != null && s.ovr != null && prevOvr !== s.ovr;
     requestAnimationFrame(function () {
-      if (prevOvr != null && s.ovr != null && prevOvr !== s.ovr) {
-        tickOvrBadge(prevOvr, s.ovr);
-      }
       decorateTrophyCase(s);
+      if (!wantTick) return;
+      /* Wait for the trophy/award hall to close before counting. */
+      if (trophyIds.length && typeof UI !== "undefined") {
+        UI._ovrAfterTrophy = { from: prevOvr, to: s.ovr };
+        return;
+      }
+      tickOvrBadge(prevOvr, s.ovr);
     });
   }
 
