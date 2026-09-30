@@ -2165,7 +2165,7 @@ input[type="text"] {
 }
 .ovr-badge b.juice-digit {
   display: inline-block;
-  animation: juiceDigitPop .2s cubic-bezier(.18,1.45,.32,1);
+  animation: juiceDigitPop .32s cubic-bezier(.18,1.35,.32,1);
 }
 .ovr-badge.juice-counting-up b.juice-digit { color: #e9fff3; text-shadow: 0 0 10px rgba(109,255,168,.85); }
 .ovr-badge.juice-counting-dn b.juice-digit { color: #ffd0d0; text-shadow: 0 0 8px rgba(255,139,139,.7); }
@@ -2184,7 +2184,7 @@ input[type="text"] {
   letter-spacing: .02em;
   pointer-events: none;
   z-index: 4;
-  animation: juiceOvrFloat 1.15s ease-out forwards;
+  animation: juiceOvrFloat 1.6s ease-out forwards;
 }
 .juice-ovr-float.up { color: #6dffa8; text-shadow: 0 0 12px rgba(61,214,140,.75); }
 .juice-ovr-float.dn { color: #ff8b8b; text-shadow: 0 0 10px rgba(239,68,68,.6); }

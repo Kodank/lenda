@@ -243,8 +243,9 @@
     var up = delta > 0;
     var abs = Math.abs(delta);
     /* One digit at a time so each step is readable. Bigger jumps go a bit faster, still capped. */
-    var stepMs = abs <= 2 ? 240 : abs <= 4 ? 190 : abs <= 8 ? 140 : 95;
-    if (abs * stepMs > 1700) stepMs = Math.max(60, Math.floor(1700 / abs));
+    /* Slow enough to read each number. Up and down use the same pace. */
+    var stepMs = abs <= 1 ? 520 : abs <= 3 ? 420 : abs <= 6 ? 340 : 280;
+    if (abs * stepMs > 3600) stepMs = Math.max(180, Math.floor(3600 / abs));
 
     badge.textContent = String(from);
     if (box) {
