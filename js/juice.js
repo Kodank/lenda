@@ -224,42 +224,80 @@
     requestAnimationFrame(frame);
   }
 
-  function tickOvrBadge(from, to, ms) {
+  var ovrTickTimer = 0;
+
+  function tickOvrBadge(from, to) {
     if (from == null || to == null || from === to) return;
     var badge = document.querySelector(".ovr-badge b");
     if (!badge) return;
+    var box = badge.closest(".ovr-badge");
     if (reducedMotion()) {
       badge.textContent = String(to);
       return;
     }
-    ms = Math.min(400, ms || 360);
-    var start = performance.now();
+    if (ovrTickTimer) {
+      clearTimeout(ovrTickTimer);
+      ovrTickTimer = 0;
+    }
     var delta = to - from;
     var up = delta > 0;
-    badge.classList.add(up ? "juice-ovr-up" : "juice-ovr-dn");
-    function step(now) {
-      var p = Math.min(1, (now - start) / ms);
-      var ease = 1 - Math.pow(1 - p, 2.4);
-      badge.textContent = String(Math.round(from + delta * ease));
-      if (p < 1) requestAnimationFrame(step);
-      else {
-        badge.textContent = String(to);
-        setTimeout(function () {
-          badge.classList.remove("juice-ovr-up", "juice-ovr-dn");
-        }, 120);
-      }
+    var abs = Math.abs(delta);
+    /* One digit at a time so each step is readable. Bigger jumps go a bit faster, still capped. */
+    var stepMs = abs <= 2 ? 240 : abs <= 4 ? 190 : abs <= 8 ? 140 : 95;
+    if (abs * stepMs > 1700) stepMs = Math.max(60, Math.floor(1700 / abs));
+
+    badge.textContent = String(from);
+    if (box) {
+      box.classList.remove("juice-counting-up", "juice-counting-dn", "juice-settle");
+      box.classList.add(up ? "juice-counting-up" : "juice-counting-dn");
+      var oldFloat = box.querySelector(".juice-ovr-float");
+      if (oldFloat) oldFloat.parentNode.removeChild(oldFloat);
+      var chip = document.createElement("div");
+      chip.className = "juice-ovr-float " + (up ? "up" : "dn");
+      chip.textContent = (delta > 0 ? "+" : "") + delta;
+      box.appendChild(chip);
     }
-    requestAnimationFrame(step);
-    var rect = badge.getBoundingClientRect();
-    burstParticles({
-      count: up ? 7 : 5,
-      color: up ? "#6dffa8" : "#ff8b8b",
-      color2: up ? "#3dd68c" : "#ef4444",
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-      life: 380
-    });
-    beep(up ? "ovrUp" : "ovrDn");
+
+    var cur = from;
+    function pulse() {
+      badge.classList.remove("juice-digit");
+      void badge.offsetWidth;
+      badge.classList.add("juice-digit");
+    }
+    function finish() {
+      badge.textContent = String(to);
+      pulse();
+      beep(up ? "ovrUp" : "ovrDn");
+      if (box) {
+        box.classList.add("juice-settle");
+        var rect = box.getBoundingClientRect();
+        burstParticles({
+          count: up ? Math.min(16, 6 + abs * 2) : 5,
+          color: up ? "#6dffa8" : "#ff8b8b",
+          color2: up ? "#fff7c2" : "#ef4444",
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+          life: up ? 620 : 380
+        });
+      }
+      ovrTickTimer = setTimeout(function () {
+        badge.classList.remove("juice-ovr-up", "juice-ovr-dn", "juice-digit");
+        if (box) box.classList.remove("juice-counting-up", "juice-counting-dn", "juice-settle");
+        ovrTickTimer = 0;
+      }, 520);
+    }
+    function next() {
+      if (cur === to) {
+        finish();
+        return;
+      }
+      cur += up ? 1 : -1;
+      badge.textContent = String(cur);
+      pulse();
+      if (cur === to) ovrTickTimer = setTimeout(finish, 40);
+      else ovrTickTimer = setTimeout(next, stepMs);
+    }
+    ovrTickTimer = setTimeout(next, 80);
   }
 
   function trophyHit(ids) {
@@ -562,7 +600,7 @@
     maybeCelebrateHype(s);
     requestAnimationFrame(function () {
       if (prevOvr != null && s.ovr != null && prevOvr !== s.ovr) {
-        tickOvrBadge(prevOvr, s.ovr, 360);
+        tickOvrBadge(prevOvr, s.ovr);
       }
       decorateTrophyCase(s);
     });

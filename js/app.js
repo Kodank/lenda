@@ -18,7 +18,7 @@
 (function registerSw() {
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./sw.js?v=gk-saves-3").then(function (reg) {
+    navigator.serviceWorker.register("./sw.js?v=ovr-tick-1").then(function (reg) {
       try { reg.update(); } catch (e) {}
     }).catch(function () {});
   });
