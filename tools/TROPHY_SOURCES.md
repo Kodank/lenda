@@ -114,3 +114,17 @@ Real TheSportsDB league trophy/badge cutouts (transparent PNGs already) unless n
 | `goldcup` | TheSportsDB CONCACAF Gold Cup trophy `efr5us1702273097` — https://r2.thesportsdb.com/images/media/league/trophy/efr5us1702273097.png |
 
 Not shipped: Hrvatski kup / Rabuzinovo sunce. No TheSportsDB league and no Commons cutout. Croatia league `cupTrophy` is `false` so the generic `copa.png` is not reused. League logos are TheSportsDB `strBadge` for the same competitions (flagcdn for flags). Crests are each club's TheSportsDB `og:image`, checked against the club name.
+
+## nordic-1 (2026-10-01)
+
+TheSportsDB transparent cutouts. Cache-bust `nordic-1`. Crests: each club's `strBadge` (Superliga 2026-27, Allsvenskan 2026, Eliteserien 2026). Flags: flagcdn official-ratio PNGs (Denmark, Sweden, Norway).
+
+| ID | Source |
+|----|--------|
+| `dsliga` | TheSportsDB Danish Superliga trophy `uqywpu1422281651` (DBU championship cup) — https://r2.thesportsdb.com/images/media/league/trophy/uqywpu1422281651.png |
+| `allsvenskan` | TheSportsDB Swedish Allsvenskan trophy (Lennart Johanssons Pokal) `0zpqqm1610917265` |
+| `eliteserien` | TheSportsDB Norwegian Eliteserien trophy `uz9kw61778714637` |
+| `svenska_cup` | TheSportsDB Svenska Cupen trophy `npi5x51779557615` |
+| `nm_cup` | TheSportsDB Norwegian Cupen trophy `5df4xs1751133808` (Kongepokal, base reads KONGENS P…) |
+
+Not shipped: Sydbank Pokalen / DBU Pokalen as its own file. The only free DBU cutout is the Superliga trophy above, so Danish league `cupTrophy` is `false` (no `copa.png` reuse).

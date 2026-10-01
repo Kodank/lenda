@@ -59,7 +59,7 @@ function eventFits(s, ev) {
   return true;
 }
 
-var EURO_LEAGUES = { eng: 1, esp: 1, ita: 1, ger: 1, fra: 1, por: 1, ned: 1, bel: 1, tur: 1, sco: 1, hnl: 1, slg: 1, rpl: 1 };
+var EURO_LEAGUES = { eng: 1, esp: 1, ita: 1, ger: 1, fra: 1, por: 1, ned: 1, bel: 1, tur: 1, sco: 1, hnl: 1, slg: 1, rpl: 1, dsl: 1, all: 1, eli: 1 };
 
 /*
  * World elite lists (level + reputation). Curated mega clubs — not raw SA giants.

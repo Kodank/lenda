@@ -184,6 +184,9 @@ var TROPHIES = {
   botola: { name: "Botola Pro", img: "img/trophies/botola.png?v=nations-1", kind: "league", w: 4 },
   kleague: { name: "K League 1", img: "img/trophies/kleague.png?v=nations-1", kind: "league", w: 4 },
   cpl: { name: "Canadian Premier League", img: "img/trophies/cpl.png?v=nations-1", kind: "league", w: 4 },
+  dsliga: { name: "Superliga", img: "img/trophies/dsliga.png?v=nordic-1", kind: "league", w: 5 },
+  allsvenskan: { name: "Allsvenskan", img: "img/trophies/allsvenskan.png?v=nordic-1", kind: "league", w: 5 },
+  eliteserien: { name: "Eliteserien", img: "img/trophies/eliteserien.png?v=nordic-1", kind: "league", w: 5 },
   serie_c: { name: "Série C", img: "img/trophies/serie_c.png?v=npfl-concacaf-2", kind: "league", w: 2 },
   championship: { name: "Championship", img: "img/trophies/championship.png?v=npfl-concacaf-2", kind: "league", w: 3 },
   bundesliga2: { name: "2. Bundesliga", img: "img/trophies/bundesliga2.png?v=npfl-concacaf-2", kind: "league", w: 3 },
@@ -219,6 +222,8 @@ var TROPHIES = {
   trone: { name: "Coupe du Trône", img: "img/trophies/trone.png?v=nations-1", kind: "cup", w: 4 },
   korea_cup: { name: "Copa da Coreia", img: "img/trophies/korea_cup.png?v=nations-1", kind: "cup", w: 4 },
   can_champ: { name: "Campeonato Canadense", img: "img/trophies/can_champ.png?v=nations-1", kind: "cup", w: 4 },
+  svenska_cup: { name: "Svenska Cupen", img: "img/trophies/svenska_cup.png?v=nordic-1", kind: "cup", w: 4 },
+  nm_cup: { name: "NM Cupen", img: "img/trophies/nm_cup.png?v=nordic-1", kind: "cup", w: 4 },
   /* Continentais / seleção */
   libertadores: { name: "Libertadores", img: "img/trophies/libertadores.png", kind: "continental", w: 10 },
   ucl: { name: "Champions League", img: "img/trophies/ucl.png", kind: "continental", w: 12 },
@@ -245,9 +250,10 @@ var NATION_CUP = {
   fr: "coupe_fr", pt: "taca_pt", ar: "copa_arg", uy: "copa_uy", co: "copa_col", mx: "copa_mx",
   nl: "knvb", us: "us_open", jp: "emperor", ng: "copa_ng", sn: "copa_sn", be: "copa_be", tr: "copa_tr", sct: "scottish_cup",
   cl: "copa_cl", ec: "copa_ec", py: "copa_py", gr: "greek_cup", ru: "russian_cup",
-  ma: "trone", kr: "korea_cup", ca: "can_champ"
+  ma: "trone", kr: "korea_cup", ca: "can_champ",
+  se: "svenska_cup", no: "nm_cup"
 };
-/* hr omitted: no real Hrvatski kup cutout. League cupTrophy false blocks the generic copa fallback. */
+/* hr omitted: no real Hrvatski kup cutout. dk omitted: no separate Sydbank Pokalen cutout (DBU image is the Superliga trophy). League cupTrophy false blocks the generic copa fallback. */
 
 /* Even non-World-Cup years: one continental NT trophy per confederation. */
 function ntContinentalId(nat) {
@@ -289,7 +295,10 @@ var NATION_SHIRT = {
   ru: { shirt: "img/shirts/ru.png", ink: "#0033A0", inkShadow: "rgba(255,255,255,.2)" },
   ma: { shirt: "img/shirts/ma.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
   kr: { shirt: "img/shirts/kr.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
-  ca: { shirt: "img/shirts/ca.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" }
+  ca: { shirt: "img/shirts/ca.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  dk: { shirt: "img/shirts/dk.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  se: { shirt: "img/shirts/se.png", ink: "#006AA7", inkShadow: "rgba(255,255,255,.25)" },
+  no: { shirt: "img/shirts/no.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" }
 };
 
 

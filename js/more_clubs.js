@@ -11,7 +11,10 @@ NATIONS = NATIONS.concat([
   { id: "ru", name: "Rússia", adj: "Russo", conf: "uefa", ntCut: -3, flag: "img/flags/ru.png" },
   { id: "ma", name: "Marrocos", adj: "Marroquino", conf: "caf", ntCut: -4, flag: "img/flags/ma.png" },
   { id: "kr", name: "Coreia do Sul", adj: "Sul-coreano", conf: "afc", ntCut: -5, flag: "img/flags/kr.png" },
-  { id: "ca", name: "Canadá", adj: "Canadense", conf: "concacaf", ntCut: -6, flag: "img/flags/ca.png" }
+  { id: "ca", name: "Canadá", adj: "Canadense", conf: "concacaf", ntCut: -6, flag: "img/flags/ca.png" },
+  { id: "dk", name: "Dinamarca", adj: "Dinamarquês", conf: "uefa", ntCut: -2, flag: "img/flags/dk.png" },
+  { id: "se", name: "Suécia", adj: "Sueco", conf: "uefa", ntCut: -3, flag: "img/flags/se.png" },
+  { id: "no", name: "Noruega", adj: "Norueguês", conf: "uefa", ntCut: -4, flag: "img/flags/no.png" }
 ]);
 
 /* LEAGUE_SEASON placements: Brasileirão 2026 + EUR 2026/27 — see LEAGUE_SEASON in world.js */
@@ -27,7 +30,10 @@ LEAGUES = LEAGUES.concat([
   { id: "rpl", name: "Russian Premier League", nation: "ru", tier: 1, level: 3.5, continental: "ucl", size: 16, trophy: "rpl", logo: "img/leagues/rpl.png", color: "#E4181C" },
   { id: "bot", name: "Botola Pro", nation: "ma", tier: 1, level: 2.6, continental: "caf", size: 16, trophy: "botola", logo: "img/leagues/bot.png", color: "#C1272D" },
   { id: "kle", name: "K League 1", nation: "kr", tier: 1, level: 3.1, continental: "acl", size: 12, trophy: "kleague", logo: "img/leagues/kle.png", color: "#E8342A" },
-  { id: "cpl", name: "Canadian Premier League", nation: "ca", tier: 1, level: 2.7, continental: "concacaf", size: 8, trophy: "cpl", logo: "img/leagues/cpl.png", color: "#E4002B" }
+  { id: "cpl", name: "Canadian Premier League", nation: "ca", tier: 1, level: 2.7, continental: "concacaf", size: 8, trophy: "cpl", logo: "img/leagues/cpl.png", color: "#E4002B" },
+  { id: "dsl", name: "Danish Superliga", nation: "dk", tier: 1, level: 3.6, continental: "ucl", size: 12, trophy: "dsliga", logo: "img/leagues/dsl.png", color: "#C60C30" },
+  { id: "all", name: "Allsvenskan", nation: "se", tier: 1, level: 3.4, continental: "ucl", size: 16, trophy: "allsvenskan", logo: "img/leagues/all.png", color: "#006AA7" },
+  { id: "eli", name: "Eliteserien", nation: "no", tier: 1, level: 3.4, continental: "ucl", size: 16, trophy: "eliteserien", logo: "img/leagues/eli.png", color: "#BA0C2F" }
 ]);
 
 function _xc(id, name, city, nation, leagueId, level, c1, c2) {
@@ -146,6 +152,10 @@ CLUBS = CLUBS.concat([
     bot: { trophy: "botola", cupTrophy: "trone" },
     kle: { trophy: "kleague", cupTrophy: "korea_cup" },
     cpl: { trophy: "cpl", cupTrophy: "can_champ" },
+    /* Sydbank Pokalen: no separate free cutout — the DBU cup image is the Superliga trophy. cupTrophy false skips copa.png */
+    dsl: { trophy: "dsliga", cupTrophy: false },
+    all: { trophy: "allsvenskan", cupTrophy: "svenska_cup" },
+    eli: { trophy: "eliteserien", cupTrophy: "nm_cup" },
     brc: { trophy: "serie_c", cupTrophy: "copa_br" },
     eng2: { trophy: "championship", cupTrophy: "fa_cup" },
     ger2: { trophy: "bundesliga2", cupTrophy: "dfb_pokal" },
@@ -367,4 +377,54 @@ CLUBS = CLUBS.concat([
   _xc("akr", "Akron", "Togliatti", "ru", "rpl", 3.0, "#E10600", "#000000"),
   _xc("rod", "Rodina", "Moscou", "ru", "rpl", 2.9, "#001B3A", "#00AEEF"),
   _xc("fak", "Fakel", "Voronej", "ru", "rpl", 2.8, "#0033A0", "#E10600")
+]);
+
+/* --- pack nórdico: Superliga 2026-27, Allsvenskan 2026, Eliteserien 2026 --- */
+CLUBS = CLUBS.concat([
+  _xc("agf", "AGF", "Aarhus", "dk", "dsl", 3.4, "#FFFFFF", "#0033A0"),
+  _xc("bfc", "Brøndby", "Brøndby", "dk", "dsl", 3.6, "#FFD100", "#0057B8"),
+  _xc("fck", "FC Copenhagen", "Copenhague", "dk", "dsl", 3.9, "#FFFFFF", "#003DA5"),
+  _xc("ach", "AC Horsens", "Horsens", "dk", "dsl", 3.0, "#FFD100", "#111111"),
+  _xc("lyb", "Lyngby", "Lyngby", "dk", "dsl", 3.0, "#0033A0", "#FFFFFF"),
+  _xc("fcm", "Midtjylland", "Herning", "dk", "dsl", 3.8, "#111111", "#C8102E"),
+  _xc("fcn", "Nordsjælland", "Farum", "dk", "dsl", 3.5, "#E10600", "#FFD100"),
+  _xc("obo", "OB", "Odense", "dk", "dsl", 3.1, "#0057B8", "#FFFFFF"),
+  _xc("rfc", "Randers", "Randers", "dk", "dsl", 3.2, "#111111", "#FFFFFF"),
+  _xc("sif", "Silkeborg", "Silkeborg", "dk", "dsl", 3.2, "#00AEEF", "#FFFFFF"),
+  _xc("son", "Sønderjyske", "Haderslev", "dk", "dsl", 3.1, "#00205B", "#FFFFFF"),
+  _xc("vff", "Viborg", "Viborg", "dk", "dsl", 3.3, "#007A53", "#FFFFFF"),
+
+  _xc("aik", "AIK", "Solna", "se", "all", 3.5, "#FFD100", "#00205B"),
+  _xc("bkh", "Häcken", "Gotemburgo", "se", "all", 3.4, "#FFD100", "#111111"),
+  _xc("deg", "Degerfors", "Degerfors", "se", "all", 2.9, "#E10600", "#FFFFFF"),
+  _xc("dif", "Djurgården", "Estocolmo", "se", "all", 3.6, "#FFD100", "#0057B8"),
+  _xc("gais", "GAIS", "Gotemburgo", "se", "all", 3.1, "#007A33", "#E10600"),
+  _xc("hbk", "Halmstad", "Halmstad", "se", "all", 2.9, "#0057B8", "#FFD100"),
+  _xc("ham", "Hammarby", "Estocolmo", "se", "all", 3.6, "#007A33", "#FFFFFF"),
+  _xc("bp", "Brommapojkarna", "Estocolmo", "se", "all", 3.0, "#111111", "#C8102E"),
+  _xc("elf", "Elfsborg", "Borås", "se", "all", 3.4, "#FFD100", "#111111"),
+  _xc("ifkg", "IFK Göteborg", "Gotemburgo", "se", "all", 3.3, "#0057B8", "#FFFFFF"),
+  _xc("sir", "Sirius", "Uppsala", "se", "all", 3.3, "#111111", "#0057B8"),
+  _xc("kff", "Kalmar", "Kalmar", "se", "all", 3.0, "#E10600", "#FFFFFF"),
+  _xc("mff", "Malmö", "Malmö", "se", "all", 3.8, "#5BC2E7", "#FFFFFF"),
+  _xc("mja", "Mjällby", "Hällevik", "se", "all", 3.2, "#FFD100", "#111111"),
+  _xc("vsk", "Västerås", "Västerås", "se", "all", 3.0, "#007A33", "#FFFFFF"),
+  _xc("ois", "Örgryte", "Gotemburgo", "se", "all", 2.8, "#E10600", "#0033A0"),
+
+  _xc("aafk", "Aalesund", "Ålesund", "no", "eli", 2.8, "#F36C21", "#0033A0"),
+  _xc("bog", "Bodø/Glimt", "Bodø", "no", "eli", 3.9, "#FFD100", "#111111"),
+  _xc("brnn", "Brann", "Bergen", "no", "eli", 3.5, "#E10600", "#FFFFFF"),
+  _xc("ffk", "Fredrikstad", "Fredrikstad", "no", "eli", 3.1, "#E10600", "#FFFFFF"),
+  _xc("hkam", "HamKam", "Hamar", "no", "eli", 3.0, "#007A33", "#FFFFFF"),
+  _xc("kfum", "KFUM", "Oslo", "no", "eli", 2.9, "#E10600", "#0033A0"),
+  _xc("kbk", "Kristiansund", "Kristiansund", "no", "eli", 2.9, "#0033A0", "#FFFFFF"),
+  _xc("lsk", "Lillestrøm", "Lillestrøm", "no", "eli", 3.3, "#FFD100", "#111111"),
+  _xc("mol", "Molde", "Molde", "no", "eli", 3.6, "#0057B8", "#FFFFFF"),
+  _xc("rbk", "Rosenborg", "Trondheim", "no", "eli", 3.6, "#FFFFFF", "#111111"),
+  _xc("sand", "Sandefjord", "Sandefjord", "no", "eli", 2.9, "#0033A0", "#E10600"),
+  _xc("s08", "Sarpsborg 08", "Sarpsborg", "no", "eli", 3.1, "#0033A0", "#FFFFFF"),
+  _xc("ikst", "Start", "Kristiansand", "no", "eli", 2.8, "#FFD100", "#0033A0"),
+  _xc("til", "Tromsø", "Tromsø", "no", "eli", 3.3, "#E10600", "#FFFFFF"),
+  _xc("vifk", "Viking", "Stavanger", "no", "eli", 3.6, "#6C1D2C", "#FFD100"),
+  _xc("vif", "Vålerenga", "Oslo", "no", "eli", 3.2, "#0033A0", "#E10600")
 ]);
