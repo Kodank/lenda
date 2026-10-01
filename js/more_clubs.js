@@ -220,5 +220,44 @@ CLUBS = CLUBS.concat([
 
   /* --- Ligue 1 2026/27 promoted --- */
   _xc("tro", "Troyes", "Troyes", "fr", "fra", 3.2, "#0033A0", "#FFFFFF"),
-  _xc("lem", "Le Mans", "Le Mans", "fr", "fra", 3.1, "#E30613", "#FFD100")
+  _xc("lem", "Le Mans", "Le Mans", "fr", "fra", 3.1, "#E30613", "#FFD100"),
+
+  /* --- pack 1: 2026-27 top flight (Scotland, HNL, CPL, Botola) --- */
+  _xc("hrt", "Hearts", "Edinburgh", "sct", "sco", 3.4, "#7A003C", "#FFFFFF"),
+  _xc("hib", "Hibernian", "Edinburgh", "sct", "sco", 3.3, "#007A33", "#FFFFFF"),
+  _xc("mot", "Motherwell", "Motherwell", "sct", "sco", 3.2, "#6C1D45", "#F5B335"),
+  _xc("dun", "Dundee", "Dundee", "sct", "sco", 3.1, "#132257", "#FFFFFF"),
+  _xc("duu", "Dundee United", "Dundee", "sct", "sco", 3.1, "#F15A22", "#000000"),
+  _xc("kil", "Kilmarnock", "Kilmarnock", "sct", "sco", 3.0, "#0033A0", "#FFFFFF"),
+  _xc("stm", "St Mirren", "Paisley", "sct", "sco", 3.0, "#000000", "#FFFFFF"),
+  _xc("fal", "Falkirk", "Falkirk", "sct", "sco", 3.0, "#001F5B", "#FFFFFF"),
+  _xc("sjo", "St Johnstone", "Perth", "sct", "sco", 2.9, "#003DA5", "#FFFFFF"),
+
+  _xc("var", "Varaždin", "Varaždin", "hr", "hnl", 3.2, "#0033A0", "#FFFFFF"),
+  _xc("osi", "Osijek", "Osijek", "hr", "hnl", 3.1, "#0057A8", "#FFFFFF"),
+  _xc("lok", "Lokomotiva", "Zagreb", "hr", "hnl", 3.0, "#0033A0", "#FFFFFF"),
+  _xc("ist", "Istra 1961", "Pula", "hr", "hnl", 3.0, "#007A33", "#FFE500"),
+  _xc("gor", "Gorica", "Velika Gorica", "hr", "hnl", 2.9, "#0057B8", "#FFFFFF"),
+  _xc("slb", "Slaven Belupo", "Koprivnica", "hr", "hnl", 2.9, "#0033A0", "#FFFFFF"),
+  _xc("rud", "Rudeš", "Zagreb", "hr", "hnl", 2.8, "#003DA5", "#FFFFFF"),
+
+  _xc("frg", "Forge FC", "Hamilton", "ca", "cpl", 2.9, "#F26522", "#111111"),
+  _xc("vfc", "Vancouver FC", "Langley", "ca", "cpl", 2.6, "#212322", "#FFFFFF"),
+  _xc("hfx", "HFX Wanderers", "Halifax", "ca", "cpl", 2.5, "#00205B", "#6EC1E4"),
+  _xc("itr", "Inter Toronto", "Toronto", "ca", "cpl", 2.5, "#0A2342", "#C4A35A"),
+  _xc("sup", "Supra du Québec", "Laval", "ca", "cpl", 2.4, "#E10600", "#002D72"),
+
+  _xc("masf", "MAS Fez", "Fez", "ma", "bot", 3.0, "#F5D000", "#111111"),
+  _xc("rsb", "RS Berkane", "Berkane", "ma", "bot", 2.8, "#F36C21", "#111111"),
+  _xc("fus", "FUS Rabat", "Rabat", "ma", "bot", 2.7, "#C8102E", "#FFFFFF"),
+  _xc("husa", "Hassania Agadir", "Agadir", "ma", "bot", 2.6, "#C8102E", "#FFFFFF"),
+  _xc("irt", "Ittihad Tanger", "Tanger", "ma", "bot", 2.6, "#0057B8", "#FFFFFF"),
+  _xc("codm", "CODM Meknès", "Meknès", "ma", "bot", 2.5, "#E10600", "#FFFFFF"),
+  _xc("dhj", "Difaâ El Jadida", "El Jadida", "ma", "bot", 2.5, "#007A33", "#FFFFFF"),
+  _xc("kacm", "Kawkab Marrakech", "Marrakech", "ma", "bot", 2.4, "#C8102E", "#FFFFFF"),
+  _xc("uts", "Union Touarga", "Rabat", "ma", "bot", 2.4, "#F5C518", "#111111"),
+  _xc("mat", "MA Tétouan", "Tétouan", "ma", "bot", 2.3, "#C8102E", "#FFFFFF"),
+  _xc("rcaz", "RCA Zemamra", "Zemamra", "ma", "bot", 2.3, "#0057B8", "#FFFFFF"),
+  _xc("usat", "Amal Tiznit", "Tiznit", "ma", "bot", 2.2, "#0057B8", "#FFFFFF"),
+  _xc("wst", "Widad Témara", "Témara", "ma", "bot", 2.1, "#C8102E", "#0033A0")
 ]);
