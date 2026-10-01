@@ -634,9 +634,19 @@ function load() {
   }
 }
 function clearSave() {
+  /* Career progress only. Never drop lenda-setup-prefs (or anything else). */
+  var prefs = null;
+  try {
+    prefs = localStorage.getItem(SETUP_PREFS_KEY);
+  } catch (e) {}
   try {
     localStorage.removeItem(SAVE_KEY);
   } catch (e) {}
+  if (prefs != null) {
+    try {
+      if (localStorage.getItem(SETUP_PREFS_KEY) == null) localStorage.setItem(SETUP_PREFS_KEY, prefs);
+    } catch (e) {}
+  }
 }
 
 function countTrophy(s, id) {

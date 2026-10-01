@@ -1258,14 +1258,21 @@ function go(to) {
     UI.screen = "create";
   } else if (to === "reset") {
     if (!window.confirm("Apagar a carreira salva e recomeçar do zero?")) return;
+    /* Flush name/country/position/foot before the career wipe. Not pace, not DEV, not the save. */
+    if (UI.draft && typeof rememberSetupPrefs === "function") rememberSetupPrefs(UI.draft);
+    else if (S && typeof rememberSetupPrefs === "function") {
+      var existingPrefs = typeof readSetupPrefs === "function" ? readSetupPrefs() : null;
+      var hasSetup = existingPrefs && (existingPrefs.name || existingPrefs.country || existingPrefs.position || existingPrefs.foot);
+      if (!hasSetup) rememberSetupPrefs({ name: S.name, nation: S.nation, pos: S.pos, foot: S.foot });
+    }
     clearTrophyPop();
     clearSave();
     S = null;
     UI.event = null;
     UI.reports = [];
     UI.offers = null;
-    UI.draft = null;
-    UI.screen = "home";
+    UI.draft = freshSetupDraft();
+    UI.screen = "create";
     render();
     return;
   }
