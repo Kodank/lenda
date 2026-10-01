@@ -74,7 +74,7 @@ function applyDerbySeason(s, season) {
 }
 
 function tournamentPathFlavor(s, kind, won, apps, starter) {
-  /* kind: worldcup | euro | copaamerica */
+  /* kind: worldcup | euro | copaamerica | afcon | asiancup | goldcup */
   if (!apps) return null;
   var roll = rnd(s);
   var stage;
@@ -113,6 +113,33 @@ function tournamentPathFlavor(s, kind, won, apps, starter) {
       r16: "Oitavas da Copa América",
       group: "Eliminado na fase de grupos",
       bench: "Na lista, poucos minutos"
+    },
+    afcon: {
+      champion: "Campeão da Copa Africana — CAN",
+      final: "Final da CAN — um passo",
+      sf: "Semi da CAN — quase o continente",
+      qf: "Quartas da CAN — adeus cedo",
+      r16: "Oitavas da CAN — viagem curta",
+      group: "Eliminado na fase de grupos",
+      bench: "Na lista, poucos minutos"
+    },
+    asiancup: {
+      champion: "Campeão da Copa da Ásia",
+      final: "Final da Copa da Ásia",
+      sf: "Semi da Copa da Ásia",
+      qf: "Quartas da Copa da Ásia",
+      r16: "Oitavas da Copa da Ásia",
+      group: "Eliminado na fase de grupos",
+      bench: "Convocado, quase espectador"
+    },
+    goldcup: {
+      champion: "Campeão da Copa Ouro",
+      final: "Final da Copa Ouro",
+      sf: "Semi da Copa Ouro",
+      qf: "Quartas da Copa Ouro",
+      r16: "Oitavas da Copa Ouro",
+      group: "Eliminado na fase de grupos",
+      bench: "Na lista, poucos minutos"
     }
   };
   var pack = labels[kind] || labels.worldcup;
@@ -134,9 +161,10 @@ function enhanceNationalStory(s, nt) {
     nt.path = tournamentPathFlavor(s, "worldcup", wonWC, nt.apps, starter);
   } else if (isCont && !nt.youth) {
     var nat = nationOf(s.nation);
-    var kind = nat.conf === "uefa" ? "euro" : nat.conf === "conmebol" ? "copaamerica" : null;
+    var kind = typeof ntContinentalId === "function" ? ntContinentalId(nat)
+      : (nat.conf === "uefa" ? "euro" : nat.conf === "conmebol" ? "copaamerica" : null);
     if (kind) {
-      var won = kind === "euro" ? wonEuro : wonCA;
+      var won = (nt.trophies || []).indexOf(kind) >= 0;
       nt.path = tournamentPathFlavor(s, kind, won, nt.apps, starter);
     }
   }

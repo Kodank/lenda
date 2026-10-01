@@ -140,6 +140,7 @@
   function cupTrophy() {
     var club = clubOf(S.clubId);
     var lg = leagueOf(club.leagueId);
+    if (lg.cupTrophy === false) return null;
     return lg.cupTrophy || (typeof NATION_CUP !== "undefined" && NATION_CUP[club.nation]) || "copa";
   }
 
@@ -158,7 +159,7 @@
     if (!needCareer(true)) return;
     var ids = [];
     if (opts.league) ids.push(leagueTrophy());
-    if (opts.cup) ids.push(cupTrophy());
+    if (opts.cup) { var _cup = cupTrophy(); if (_cup) ids.push(_cup); else toast("Sem copa nacional nesta liga", true); }
     if (opts.continental) { var _ct = contTrophy(); if (_ct) ids.push(_ct); else toast("Sem continental nesta liga", true); }
     if (opts.clubWorld) ids.push("clubworldcup");
     if (opts.world) ids.push("worldcup");

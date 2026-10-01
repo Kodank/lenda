@@ -5,7 +5,11 @@ var NATION_KIT = {
   es: ["#AA151B", "#F1BF00"], en: ["#FFFFFF", "#0A1E46"], fr: ["#002395", "#ED2939"],
   it: ["#0066B3", "#FFFFFF"], de: ["#FFFFFF", "#000000"], nl: ["#F36C21", "#FFFFFF"],
   us: ["#FFFFFF", "#BF0A30"], jp: ["#1B2A4A", "#BC002D"], ng: ["#008751", "#FFFFFF"],
-  sn: ["#F5F5F5", "#00853F"]
+  sn: ["#F5F5F5", "#00853F"],
+  be: ["#C8102E", "#000000"], tr: ["#E30A17", "#FFFFFF"], sct: ["#0057B8", "#FFFFFF"],
+  cl: ["#D52B1E", "#FFFFFF"], ec: ["#FFD100", "#034EA2"], py: ["#D52B1E", "#0038A8"],
+  hr: ["#FF0000", "#171796"], gr: ["#FFFFFF", "#0D5EAF"], ru: ["#FFFFFF", "#D52B1E"],
+  ma: ["#C1272D", "#006233"], kr: ["#CD2E3A", "#111111"], ca: ["#FF0000", "#FFFFFF"]
 };
 
 function crestSrc(path) {

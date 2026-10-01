@@ -84,3 +84,33 @@ Corrected remapping: older SportsDB IDs mixed up FA Cup / Libertadores / etc. Ea
 | `npfl` | Silver football cup (TheSportsDB Ghanaian Premier League trophy `5p82xy1758093176`) — no official NPFL cutout exists; previous asset was a team photo |
 | `concacaf` | Wikimedia Commons museum photo of 1972 CONCACAF Champions' Cup (CD Olimpia) + rembg; cache `npfl-concacaf-2` |
 
+
+
+## nations-1 (2026-09-30)
+
+Real TheSportsDB league trophy/badge cutouts (transparent PNGs already) unless noted. Each id is its own file.
+
+| ID | Source |
+|----|--------|
+| `primera_cl` | TheSportsDB Chile Primera Division trophy `pc5q211747119036` — https://r2.thesportsdb.com/images/media/league/trophy/pc5q211747119036.png |
+| `copa_cl` | TheSportsDB Copa Chile trophy `ssu74w1732152889` — https://r2.thesportsdb.com/images/media/league/trophy/ssu74w1732152889.png |
+| `liga_ec` | TheSportsDB Ecuadorian Serie A trophy `trq1b41716301832` — https://r2.thesportsdb.com/images/media/league/trophy/trq1b41716301832.png |
+| `copa_ec` | TheSportsDB Copa Ecuador trophy `gghphb1776553146` — https://r2.thesportsdb.com/images/media/league/trophy/gghphb1776553146.png |
+| `primera_py` | TheSportsDB Paraguayan Primera trophy `kio0ex1610751915` — https://r2.thesportsdb.com/images/media/league/trophy/kio0ex1610751915.png |
+| `copa_py` | TheSportsDB Copa Paraguay trophy `uj9fdu1780941744` — https://r2.thesportsdb.com/images/media/league/trophy/uj9fdu1780941744.png |
+| `hnl` | TheSportsDB Croatian First Football League trophy `zhp18a1715259853` — https://r2.thesportsdb.com/images/media/league/trophy/zhp18a1715259853.png |
+| `slgreece` | TheSportsDB Greek Super League 1 trophy `y96u431716371640` — https://r2.thesportsdb.com/images/media/league/trophy/y96u431716371640.png |
+| `greek_cup` | TheSportsDB Greek Football Cup trophy `ud36ai1781757494` — https://r2.thesportsdb.com/images/media/league/trophy/ud36ai1781757494.png |
+| `rpl` | TheSportsDB Russian Premier League trophy `zg8zxb1750688658` — https://r2.thesportsdb.com/images/media/league/trophy/zg8zxb1750688658.png |
+| `russian_cup` | TheSportsDB Russia Cup trophy `uf3kbo1782109484` — https://r2.thesportsdb.com/images/media/league/trophy/uf3kbo1782109484.png |
+| `botola` | TheSportsDB Moroccan Championship / Botola trophy `5fjhsc1551439097` — https://r2.thesportsdb.com/images/media/league/trophy/5fjhsc1551439097.png |
+| `trone` | Wikimedia Commons `File:COUPE_DU_TRONE.png` (already transparent) — https://commons.wikimedia.org/wiki/File:COUPE_DU_TRONE.png |
+| `kleague` | TheSportsDB K League 1 trophy `y5ah3s1711189638` — https://r2.thesportsdb.com/images/media/league/trophy/y5ah3s1711189638.png |
+| `korea_cup` | TheSportsDB Korea Cup trophy `p1ewzn1782063303` — https://r2.thesportsdb.com/images/media/league/trophy/p1ewzn1782063303.png |
+| `cpl` | TheSportsDB Canadian Premier League trophy `xhb8ae1784004623` — https://r2.thesportsdb.com/images/media/league/trophy/xhb8ae1784004623.png |
+| `can_champ` | TheSportsDB Canadian Championship trophy `hpmz1l1784004504` — https://r2.thesportsdb.com/images/media/league/trophy/hpmz1l1784004504.png |
+| `afcon` | TheSportsDB African Cup of Nations trophy `a02gac1701102618` — https://r2.thesportsdb.com/images/media/league/trophy/a02gac1701102618.png |
+| `asiancup` | TheSportsDB AFC Asian Cup trophy `9zysg71701099946` — https://r2.thesportsdb.com/images/media/league/trophy/9zysg71701099946.png |
+| `goldcup` | TheSportsDB CONCACAF Gold Cup trophy `efr5us1702273097` — https://r2.thesportsdb.com/images/media/league/trophy/efr5us1702273097.png |
+
+Not shipped: Hrvatski kup / Rabuzinovo sunce. No TheSportsDB league and no Commons cutout. Croatia league `cupTrophy` is `false` so the generic `copa.png` is not reused. League logos are TheSportsDB `strBadge` for the same competitions (flagcdn for flags). Crests are each club's TheSportsDB `og:image`, checked against the club name.

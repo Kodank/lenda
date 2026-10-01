@@ -1,15 +1,33 @@
-/* Club-country nations (flags on transfer/stay cards). Not playable NT origins. */
+/* Playable nations added after world.js. Belgium/Turkey/Scotland were clubOnly. */
 NATIONS = NATIONS.concat([
-  { id: "sct", name: "Escócia", adj: "Escocês", conf: "uefa", ntCut: -4, flag: "img/flags/sct.png", clubOnly: true },
-  { id: "be", name: "Bélgica", adj: "Belga", conf: "uefa", ntCut: -3, flag: "img/flags/be.png", clubOnly: true },
-  { id: "tr", name: "Turquia", adj: "Turco", conf: "uefa", ntCut: -4, flag: "img/flags/tr.png", clubOnly: true }
+  { id: "sct", name: "Escócia", adj: "Escocês", conf: "uefa", ntCut: -4, flag: "img/flags/sct.png" },
+  { id: "be", name: "Bélgica", adj: "Belga", conf: "uefa", ntCut: -3, flag: "img/flags/be.png" },
+  { id: "tr", name: "Turquia", adj: "Turco", conf: "uefa", ntCut: -4, flag: "img/flags/tr.png" },
+  { id: "cl", name: "Chile", adj: "Chileno", conf: "conmebol", ntCut: -3, flag: "img/flags/cl.png" },
+  { id: "ec", name: "Equador", adj: "Equatoriano", conf: "conmebol", ntCut: -5, flag: "img/flags/ec.png" },
+  { id: "py", name: "Paraguai", adj: "Paraguaio", conf: "conmebol", ntCut: -5, flag: "img/flags/py.png" },
+  { id: "hr", name: "Croácia", adj: "Croata", conf: "uefa", ntCut: -1, flag: "img/flags/hr.png" },
+  { id: "gr", name: "Grécia", adj: "Grego", conf: "uefa", ntCut: -4, flag: "img/flags/gr.png" },
+  { id: "ru", name: "Rússia", adj: "Russo", conf: "uefa", ntCut: -3, flag: "img/flags/ru.png" },
+  { id: "ma", name: "Marrocos", adj: "Marroquino", conf: "caf", ntCut: -4, flag: "img/flags/ma.png" },
+  { id: "kr", name: "Coreia do Sul", adj: "Sul-coreano", conf: "afc", ntCut: -5, flag: "img/flags/kr.png" },
+  { id: "ca", name: "Canadá", adj: "Canadense", conf: "concacaf", ntCut: -6, flag: "img/flags/ca.png" }
 ]);
 
 /* LEAGUE_SEASON placements: Brasileirão 2026 + EUR 2026/27 — see LEAGUE_SEASON in world.js */
 LEAGUES = LEAGUES.concat([
   { id: "bel", name: "Pro League", nation: "be", tier: 1, level: 3.6, continental: "ucl", size: 16, trophy: "proleague", logo: "img/leagues/bel.png", color: "#FFD700" },
   { id: "tur", name: "Süper Lig", nation: "tr", tier: 1, level: 3.7, continental: "ucl", size: 19, trophy: "superlig", logo: "img/leagues/tur.png", color: "#E30A17" },
-  { id: "sco", name: "Premiership", nation: "sct", tier: 1, level: 3.3, continental: "ucl", size: 12, trophy: "scottish", logo: "img/leagues/sco.png", color: "#005EB8" }
+  { id: "sco", name: "Premiership", nation: "sct", tier: 1, level: 3.3, continental: "ucl", size: 12, trophy: "scottish", logo: "img/leagues/sco.png", color: "#005EB8" },
+  { id: "chi", name: "Campeonato Nacional", nation: "cl", tier: 1, level: 3.2, continental: "lib", size: 16, trophy: "primera_cl", logo: "img/leagues/chi.png", color: "#0039A6" },
+  { id: "ecu", name: "LigaPro Serie A", nation: "ec", tier: 1, level: 2.9, continental: "lib", size: 16, trophy: "liga_ec", logo: "img/leagues/ecu.png", color: "#FFD100" },
+  { id: "par", name: "Primera División", nation: "py", tier: 1, level: 2.8, continental: "lib", size: 12, trophy: "primera_py", logo: "img/leagues/par.png", color: "#D52B1E" },
+  { id: "hnl", name: "HNL", nation: "hr", tier: 1, level: 3.3, continental: "ucl", size: 10, trophy: "hnl", logo: "img/leagues/hnl.png", color: "#FF0000" },
+  { id: "slg", name: "Super League Greece", nation: "gr", tier: 1, level: 3.2, continental: "ucl", size: 14, trophy: "slgreece", logo: "img/leagues/slg.png", color: "#0D5EAF" },
+  { id: "rpl", name: "Russian Premier League", nation: "ru", tier: 1, level: 3.5, continental: "ucl", size: 16, trophy: "rpl", logo: "img/leagues/rpl.png", color: "#E4181C" },
+  { id: "bot", name: "Botola Pro", nation: "ma", tier: 1, level: 2.6, continental: "caf", size: 16, trophy: "botola", logo: "img/leagues/bot.png", color: "#C1272D" },
+  { id: "kle", name: "K League 1", nation: "kr", tier: 1, level: 3.1, continental: "acl", size: 12, trophy: "kleague", logo: "img/leagues/kle.png", color: "#E8342A" },
+  { id: "cpl", name: "Canadian Premier League", nation: "ca", tier: 1, level: 2.7, continental: "concacaf", size: 8, trophy: "cpl", logo: "img/leagues/cpl.png", color: "#E4002B" }
 ]);
 
 function _xc(id, name, city, nation, leagueId, level, c1, c2) {
@@ -62,7 +80,37 @@ CLUBS = CLUBS.concat([
   _xc("gal", "Galatasaray", "Istambul", "tr", "tur", 3.9, "#FDB912", "#A32521"),
   _xc("fen", "Fenerbahçe", "Istambul", "tr", "tur", 3.8, "#002F6C", "#FFED00"),
   _xc("cel", "Celtic", "Glasgow", "sct", "sco", 3.6, "#018749", "#FFFFFF"),
-  _xc("ran", "Rangers", "Glasgow", "sct", "sco", 3.6, "#054C9E", "#FFFFFF")
+  _xc("ran", "Rangers", "Glasgow", "sct", "sco", 3.6, "#054C9E", "#FFFFFF"),
+  _xc("gnk", "Genk", "Genk", "be", "bel", 3.6, "#1B4F9C", "#FFFFFF"),
+  _xc("bjk", "Beşiktaş", "Istambul", "tr", "tur", 3.7, "#000000", "#FFFFFF"),
+  _xc("abd", "Aberdeen", "Aberdeen", "sct", "sco", 3.2, "#E30613", "#FFFFFF"),
+  _xc("cco", "Colo-Colo", "Santiago", "cl", "chi", 3.5, "#FFFFFF", "#000000"),
+  _xc("ude", "Universidad de Chile", "Santiago", "cl", "chi", 3.3, "#0033A0", "#FFFFFF"),
+  _xc("ucat", "Universidad Católica", "Santiago", "cl", "chi", 3.3, "#0033A0", "#FFFFFF"),
+  _xc("bsc", "Barcelona SC", "Guayaquil", "ec", "ecu", 3.0, "#FFD100", "#0033A0"),
+  _xc("ldu", "LDU Quito", "Quito", "ec", "ecu", 3.1, "#FFFFFF", "#0033A0"),
+  _xc("eme", "Emelec", "Guayaquil", "ec", "ecu", 2.9, "#0033A0", "#FFFFFF"),
+  _xc("olp", "Olimpia", "Assunção", "py", "par", 3.1, "#FFFFFF", "#000000"),
+  _xc("cpo", "Cerro Porteño", "Assunção", "py", "par", 3.0, "#CE1126", "#0033A0"),
+  _xc("lbt", "Libertad", "Assunção", "py", "par", 2.9, "#FFFFFF", "#000000"),
+  _xc("dzg", "Dinamo Zagreb", "Zagreb", "hr", "hnl", 3.6, "#0033A0", "#FFFFFF"),
+  _xc("haj", "Hajduk Split", "Split", "hr", "hnl", 3.3, "#FFFFFF", "#0033A0"),
+  _xc("rij", "Rijeka", "Rijeka", "hr", "hnl", 3.2, "#FFFFFF", "#0033A0"),
+  _xc("oly", "Olympiacos", "Pireu", "gr", "slg", 3.6, "#CE1126", "#FFFFFF"),
+  _xc("pao", "Panathinaikos", "Atenas", "gr", "slg", 3.4, "#007A33", "#FFFFFF"),
+  _xc("aek", "AEK Atenas", "Atenas", "gr", "slg", 3.3, "#FFD100", "#000000"),
+  _xc("zen", "Zenit", "São Petersburgo", "ru", "rpl", 3.8, "#00A0E3", "#FFFFFF"),
+  _xc("spm", "Spartak Moscou", "Moscou", "ru", "rpl", 3.6, "#CE1126", "#FFFFFF"),
+  _xc("csk", "CSKA Moscou", "Moscou", "ru", "rpl", 3.5, "#CE1126", "#0033A0"),
+  _xc("wyd", "Wydad", "Casablanca", "ma", "bot", 2.9, "#CE1126", "#FFFFFF"),
+  _xc("rca", "Raja Casablanca", "Casablanca", "ma", "bot", 2.8, "#007A33", "#FFFFFF"),
+  _xc("asfr", "FAR Rabat", "Rabat", "ma", "bot", 2.6, "#CE1126", "#007A33"),
+  _xc("uls", "Ulsan HD", "Ulsan", "kr", "kle", 3.3, "#0033A0", "#FFFFFF"),
+  _xc("jhb", "Jeonbuk", "Jeonju", "kr", "kle", 3.2, "#007A33", "#FFD100"),
+  _xc("fcs", "FC Seoul", "Seul", "kr", "kle", 3.1, "#CE1126", "#000000"),
+  _xc("cvy", "Cavalry FC", "Calgary", "ca", "cpl", 2.8, "#CE1126", "#FFFFFF"),
+  _xc("ato", "Atlético Ottawa", "Ottawa", "ca", "cpl", 2.7, "#CE1126", "#000000"),
+  _xc("pfc", "Pacific FC", "Victoria", "ca", "cpl", 2.6, "#5C2D91", "#2EC4B6")
 ]);
 
 /* League trophy / cup mapping — proper names via TROPHIES ids */
@@ -88,6 +136,16 @@ CLUBS = CLUBS.concat([
     bel: { trophy: "proleague", cupTrophy: "copa_be" },
     tur: { trophy: "superlig", cupTrophy: "copa_tr" },
     sco: { trophy: "scottish", cupTrophy: "scottish_cup" },
+    chi: { trophy: "primera_cl", cupTrophy: "copa_cl" },
+    ecu: { trophy: "liga_ec", cupTrophy: "copa_ec" },
+    par: { trophy: "primera_py", cupTrophy: "copa_py" },
+    /* Hrvatski kup: no free clean trophy cutout — cupTrophy false skips the generic copa fallback */
+    hnl: { trophy: "hnl", cupTrophy: false },
+    slg: { trophy: "slgreece", cupTrophy: "greek_cup" },
+    rpl: { trophy: "rpl", cupTrophy: "russian_cup" },
+    bot: { trophy: "botola", cupTrophy: "trone" },
+    kle: { trophy: "kleague", cupTrophy: "korea_cup" },
+    cpl: { trophy: "cpl", cupTrophy: "can_champ" },
     brc: { trophy: "serie_c", cupTrophy: "copa_br" },
     eng2: { trophy: "championship", cupTrophy: "fa_cup" },
     ger2: { trophy: "bundesliga2", cupTrophy: "dfb_pokal" },

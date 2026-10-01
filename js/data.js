@@ -175,6 +175,15 @@ var TROPHIES = {
   proleague: { name: "Pro League", img: "img/trophies/proleague.png", kind: "league", w: 5 },
   superlig: { name: "Süper Lig", img: "img/trophies/superlig.png", kind: "league", w: 5 },
   scottish: { name: "Premiership", img: "img/trophies/scottish.png", kind: "league", w: 4 },
+  primera_cl: { name: "Campeonato Nacional", img: "img/trophies/primera_cl.png?v=nations-1", kind: "league", w: 4 },
+  liga_ec: { name: "LigaPro", img: "img/trophies/liga_ec.png?v=nations-1", kind: "league", w: 4 },
+  primera_py: { name: "Primera Paraguai", img: "img/trophies/primera_py.png?v=nations-1", kind: "league", w: 4 },
+  hnl: { name: "HNL", img: "img/trophies/hnl.png?v=nations-1", kind: "league", w: 5 },
+  slgreece: { name: "Super League", img: "img/trophies/slgreece.png?v=nations-1", kind: "league", w: 5 },
+  rpl: { name: "Premier Russa", img: "img/trophies/rpl.png?v=nations-1", kind: "league", w: 5 },
+  botola: { name: "Botola Pro", img: "img/trophies/botola.png?v=nations-1", kind: "league", w: 4 },
+  kleague: { name: "K League 1", img: "img/trophies/kleague.png?v=nations-1", kind: "league", w: 4 },
+  cpl: { name: "Canadian Premier League", img: "img/trophies/cpl.png?v=nations-1", kind: "league", w: 4 },
   serie_c: { name: "Série C", img: "img/trophies/serie_c.png?v=npfl-concacaf-2", kind: "league", w: 2 },
   championship: { name: "Championship", img: "img/trophies/championship.png?v=npfl-concacaf-2", kind: "league", w: 3 },
   bundesliga2: { name: "2. Bundesliga", img: "img/trophies/bundesliga2.png?v=npfl-concacaf-2", kind: "league", w: 3 },
@@ -202,6 +211,14 @@ var TROPHIES = {
   emperor: { name: "Copa do Imperador", img: "img/trophies/emperor.png?v=npfl-concacaf-2", kind: "cup", w: 4 },
   copa_uy: { name: "Copa AUF Uruguai", img: "img/trophies/copa_uy.png?v=npfl-concacaf-2", kind: "cup", w: 4 },
   copa_mx: { name: "Copa MX", img: "img/trophies/copa_mx.png?v=npfl-concacaf-2", kind: "cup", w: 4 },
+  copa_cl: { name: "Copa Chile", img: "img/trophies/copa_cl.png?v=nations-1", kind: "cup", w: 4 },
+  copa_ec: { name: "Copa Ecuador", img: "img/trophies/copa_ec.png?v=nations-1", kind: "cup", w: 4 },
+  copa_py: { name: "Copa Paraguay", img: "img/trophies/copa_py.png?v=nations-1", kind: "cup", w: 4 },
+  greek_cup: { name: "Copa da Grécia", img: "img/trophies/greek_cup.png?v=nations-1", kind: "cup", w: 4 },
+  russian_cup: { name: "Copa da Rússia", img: "img/trophies/russian_cup.png?v=nations-1", kind: "cup", w: 4 },
+  trone: { name: "Coupe du Trône", img: "img/trophies/trone.png?v=nations-1", kind: "cup", w: 4 },
+  korea_cup: { name: "Copa da Coreia", img: "img/trophies/korea_cup.png?v=nations-1", kind: "cup", w: 4 },
+  can_champ: { name: "Campeonato Canadense", img: "img/trophies/can_champ.png?v=nations-1", kind: "cup", w: 4 },
   /* Continentais / seleção */
   libertadores: { name: "Libertadores", img: "img/trophies/libertadores.png", kind: "continental", w: 10 },
   ucl: { name: "Champions League", img: "img/trophies/ucl.png", kind: "continental", w: 12 },
@@ -212,6 +229,9 @@ var TROPHIES = {
   worldcup: { name: "Copa do Mundo", img: "img/trophies/worldcup.png", kind: "nt", w: 16 },
   copaamerica: { name: "Copa América", img: "img/trophies/copaamerica.png?v=npfl-concacaf-2", kind: "nt", w: 9 },
   euro: { name: "Eurocopa", img: "img/trophies/euro.png?v=npfl-concacaf-2", kind: "nt", w: 9 },
+  afcon: { name: "Copa Africana das Nações", img: "img/trophies/afcon.png?v=nations-1", kind: "nt", w: 9 },
+  asiancup: { name: "Copa da Ásia", img: "img/trophies/asiancup.png?v=nations-1", kind: "nt", w: 9 },
+  goldcup: { name: "Copa Ouro", img: "img/trophies/goldcup.png?v=nations-1", kind: "nt", w: 9 },
   youth: { name: "Título Sub-20", img: "img/trophies/youth.png?v=npfl-concacaf-2", kind: "nt", w: 2 },
   balon: { name: "Bola de Ouro", img: "img/trophies/balon.png?v=npfl-concacaf-2", kind: "indiv", w: 14 },
   bota: { name: "Chuteira de Ouro", img: "img/trophies/bota.png?v=npfl-concacaf-2", kind: "indiv", w: 5 },
@@ -223,8 +243,22 @@ var TROPHIES = {
 var NATION_CUP = {
   br: "copa_br", en: "fa_cup", es: "copa_rey", it: "coppa_ita", de: "dfb_pokal",
   fr: "coupe_fr", pt: "taca_pt", ar: "copa_arg", uy: "copa_uy", co: "copa_col", mx: "copa_mx",
-  nl: "knvb", us: "us_open", jp: "emperor", ng: "copa_ng", sn: "copa_sn", be: "copa_be", tr: "copa_tr", sct: "scottish_cup"
+  nl: "knvb", us: "us_open", jp: "emperor", ng: "copa_ng", sn: "copa_sn", be: "copa_be", tr: "copa_tr", sct: "scottish_cup",
+  cl: "copa_cl", ec: "copa_ec", py: "copa_py", gr: "greek_cup", ru: "russian_cup",
+  ma: "trone", kr: "korea_cup", ca: "can_champ"
 };
+/* hr omitted: no real Hrvatski kup cutout. League cupTrophy false blocks the generic copa fallback. */
+
+/* Even non-World-Cup years: one continental NT trophy per confederation. */
+function ntContinentalId(nat) {
+  if (!nat || !nat.conf) return null;
+  if (nat.conf === "uefa") return "euro";
+  if (nat.conf === "conmebol") return "copaamerica";
+  if (nat.conf === "caf") return "afcon";
+  if (nat.conf === "afc") return "asiancup";
+  if (nat.conf === "concacaf") return "goldcup";
+  return null;
+}
 
 /* NT photo shirts + real home-kit lettering ink (name/number) */
 var NATION_SHIRT = {
@@ -243,7 +277,19 @@ var NATION_SHIRT = {
   us: { shirt: "img/shirts/us.png", ink: "#002868", inkShadow: "rgba(255,255,255,.2)" },
   jp: { shirt: "img/shirts/jp.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
   ng: { shirt: "img/shirts/ng.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
-  sn: { shirt: "img/shirts/sn.png", ink: "#00853F", inkShadow: "rgba(255,255,255,.2)" }
+  sn: { shirt: "img/shirts/sn.png", ink: "#00853F", inkShadow: "rgba(255,255,255,.2)" },
+  be: { shirt: "img/shirts/be.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  tr: { shirt: "img/shirts/tr.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  sct: { shirt: "img/shirts/sct.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  cl: { shirt: "img/shirts/cl.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  ec: { shirt: "img/shirts/ec.png", ink: "#0033A0", inkShadow: "rgba(255,255,255,.2)" },
+  py: { shirt: "img/shirts/py.png", ink: "#0033A0", inkShadow: "rgba(255,255,255,.25)" },
+  hr: { shirt: "img/shirts/hr.png", ink: "#171796", inkShadow: "rgba(255,255,255,.2)" },
+  gr: { shirt: "img/shirts/gr.png", ink: "#0D5EAF", inkShadow: "rgba(255,255,255,.25)" },
+  ru: { shirt: "img/shirts/ru.png", ink: "#0033A0", inkShadow: "rgba(255,255,255,.2)" },
+  ma: { shirt: "img/shirts/ma.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  kr: { shirt: "img/shirts/kr.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  ca: { shirt: "img/shirts/ca.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" }
 };
 
 

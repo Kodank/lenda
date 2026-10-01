@@ -174,8 +174,10 @@ function simSeason(s) {
   var cupP = 0.04 + club.level * 0.03 + (role === "star" ? 0.06 : role === "starter" ? 0.03 : 0) + tBoost.cup;
   if (s.ovr >= 99) cupP = Math.min(0.97, cupP);
   if (rnd(s) < cupP) {
-    var cupId = league.cupTrophy || (typeof NATION_CUP !== "undefined" && NATION_CUP[club.nation]) || "copa";
-    trophies.push(cupId);
+    /* cupTrophy === false: real cup art missing (Hrvatski kup) — do not award generic copa */
+    var cupId = league.cupTrophy === false ? null
+      : (league.cupTrophy || (typeof NATION_CUP !== "undefined" && NATION_CUP[club.nation]) || "copa");
+    if (cupId) trophies.push(cupId);
   }
   if (s.contQual) {
     var cont = league.continental;
@@ -536,8 +538,9 @@ function simNational(s) {
     if (rnd(s) < worldCupWinP(s.ovr)) out.trophies.push("worldcup");
   }
   if (isCont && starter && s.ovr >= 84) {
-    /* Gated ids in data: euro, copaamerica (AFCON/Asian/Gold Cup trophies not in data yet). */
-    var tid = nat.conf === "uefa" ? "euro" : nat.conf === "conmebol" ? "copaamerica" : null;
+    /* Same even-year slot for every confederation (calendar is not per-conf). */
+    var tid = typeof ntContinentalId === "function" ? ntContinentalId(nat)
+      : (nat.conf === "uefa" ? "euro" : nat.conf === "conmebol" ? "copaamerica" : null);
     var contNatP = 0.14 + Math.max(0, s.ovr - 84) * 0.014;
     if (s.ovr >= 95) contNatP += 0.17;
     if (s.ovr >= 99) contNatP += 0.21;

@@ -59,7 +59,7 @@ function eventFits(s, ev) {
   return true;
 }
 
-var EURO_LEAGUES = { eng: 1, esp: 1, ita: 1, ger: 1, fra: 1, por: 1, ned: 1, bel: 1, tur: 1, sco: 1 };
+var EURO_LEAGUES = { eng: 1, esp: 1, ita: 1, ger: 1, fra: 1, por: 1, ned: 1, bel: 1, tur: 1, sco: 1, hnl: 1, slg: 1, rpl: 1 };
 
 /*
  * World elite lists (level + reputation). Curated mega clubs — not raw SA giants.
@@ -1567,7 +1567,7 @@ function verdict(s, score) {
   if (s.peakOvr >= 92 && countTrophy(s, "worldcup") >= 1) return "Fenômeno";
   if (nClubs === 1 && s.career.apps >= 300) return "Ídolo de uma camisa";
   if (countTrophy(s, "ucl") + countTrophy(s, "libertadores") + countTrophy(s, "acl") + countTrophy(s, "caf") + countTrophy(s, "concacaf") >= 3) return "Rei de copas";
-  if (s.caps >= 60 && (countTrophy(s, "worldcup") + countTrophy(s, "copaamerica") + countTrophy(s, "euro")) >= 1) return "Herói da seleção";
+  if (s.caps >= 60 && (countTrophy(s, "worldcup") + countTrophy(s, "copaamerica") + countTrophy(s, "euro") + countTrophy(s, "afcon") + countTrophy(s, "asiancup") + countTrophy(s, "goldcup")) >= 1) return "Herói da seleção";
   if (s.age >= 36 && s.peakOvr < 74 && s.caps < 15) return "Sobrevivente";
   if (score.total >= 86) return "Lenda";
   if (score.total >= 74) return "Craque";
