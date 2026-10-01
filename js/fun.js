@@ -30,8 +30,34 @@ var SEASON_THEMES = {
   decline: ["O ano do freio", "Temporada de gestão", "Menos fogo, mais cabeça"],
   crisis: ["Ano de crise", "Temporada no fio", "O barco balançou"],
   solid: ["Temporada sólida", "Ano de trabalho", "Sem holofote, com entrega"],
-  suspended: ["Suspenso · temporada perdida", "Ano da banimento", "Fora do gramado"]
+  suspended: ["Suspenso · temporada perdida", "Ano da banimento", "Fora do gramado"],
+  stall: ["O ano do freio", "Temporada travada", "Quase no teto", "Fora dos planos", "O corpo pediu calma"]
 };
+
+/* Motivo curto quando o OVR encosta no teto do destino e não sobe. */
+var CAP_STALL_LINES = [
+  "Lesão no meio do ano travou a evolução.",
+  "Pancada feia e semanas no departamento médico.",
+  "Muscular recidiva. A temporada esfriou.",
+  "Perdeu a vaga e o ritmo foi junto.",
+  "Caiu na hierarquia e treinou à parte.",
+  "Banco longo demais para crescer.",
+  "Empréstimo que não acrescentou.",
+  "Voltou do empréstimo do mesmo tamanho.",
+  "O empréstimo foi só quilometragem.",
+  "O técnico quase não o usou.",
+  "O treinador preferiu outro nome.",
+  "Esquema novo e ele ficou de fora.",
+  "Sequência ruim — o OVR não andou.",
+  "Fase negra: confiança e números caíram.",
+  "Má fase coletiva puxou o rendimento."
+];
+
+function pickCapStallReason(s) {
+  var pool = CAP_STALL_LINES;
+  var i = Math.floor(rnd(s) * pool.length);
+  return pool[Math.max(0, Math.min(pool.length - 1, i))];
+}
 
 function derbyOf(clubId) {
   if (!clubId) return null;
@@ -210,6 +236,7 @@ function pickSeasonTheme(s, season) {
   else if ((season.awards || []).length) pool = SEASON_THEMES.awards;
   else if ((season.trophies || []).length >= 1) pool = SEASON_THEMES.titles;
   else if (season.derby) pool = SEASON_THEMES.derby;
+  else if (season.capStall) pool = SEASON_THEMES.stall;
   else if (season.prodigyLeap || (season.delta || 0) >= 9) pool = SEASON_THEMES.breakthrough;
   else if ((season.delta || 0) >= 3) pool = SEASON_THEMES.breakthrough;
   else if ((season.delta || 0) <= -2) pool = SEASON_THEMES.decline;

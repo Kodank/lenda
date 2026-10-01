@@ -647,7 +647,8 @@ function timelineHtml(s, hiN, choosing) {
         dlt = '<em class="tl-delta flat">0</em>';
       }
       html += '<div class="tl-row filled' + (hi ? " hi" : "") + (cups.length ? " won" : "") +
-        (r.delta > 0 ? " ovr-up" : r.delta < 0 ? " ovr-dn" : "") + '">' +
+        (r.delta > 0 ? " ovr-up" : r.delta < 0 ? " ovr-dn" : "") + '"' +
+        (r.note ? ' title="' + esc(r.note) + '"' : "") + '>' +
         '<span class="tl-age">' + age + "</span>" +
         '<span class="tl-club" title="' + esc(club.name) + '">' + imgCrest(club.crest, 'tl-crest', club.name) +
         clubNameHtml(clubDisplayName(club, true), "tl-name", { title: club.name }) + loanDot + cupDot + "</span>" +
@@ -868,6 +869,7 @@ function viewReport() {
       last.apps + " jogos · " + (s.pos === "GOL" ? resolveGkSaves(last) + " DEF / " + last.ga + " GS" : last.goals + " gols / " + last.assists + " ASS") +
       " · #" + last.leaguePos + nt + "</p>" +
       pathLine + derbyLine + susLine + divLine +
+      (last.note && !last.suspended ? '<div class="flavor-line decline">' + esc(last.note) + "</div>" : "") +
       (cups.length ? '<div class="report-cups">' + cups.map(function (id) {
         var _rid = displayTrophyId(id, s); return '<div class="report-cup"><img src="' + trophyOf(_rid).img + '" alt=""><b>' + esc(trophyOf(_rid).name) + "</b></div>";
       }).join("") + "</div>" : "") +

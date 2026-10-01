@@ -280,6 +280,29 @@ function simSeason(s) {
   }
 
   var delta = Math.round(developOvr(s, role, apps, league.size, inj));
+  /* Perto do teto do destino, ganho vira às vezes 0 ou −1 (com motivo no relatório).
+     Frequente em ruim/medíocre; raro em muito boa/extraordinária. */
+  var capStallNote = null;
+  if (!suspended && delta > 0 && typeof destinyOvrCap === "function") {
+    var destinyCap = destinyOvrCap(s);
+    /* Teto prático: cap do destino, limitado pelo potencial (o OVR não passa disso). */
+    var ceiling = destinyCap;
+    if (s.pot != null) ceiling = Math.min(destinyCap, s.pot);
+    var capGap = ceiling - (s.ovr || 0);
+    if (capGap <= 2) {
+      var stallId = destinyOf(s).id;
+      var stallP = (stallId === "ruim" || stallId === "mediocre") ? 0.58 : 0.1;
+      if (capGap <= 1) {
+        if (stallId === "ruim") stallP = 0.74;
+        else if (stallId === "mediocre") stallP = 0.66;
+        else stallP = 0.16;
+      }
+      if (rnd(s) < stallP) {
+        delta = rnd(s) < 0.58 ? 0 : -1;
+        capStallNote = (typeof pickCapStallReason === "function") ? pickCapStallReason(s) : "A temporada travou perto do teto.";
+      }
+    }
+  }
   var prev = s.ovr;
   applyDeltaToAttrs(s, delta);
   s.ovr = clamp(prev + delta, 40, OVR_CAP);
@@ -353,6 +376,9 @@ function simSeason(s) {
   if (suspended) {
     season.themeTitle = "Suspenso · temporada perdida";
     season.note = "Suspensão por substâncias — OVR mantido, jogos e títulos zerados.";
+  } else if (capStallNote) {
+    season.capStall = 1;
+    season.note = capStallNote;
   }
   /* Promo/releg before theme so Acesso/Rebaixamento can own themeTitle */
   if (typeof resolveDivisionChange === "function" && !suspended) {
@@ -381,10 +407,34 @@ function rankFromPower(power, size, s) {
 }
 
 function developOvr(s, role, apps, games, inj) {
-  /* Curva justa: base cresce mesmo sem minutos; jogos aceleram; potencial puxa o teto. */
+  /* Curva por destino: muito boa / extraordinária mantêm o pico tardio.
+     Ruim e medíocre sobem menos cedo, encostam no teto e depois cedem. */
   var age = s.age;
+  var destId = (typeof destinyOf === "function" && s) ? destinyOf(s).id : "mediocre";
+  var lowDestiny = destId === "ruim" || destId === "mediocre";
   var lo, hi;
-  if (age <= 17) { lo = 2.8; hi = 4.4; }
+  if (destId === "ruim") {
+    /* Pico por volta dos 23–25; depois queda leve, sem desabar. */
+    if (age <= 17) { lo = 2.05; hi = 3.25; }
+    else if (age <= 19) { lo = 2.2; hi = 3.45; }
+    else if (age <= 21) { lo = 2.35; hi = 3.6; }
+    else if (age <= 24) { lo = 1.85; hi = 3.05; }
+    else if (age <= 25) { lo = 1.25; hi = 2.35; }
+    else if (age <= 30) { lo = -1.15; hi = 0.85; }
+    else if (age <= 32) { lo = -1.1; hi = -0.25; }
+    else if (age <= 34) { lo = -1.2; hi = -0.35; }
+    else { lo = -1.35; hi = -0.45; }
+  } else if (destId === "mediocre") {
+    /* Segura até ~28; depois oscila e desce devagar. */
+    if (age <= 17) { lo = 2.25; hi = 3.55; }
+    else if (age <= 19) { lo = 2.4; hi = 3.75; }
+    else if (age <= 21) { lo = 2.2; hi = 3.55; }
+    else if (age <= 24) { lo = 1.9; hi = 3.2; }
+    else if (age <= 28) { lo = 1.15; hi = 2.35; }
+    else if (age <= 32) { lo = -0.85; hi = 1.15; }
+    else if (age <= 34) { lo = -0.95; hi = 0.35; }
+    else { lo = -1.15; hi = 0.05; }
+  } else if (age <= 17) { lo = 2.8; hi = 4.4; }
   else if (age <= 19) { lo = 3.0; hi = 4.8; }
   else if (age <= 21) { lo = 2.2; hi = 3.8; }
   else if (age <= 23) { lo = 1.5; hi = 2.9; }
@@ -410,9 +460,15 @@ function developOvr(s, role, apps, games, inj) {
     d *= 0.95 + Math.min(0.2, share * 0.25);
   }
 
-  /* longe do potencial = sobe mais; perto = freia */
+  /* longe do potencial = sobe mais; perto = freia.
+     Destino baixo não ganha o puxão forte — senão finge prodígio. */
   var room = s.pot - s.ovr;
-  if (room > 12) d += 0.55;
+  if (lowDestiny) {
+    if (room > 12) d += destId === "ruim" ? 0.12 : 0.22;
+    else if (room > 6) d += 0.06;
+    else if (room <= 0) d = Math.min(d, 0.15);
+    else if (room <= 2) d = Math.min(d, 0.65);
+  } else if (room > 12) d += 0.55;
   else if (room > 8) d += 0.3;
   else if (room <= 0) d = Math.min(d, 0.2);
   else if (room <= 3) d = Math.min(d, 0.7);
@@ -420,25 +476,36 @@ function developOvr(s, role, apps, games, inj) {
 
   if (inj >= 16) d -= 0.6;
   else if (inj >= 8) d -= 0.25;
-  if (s.form > 78) d += 0.3;
+  if (s.form > 78) d += lowDestiny ? 0.12 : 0.3;
   if (s.form < 40) d -= 0.3;
-  if ((role === "starter" || role === "star") && age <= 22 && room > 6 && rnd(s) < 0.14) d += 1.2;
+  /* Faísca de titular jovem: só destino alto. Ruim/medíocre não levam salto de prodígio. */
+  if (!lowDestiny && (role === "starter" || role === "star") && age <= 22 && room > 6 && rnd(s) < 0.14) d += 1.2;
   /* faísca rara de pico se o potencial já foi aberto (eventos de salto) */
-  if (s.pot >= 94 && age >= 22 && age <= 30 && room > 2 && (role === "starter" || role === "star") && rnd(s) < 0.08) d += 1.6;
+  if (!lowDestiny && s.pot >= 94 && age >= 22 && age <= 30 && room > 2 && (role === "starter" || role === "star") && rnd(s) < 0.08) d += 1.6;
 
-  /* Prodígio: nas 1ªs temporadas (16–20) pode estourar ~+9 a +12 OVR (limitado pelo room). */
+  /* Prodígio: a rolagem (chance / bursts) não muda.
+     Ruim e medíocre não estouram +9/+12 — isso fingia carreira grande. */
   if (s.prodigy && age <= 20 && (s.prodigyBursts || 0) > 0 && room >= 6) {
     var burstP = age <= 17 ? 0.62 : age <= 18 ? 0.5 : 0.38;
     if (rnd(s) < burstP) {
       s.prodigyBursts = (s.prodigyBursts || 1) - 1;
-      var leap = 9 + rnd(s) * 3.2; /* ~9–12 */
-      d = Math.min(leap, room + 1.2);
-      s._prodigyLeap = Math.round(d);
+      var leap;
+      if (destId === "ruim") leap = 3.1 + rnd(s) * 1.6; /* sem explosão falsa */
+      else if (destId === "mediocre") leap = 3.6 + rnd(s) * 1.8;
+      else leap = 9 + rnd(s) * 3.2; /* ~9–12 */
+      var leapCap = lowDestiny ? (destId === "ruim" ? 4.8 : 5.5) : room + 1.2;
+      d = Math.min(leap, leapCap);
+      if (!lowDestiny) s._prodigyLeap = Math.round(d);
     }
-  } else if (!s.prodigy && age <= 19 && room > 14 && rnd(s) < 0.018) {
-    /* faísca rara sem ser "prodígio" marcado — bem mais fraca */
+  } else if (!lowDestiny && !s.prodigy && age <= 19 && room > 14 && rnd(s) < 0.018) {
+    /* faísca rara sem ser "prodígio" marcado — bem mais fraca, e só no destino alto */
     d = Math.max(d, 6 + rnd(s) * 2);
   }
+
+  /* Depois do pico: ruim não relança forte; medíocre oscila com viés de queda. */
+  if (destId === "ruim" && age >= 26) d = Math.min(d, age >= 31 ? -0.15 : 1.05);
+  if (destId === "mediocre" && age >= 29) d = Math.min(d, age >= 34 ? 0.15 : 1.05);
+
   if (typeof DEV !== "undefined" && DEV.on && DEV.on() && DEV.flags.godGrowth) {
     if (d > 0) d = d * 1.85 + 0.6;
     else d = d * 0.25;

@@ -7,8 +7,8 @@ var START_AGE = 16;
 /*
  * Destino oculto da carreira (rolado 1x no create).
  * Não aparece na UI normal — só tetos/portas; escolhas ainda importam dentro da faixa.
- * Pesos: 25% ruim · 45% medíocre · 20% muito boa · 10% extraordinária.
- * Prodígio (oculto): chance extra no create — saltos ~+10 OVR nas 1ªs temporadas.
+ * Pesos: 25% ruim · 45% medíocre · 25% muito boa · 5% extraordinária.
+ * Prodígio (oculto): chance extra no create — saltos ~+10 OVR nas 1ªs temporadas (menor se o destino é ruim ou medíocre).
  */
 var DESTINY_IDS = ["ruim", "mediocre", "muito_boa", "extraordinaria"];
 var DESTINY = {
@@ -53,7 +53,7 @@ var DESTINY = {
   muito_boa: {
     id: "muito_boa",
     label: "Muito boa",
-    weight: 20,
+    weight: 25,
     potLo: 90,
     potHi: 95,
     potMax: 95,
@@ -72,7 +72,7 @@ var DESTINY = {
   extraordinaria: {
     id: "extraordinaria",
     label: "Extraordinária",
-    weight: 10,
+    weight: 5,
     potLo: 94,
     potHi: 99,
     potMax: 99,
