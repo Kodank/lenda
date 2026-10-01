@@ -16,7 +16,7 @@ NATIONS = NATIONS.concat([
 
 /* LEAGUE_SEASON placements: Brasileirão 2026 + EUR 2026/27 — see LEAGUE_SEASON in world.js */
 LEAGUES = LEAGUES.concat([
-  { id: "bel", name: "Pro League", nation: "be", tier: 1, level: 3.6, continental: "ucl", size: 16, trophy: "proleague", logo: "img/leagues/bel.png", color: "#FFD700" },
+  { id: "bel", name: "Pro League", nation: "be", tier: 1, level: 3.6, continental: "ucl", size: 18, trophy: "proleague", logo: "img/leagues/bel.png", color: "#FFD700" },
   { id: "tur", name: "Süper Lig", nation: "tr", tier: 1, level: 3.7, continental: "ucl", size: 19, trophy: "superlig", logo: "img/leagues/tur.png", color: "#E30A17" },
   { id: "sco", name: "Premiership", nation: "sct", tier: 1, level: 3.3, continental: "ucl", size: 12, trophy: "scottish", logo: "img/leagues/sco.png", color: "#005EB8" },
   { id: "chi", name: "Campeonato Nacional", nation: "cl", tier: 1, level: 3.2, continental: "lib", size: 16, trophy: "primera_cl", logo: "img/leagues/chi.png", color: "#0039A6" },
@@ -259,5 +259,58 @@ CLUBS = CLUBS.concat([
   _xc("mat", "MA Tétouan", "Tétouan", "ma", "bot", 2.3, "#C8102E", "#FFFFFF"),
   _xc("rcaz", "RCA Zemamra", "Zemamra", "ma", "bot", 2.3, "#0057B8", "#FFFFFF"),
   _xc("usat", "Amal Tiznit", "Tiznit", "ma", "bot", 2.2, "#0057B8", "#FFFFFF"),
-  _xc("wst", "Widad Témara", "Témara", "ma", "bot", 2.1, "#C8102E", "#0033A0")
+  _xc("wst", "Widad Témara", "Témara", "ma", "bot", 2.1, "#C8102E", "#0033A0"),
+
+  /* --- pack 2: 2026-27 top flight (Belgium, Chile, Greece, Korea) --- */
+  _xc("usg", "Union SG", "Bruxelas", "be", "bel", 3.8, "#FFE000", "#000055"),
+  _xc("gnt", "Gent", "Gante", "be", "bel", 3.6, "#0023DD", "#FFFFFF"),
+  _xc("ant", "Antwerp", "Antuérpia", "be", "bel", 3.5, "#FF0000", "#FFFFFF"),
+  _xc("std", "Standard Liège", "Liège", "be", "bel", 3.5, "#DD0000", "#FFFFFF"),
+  _xc("mec", "Mechelen", "Mechelen", "be", "bel", 3.4, "#FFD700", "#000000"),
+  _xc("cha", "Charleroi", "Charleroi", "be", "bel", 3.4, "#000000", "#FFFFFF"),
+  _xc("ceb", "Cercle Brugge", "Bruges", "be", "bel", 3.3, "#00852D", "#000000"),
+  _xc("stvv", "Sint-Truiden", "Sint-Truiden", "be", "bel", 3.3, "#FFFF00", "#0000FF"),
+  _xc("wes", "Westerlo", "Westerlo", "be", "bel", 3.3, "#FFFF00", "#0000FF"),
+  _xc("ohl", "OH Leuven", "Lovaina", "be", "bel", 3.2, "#E10600", "#007A33"),
+  _xc("zwa", "Zulte Waregem", "Waregem", "be", "bel", 3.2, "#FF0026", "#009640"),
+  _xc("louv", "La Louvière", "La Louvière", "be", "bel", 3.1, "#009150", "#FFFFFF"),
+  _xc("kor", "Kortrijk", "Kortrijk", "be", "bel", 3.0, "#FF0000", "#FFFFFF"),
+  _xc("lom", "Lommel", "Lommel", "be", "bel", 2.9, "#009150", "#FFFFFF"),
+  _xc("bev", "Beveren", "Beveren", "be", "bel", 2.9, "#F5C518", "#0033A0"),
+
+  _xc("coq", "Coquimbo Unido", "Coquimbo", "cl", "chi", 3.4, "#FFDE00", "#000000"),
+  _xc("evcl", "Everton Viña", "Viña del Mar", "cl", "chi", 3.3, "#003159", "#FFD100"),
+  _xc("plst", "Palestino", "Santiago", "cl", "chi", 3.3, "#007A33", "#FFFFFF"),
+  _xc("hua", "Huachipato", "Talcahuano", "cl", "chi", 3.2, "#0000FF", "#000000"),
+  _xc("aud", "Audax Italiano", "Santiago", "cl", "chi", 3.2, "#1C9E1C", "#FFFFFF"),
+  _xc("nub", "Ñublense", "Chillán", "cl", "chi", 3.2, "#FF0000", "#FFFFFF"),
+  _xc("lim", "Deportes Limache", "Limache", "cl", "chi", 3.1, "#D5303E", "#000000"),
+  _xc("dls", "La Serena", "La Serena", "cl", "chi", 3.1, "#B20837", "#FFFFFF"),
+  _xc("ohig", "O'Higgins", "Rancagua", "cl", "chi", 3.1, "#83CCF9", "#FFFFFF"),
+  _xc("cob", "Cobresal", "El Salvador", "cl", "chi", 3.0, "#F36C21", "#000000"),
+  _xc("ulc", "Unión La Calera", "La Calera", "cl", "chi", 3.0, "#EE0000", "#FFFFFF"),
+  _xc("udec", "Universidad de Concepción", "Concepción", "cl", "chi", 2.9, "#FFFF00", "#010633"),
+  _xc("dcon", "Deportes Concepción", "Concepción", "cl", "chi", 2.8, "#5C4AB0", "#FFFFFF"),
+
+  _xc("paok", "PAOK", "Tessalônica", "gr", "slg", 3.5, "#000000", "#FFFFFF"),
+  _xc("ari", "Aris", "Tessalônica", "gr", "slg", 3.3, "#FFD100", "#000000"),
+  _xc("ofi", "OFI", "Heraclião", "gr", "slg", 3.2, "#000000", "#FFFFFF"),
+  _xc("atro", "Atromitos", "Atenas", "gr", "slg", 3.1, "#0033A0", "#FFFFFF"),
+  _xc("ast", "Asteras Tripolis", "Trípoli", "gr", "slg", 3.1, "#FFD100", "#0033A0"),
+  _xc("vol", "Volos", "Volos", "gr", "slg", 3.0, "#FF0000", "#0033A0"),
+  _xc("kif", "Kifisia", "Kifisia", "gr", "slg", 3.0, "#002147", "#FFFFFF"),
+  _xc("lvk", "Levadiakos", "Livadeia", "gr", "slg", 3.0, "#005754", "#FFFFFF"),
+  _xc("pnt", "Panetolikos", "Agrinio", "gr", "slg", 2.9, "#FFEA00", "#0033A0"),
+  _xc("irk", "Iraklis", "Tessalônica", "gr", "slg", 2.8, "#000066", "#FFFFFF"),
+  _xc("kal", "Kalamata", "Kalamata", "gr", "slg", 2.7, "#000000", "#FFFFFF"),
+
+  _xc("poh", "Pohang Steelers", "Pohang", "kr", "kle", 3.3, "#C8102E", "#000000"),
+  _xc("jsk", "Jeju SK", "Seogwipo", "kr", "kle", 3.1, "#EC6B32", "#FFFFFF"),
+  _xc("gwn", "Gangwon FC", "Chuncheon", "kr", "kle", 3.1, "#F53A45", "#000000"),
+  _xc("dhc", "Daejeon Hana", "Daejeon", "kr", "kle", 3.0, "#007854", "#FFFFFF"),
+  _xc("icu", "Incheon United", "Incheon", "kr", "kle", 3.0, "#0000FF", "#000000"),
+  _xc("any", "FC Anyang", "Anyang", "kr", "kle", 2.9, "#4B1D80", "#171715"),
+  _xc("gmc", "Gimcheon Sangmu", "Gimcheon", "kr", "kle", 2.8, "#FF0000", "#000000"),
+  _xc("buc", "Bucheon FC", "Bucheon", "kr", "kle", 2.7, "#FF0000", "#000000"),
+  _xc("gwj", "Gwangju FC", "Gwangju", "kr", "kle", 2.6, "#EDBA23", "#641C20")
 ]);
