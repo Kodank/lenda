@@ -408,7 +408,7 @@ function viewCreate() {
 
   /* step 0 — nationality first (shirt kit colors depend on this) */
   if (step === 0) {
-    var flags = NATIONS.filter(function (n) { return !n.clubOnly; }).map(function (n) {
+    var flags = NATIONS.filter(function (n) { return !n.clubOnly; }).sort(function (a, b) { return a.name.localeCompare(b.name, "pt"); }).map(function (n) {
       return '<button type="button" class="flag-row' + (d.nation === n.id ? " on" : "") + '" data-nation="' + n.id + '">' +
         '<img src="' + n.flag + '" alt=""><span>' + esc(n.name) + "</span></button>";
     }).join("");

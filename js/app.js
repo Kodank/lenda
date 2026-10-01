@@ -18,7 +18,7 @@
 (function registerSw() {
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./sw.js?v=clubs-pack-3").then(function (reg) {
+    navigator.serviceWorker.register("./sw.js?v=nations-alpha-1").then(function (reg) {
       try { reg.update(); } catch (e) {}
     }).catch(function () {});
   });
