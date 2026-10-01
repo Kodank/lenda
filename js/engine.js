@@ -551,7 +551,7 @@ function rnd(s) {
   return mulberry32((s.seed + s.rndI * 9973) >>> 0)();
 }
 
-/* Last new-career setup (name, country, position, foot). Not a career save. */
+/* Last new-career setup (name, country, position, foot, number, pace). Not a career save. */
 var SETUP_PREFS_KEY = "lenda-setup-prefs";
 
 function cleanSetupName(name) {
@@ -572,6 +572,19 @@ function setupPosOk(id) {
 function setupFootOk(id) {
   return id === "D" || id === "E" || id === "A";
 }
+/* Jersey numbers the camisa stepper allows. */
+function setupNumberValue(n) {
+  if (typeof n === "string" && /^(?:[1-9]|[1-9][0-9])$/.test(n)) n = Number(n);
+  if (typeof n !== "number" || n !== n || n === Infinity || Math.floor(n) !== n) return null;
+  if (n < 1 || n > 99) return null;
+  return n;
+}
+/* Ritmo chips on the camisa step. "expressa" exists in PACE but is not offered. */
+function setupPaceOk(id) {
+  if (id !== "intensa" && id !== "normal" && id !== "rapido") return false;
+  if (typeof PACE !== "undefined" && !PACE[id]) return false;
+  return true;
+}
 function readSetupPrefs() {
   try {
     if (typeof localStorage === "undefined" || !localStorage.getItem) return null;
@@ -585,6 +598,9 @@ function readSetupPrefs() {
     if (setupNationOk(o.country)) out.country = o.country;
     if (setupPosOk(o.position)) out.position = o.position;
     if (setupFootOk(o.foot)) out.foot = o.foot;
+    var num = setupNumberValue(o.number);
+    if (num != null) out.number = num;
+    if (setupPaceOk(o.pace)) out.pace = o.pace;
     return out;
   } catch (e) {
     return null;
@@ -599,6 +615,8 @@ function rememberSetupPrefs(src) {
     if (prev.country) out.country = prev.country;
     if (prev.position) out.position = prev.position;
     if (prev.foot) out.foot = prev.foot;
+    if (prev.number != null) out.number = prev.number;
+    if (prev.pace) out.pace = prev.pace;
     if (Object.prototype.hasOwnProperty.call(src, "name")) {
       var nm = cleanSetupName(src.name);
       if (nm) out.name = nm;
@@ -615,6 +633,11 @@ function rememberSetupPrefs(src) {
       if (setupPosOk(position)) out.position = position;
     }
     if (Object.prototype.hasOwnProperty.call(src, "foot") && setupFootOk(src.foot)) out.foot = src.foot;
+    if (Object.prototype.hasOwnProperty.call(src, "number")) {
+      var num = setupNumberValue(src.number);
+      if (num != null) out.number = num;
+    }
+    if (Object.prototype.hasOwnProperty.call(src, "pace") && setupPaceOk(src.pace)) out.pace = src.pace;
     localStorage.setItem(SETUP_PREFS_KEY, JSON.stringify(out));
   } catch (e) {}
 }

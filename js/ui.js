@@ -1042,6 +1042,8 @@ function freshSetupDraft() {
   if (prefs.country) d.nation = prefs.country;
   if (prefs.position) d.pos = prefs.position;
   if (prefs.foot) d.foot = prefs.foot;
+  if (prefs.number != null) d.number = prefs.number;
+  if (prefs.pace) d.pace = prefs.pace;
   return d;
 }
 
@@ -1104,11 +1106,16 @@ function bind() {
     };
   });
   document.querySelectorAll("[data-pace]").forEach(function (b) {
-    b.onclick = function () { UI.draft.pace = b.getAttribute("data-pace"); render(); };
+    b.onclick = function () {
+      UI.draft.pace = b.getAttribute("data-pace");
+      if (typeof rememberSetupPrefs === "function") rememberSetupPrefs(UI.draft);
+      render();
+    };
   });
   document.querySelectorAll("[data-num]").forEach(function (b) {
     b.onclick = function () {
       UI.draft.number = clamp(UI.draft.number + Number(b.getAttribute("data-num")), 1, 99);
+      if (typeof rememberSetupPrefs === "function") rememberSetupPrefs(UI.draft);
       var label = document.querySelector(".dorsal .num");
       if (label) label.textContent = UI.draft.number;
       var numEl = document.querySelector(".shirt-num");
@@ -1258,12 +1265,12 @@ function go(to) {
     UI.screen = "create";
   } else if (to === "reset") {
     if (!window.confirm("Apagar a carreira salva e recomeçar do zero?")) return;
-    /* Flush name/country/position/foot before the career wipe. Not pace, not DEV, not the save. */
+    /* Flush name/country/position/foot/number/pace before the career wipe. Not DEV, not the save. */
     if (UI.draft && typeof rememberSetupPrefs === "function") rememberSetupPrefs(UI.draft);
     else if (S && typeof rememberSetupPrefs === "function") {
       var existingPrefs = typeof readSetupPrefs === "function" ? readSetupPrefs() : null;
-      var hasSetup = existingPrefs && (existingPrefs.name || existingPrefs.country || existingPrefs.position || existingPrefs.foot);
-      if (!hasSetup) rememberSetupPrefs({ name: S.name, nation: S.nation, pos: S.pos, foot: S.foot });
+      var hasSetup = existingPrefs && (existingPrefs.name || existingPrefs.country || existingPrefs.position || existingPrefs.foot || existingPrefs.number != null || existingPrefs.pace);
+      if (!hasSetup) rememberSetupPrefs({ name: S.name, nation: S.nation, pos: S.pos, foot: S.foot, number: S.number, pace: S.pace });
     }
     clearTrophyPop();
     clearSave();
