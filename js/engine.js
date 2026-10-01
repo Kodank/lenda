@@ -456,6 +456,8 @@ function clampMarketStage(s, stage) {
 }
 
 function newCareer(draft) {
+  /* Last setup choices only — not the career, not DEV. */
+  if (draft) rememberSetupPrefs(draft);
   var seed = (Date.now() ^ hashStr(draft.name + draft.nation + draft.pos)) >>> 0;
   var rnd = mulberry32(seed);
   var attrs = makeAttrs(draft.pos, draft.foot, rnd);
@@ -547,6 +549,74 @@ function newCareer(draft) {
 function rnd(s) {
   s.rndI = (s.rndI || 0) + 1;
   return mulberry32((s.seed + s.rndI * 9973) >>> 0)();
+}
+
+/* Last new-career setup (name, country, position, foot). Not a career save. */
+var SETUP_PREFS_KEY = "lenda-setup-prefs";
+
+function cleanSetupName(name) {
+  if (typeof name !== "string") return "";
+  if (typeof normalizePlayerName === "function") return normalizePlayerName(name);
+  return name.replace(/[\u0000-\u001F\u007F]/g, "").replace(/^\s+|\s+$/g, "").slice(0, 12);
+}
+function setupNationOk(id) {
+  if (typeof id !== "string" || !id || typeof NATIONS === "undefined") return false;
+  for (var i = 0; i < NATIONS.length; i++) {
+    if (NATIONS[i].id === id) return !NATIONS[i].clubOnly;
+  }
+  return false;
+}
+function setupPosOk(id) {
+  return typeof id === "string" && typeof POS !== "undefined" && !!POS[id];
+}
+function setupFootOk(id) {
+  return id === "D" || id === "E" || id === "A";
+}
+function readSetupPrefs() {
+  try {
+    if (typeof localStorage === "undefined" || !localStorage.getItem) return null;
+    var raw = localStorage.getItem(SETUP_PREFS_KEY);
+    if (!raw) return null;
+    var o = JSON.parse(raw);
+    if (!o || typeof o !== "object") return null;
+    var out = {};
+    var nm = cleanSetupName(o.name);
+    if (nm) out.name = nm;
+    if (setupNationOk(o.country)) out.country = o.country;
+    if (setupPosOk(o.position)) out.position = o.position;
+    if (setupFootOk(o.foot)) out.foot = o.foot;
+    return out;
+  } catch (e) {
+    return null;
+  }
+}
+function rememberSetupPrefs(src) {
+  if (!src || typeof localStorage === "undefined" || !localStorage.setItem) return;
+  try {
+    var prev = readSetupPrefs() || {};
+    var out = {};
+    if (prev.name) out.name = prev.name;
+    if (prev.country) out.country = prev.country;
+    if (prev.position) out.position = prev.position;
+    if (prev.foot) out.foot = prev.foot;
+    if (Object.prototype.hasOwnProperty.call(src, "name")) {
+      var nm = cleanSetupName(src.name);
+      if (nm) out.name = nm;
+      else delete out.name;
+    }
+    var hasCountry = Object.prototype.hasOwnProperty.call(src, "country") || Object.prototype.hasOwnProperty.call(src, "nation");
+    if (hasCountry) {
+      var country = Object.prototype.hasOwnProperty.call(src, "country") ? src.country : src.nation;
+      if (setupNationOk(country)) out.country = country;
+    }
+    var hasPos = Object.prototype.hasOwnProperty.call(src, "position") || Object.prototype.hasOwnProperty.call(src, "pos");
+    if (hasPos) {
+      var position = Object.prototype.hasOwnProperty.call(src, "position") ? src.position : src.pos;
+      if (setupPosOk(position)) out.position = position;
+    }
+    if (Object.prototype.hasOwnProperty.call(src, "foot") && setupFootOk(src.foot)) out.foot = src.foot;
+    localStorage.setItem(SETUP_PREFS_KEY, JSON.stringify(out));
+  } catch (e) {}
 }
 
 function save() {

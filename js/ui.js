@@ -1034,10 +1034,22 @@ function nextDecision() {
   UI.screen = "decision";
 }
 
+function freshSetupDraft() {
+  var d = { name: "nome", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
+  var prefs = typeof readSetupPrefs === "function" ? readSetupPrefs() : null;
+  if (!prefs) return d;
+  if (prefs.name) d.name = prefs.name;
+  if (prefs.country) d.nation = prefs.country;
+  if (prefs.position) d.pos = prefs.position;
+  if (prefs.foot) d.foot = prefs.foot;
+  return d;
+}
+
 function syncShirtTexts() {
   var nm = document.getElementById("nm");
   if (!nm || !UI.draft) return;
   UI.draft.name = normalizePlayerName(nm.value);
+  if (typeof rememberSetupPrefs === "function") rememberSetupPrefs(UI.draft);
   var el = document.querySelector(".shirt-name");
   if (el) el.textContent = UI.draft.name || "nome";
   var numEl = document.querySelector(".shirt-num");
@@ -1063,6 +1075,7 @@ function bind() {
         return;
       }
       UI.draft.step = next;
+      if (typeof rememberSetupPrefs === "function") rememberSetupPrefs(UI.draft);
       render();
     };
   });
@@ -1072,14 +1085,23 @@ function bind() {
       var id = b.getAttribute("data-nation");
       if (!id) return;
       UI.draft.nation = id;
+      if (typeof rememberSetupPrefs === "function") rememberSetupPrefs(UI.draft);
       render();
     };
   });
   document.querySelectorAll("[data-pos]").forEach(function (b) {
-    b.onclick = function () { UI.draft.pos = b.getAttribute("data-pos"); render(); };
+    b.onclick = function () {
+      UI.draft.pos = b.getAttribute("data-pos");
+      if (typeof rememberSetupPrefs === "function") rememberSetupPrefs(UI.draft);
+      render();
+    };
   });
   document.querySelectorAll("[data-foot]").forEach(function (b) {
-    b.onclick = function () { UI.draft.foot = b.getAttribute("data-foot"); render(); };
+    b.onclick = function () {
+      UI.draft.foot = b.getAttribute("data-foot");
+      if (typeof rememberSetupPrefs === "function") rememberSetupPrefs(UI.draft);
+      render();
+    };
   });
   document.querySelectorAll("[data-pace]").forEach(function (b) {
     b.onclick = function () { UI.draft.pace = b.getAttribute("data-pace"); render(); };
@@ -1097,6 +1119,10 @@ function bind() {
   var nm = document.getElementById("nm");
   if (nm) {
     nm.oninput = function () { syncShirtTexts(); };
+  }
+  var selectedFlag = document.querySelector("#flag-list .flag-row.on");
+  if (selectedFlag && selectedFlag.scrollIntoView) {
+    try { selectedFlag.scrollIntoView({ block: "nearest" }); } catch (e) {}
   }
   var search = document.getElementById("nat-search");
   if (search) {
@@ -1185,7 +1211,7 @@ function bind() {
 function go(to) {
   if (to === "home") UI.screen = "home";
   else if (to === "create") {
-    UI.draft = { name: "nome", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
+    UI.draft = freshSetupDraft();
     UI.screen = "create";
   } else if (to === "continue") {
     var s = load();
@@ -1206,6 +1232,7 @@ function go(to) {
     var inp = document.getElementById("nm");
     if (inp) UI.draft.name = normalizePlayerName(inp.value);
     if (UI.draft) UI.draft.step = 2;
+    if (typeof rememberSetupPrefs === "function") rememberSetupPrefs(UI.draft);
     S = newCareer(UI.draft);
     UI.offers = academyOffers(S);
     UI.screen = "academy";
@@ -1227,7 +1254,7 @@ function go(to) {
     UI.event = null;
     UI.reports = [];
     UI.offers = null;
-    UI.draft = { name: "nome", number: 10, foot: "D", nation: "br", pos: "ATA", pace: "normal", step: 0 };
+    UI.draft = freshSetupDraft();
     UI.screen = "create";
   } else if (to === "reset") {
     if (!window.confirm("Apagar a carreira salva e recomeçar do zero?")) return;
