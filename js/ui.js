@@ -483,6 +483,62 @@ function viewCreate() {
     "</div></div>";
 }
 
+/* DEV club search: PT name, adjective, id, and English/local aliases.
+   Accent-folded. A nation hit includes every club of that nation. */
+var NATION_SEARCH_ALIASES = {
+  br: ["brazil"],
+  uy: ["uruguay"],
+  es: ["spain"],
+  en: ["england"],
+  fr: ["france"],
+  it: ["italy"],
+  de: ["germany"],
+  nl: ["holanda", "netherlands", "holland"],
+  us: ["usa", "eua"],
+  jp: ["japan"],
+  sct: ["scotland"],
+  be: ["belgium"],
+  tr: ["turkey"],
+  ec: ["ecuador"],
+  py: ["paraguay"],
+  hr: ["croatia"],
+  gr: ["greece"],
+  ma: ["morocco"],
+  kr: ["korea", "south korea"],
+  dk: ["denmark"],
+  se: ["sweden"],
+  no: ["norway"],
+  sa: ["saudi", "saudi arabia"],
+  eg: ["egypt"],
+  dz: ["algeria", "argel"],
+  qa: ["qatar"],
+  ae: ["uae", "emirates"]
+};
+
+function foldSearch(s) {
+  return String(s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function devClubSearchHay(c) {
+  if (!c) return "";
+  var nat = c.nation && typeof nationOf === "function" ? nationOf(c.nation) : null;
+  if (nat && nat.id !== c.nation) nat = null;
+  var aliases = nat && NATION_SEARCH_ALIASES[nat.id] ? NATION_SEARCH_ALIASES[nat.id] : [];
+  var parts = [
+    c.name || "",
+    c.short || "",
+    c.displayShort || "",
+    c.city || "",
+    nat ? nat.name : (c.nation || ""),
+    nat ? nat.adj || "" : "",
+    nat ? nat.id : (c.nation || "")
+  ].concat(aliases);
+  return foldSearch(parts.join(" "));
+}
+
 function sortedClubsByName() {
   var list = (typeof CLUBS !== "undefined" ? CLUBS : []).slice();
   list.sort(function (a, b) {
@@ -496,7 +552,7 @@ function clubPickerRowHtml(c, signAttr) {
   if (nat && nat.id !== c.nation) nat = null;
   var attr = signAttr || "data-sign";
   return '<button type="button" class="dev-club-row" ' + attr + '="' + c.id + '" data-club-q="' +
-    esc((c.name + " " + (nat ? nat.name : c.nation || "") + " " + (c.city || "")).toLowerCase()) + '">' +
+    esc(devClubSearchHay(c)) + '">' +
     imgCrest(c.crest, "dev-club-crest", c.name) +
     '<span class="dev-club-meta">' +
     clubNameHtml(c.name, "dev-club-name") +
@@ -1153,7 +1209,7 @@ function bind() {
   var aq = document.getElementById("dev-academy-q");
   if (aq) {
     aq.oninput = function () {
-      var q = aq.value.toLowerCase().trim();
+      var q = foldSearch(aq.value.trim());
       document.querySelectorAll("#dev-academy-list .dev-club-row").forEach(function (row) {
         var hay = row.getAttribute("data-club-q") || "";
         row.style.display = !q || hay.indexOf(q) >= 0 ? "" : "none";

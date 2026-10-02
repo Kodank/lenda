@@ -236,7 +236,9 @@
       .map(function (c) {
         var nat = typeof nationOf === "function" && c.nation ? nationOf(c.nation) : null;
         if (nat && nat.id !== c.nation) nat = null;
-        var hay = (c.name + " " + (nat ? nat.name : "") + " " + (c.city || "")).toLowerCase();
+        var hay = typeof devClubSearchHay === "function"
+          ? devClubSearchHay(c)
+          : (c.name + " " + (nat ? nat.name : "") + " " + (c.city || "") + " " + (c.short || "")).toLowerCase();
         var crest =
           typeof imgCrest === "function"
             ? imgCrest(c.crest, "dev-club-crest", c.name)
@@ -270,7 +272,7 @@
     var list = document.querySelector(listSel);
     if (!q || !list) return;
     q.oninput = function () {
-      var s = q.value.toLowerCase().trim();
+      var s = typeof foldSearch === "function" ? foldSearch(q.value.trim()) : q.value.toLowerCase().trim();
       Array.prototype.forEach.call(list.querySelectorAll(".dev-club-row"), function (row) {
         var hay = row.getAttribute("data-club-q") || "";
         row.style.display = !s || hay.indexOf(s) >= 0 ? "" : "none";
@@ -650,6 +652,8 @@
         return (
           '<option value="' +
           c.id +
+          '" data-club-q="' +
+          esc(typeof devClubSearchHay === "function" ? devClubSearchHay(c) : c.name) +
           '"' +
           (c.id === cur ? " selected" : "") +
           ">" +
@@ -857,9 +861,10 @@
     var sel = document.getElementById("dev-club");
     if (q && sel) {
       q.oninput = function () {
-        var s = q.value.toLowerCase().trim();
+        var s = typeof foldSearch === "function" ? foldSearch(q.value.trim()) : q.value.toLowerCase().trim();
         Array.prototype.forEach.call(sel.options, function (opt) {
-          opt.hidden = !!(s && opt.text.toLowerCase().indexOf(s) < 0);
+          var hay = opt.getAttribute("data-club-q") || opt.text.toLowerCase();
+          opt.hidden = !!(s && hay.indexOf(s) < 0);
         });
       };
     }
