@@ -40,7 +40,7 @@ LEAGUES = LEAGUES.concat([
   { id: "dsl", name: "Danish Superliga", nation: "dk", tier: 1, level: 3.6, continental: "ucl", size: 12, trophy: "dsliga", logo: "img/leagues/dsl.png", color: "#C60C30" },
   { id: "all", name: "Allsvenskan", nation: "se", tier: 1, level: 3.4, continental: "ucl", size: 16, trophy: "allsvenskan", logo: "img/leagues/all.png", color: "#006AA7" },
   { id: "eli", name: "Eliteserien", nation: "no", tier: 1, level: 3.4, continental: "ucl", size: 16, trophy: "eliteserien", logo: "img/leagues/eli.png", color: "#BA0C2F" },
-  { id: "spl", name: "Saudi Pro League", nation: "sa", tier: 1, level: 3.6, continental: "acl", size: 16, trophy: "spl", logo: "img/leagues/spl.png", color: "#006C35" },
+  { id: "spl", name: "Saudi Pro League", nation: "sa", tier: 1, level: 3.6, continental: "acl", size: 18, trophy: "spl", logo: "img/leagues/spl.png", color: "#006C35" },
   { id: "epl", name: "Egyptian Premier League", nation: "eg", tier: 1, level: 3.4, continental: "caf", size: 20, trophy: "epl", logo: "img/leagues/epl.png", color: "#C8102E" },
   { id: "alg", name: "Algerian Ligue 1", nation: "dz", tier: 1, level: 3.1, continental: "caf", size: 16, trophy: "alg1", logo: "img/leagues/alg.png", color: "#006233" },
   { id: "tun", name: "Tunisian Ligue 1", nation: "tn", tier: 1, level: 3.1, continental: "caf", size: 16, trophy: "tun1", logo: "img/leagues/tun.png", color: "#E70013" },
@@ -449,7 +449,6 @@ CLUBS = CLUBS.concat([
 ]);
 
 /* --- países árabes: SPL / EPL / Ligue 1 ALG / Ligue 1 TUN / QSL / UAE 2026-27 --- */
-/* Skipped (no real crest): Al-Hazem (SportsDB file was NEOM's badge), Al-Shabab (Riyadh). */
 CLUBS = CLUBS.concat([
   _xc("abha", "Abha", "Abha", "sa", "spl", 2.7, "#1B4F9C", "#FFFFFF"),
   _xc("ahli", "Al-Ahli", "Jidá", "sa", "spl", 4.0, "#006C35", "#FFFFFF"),
@@ -458,6 +457,7 @@ CLUBS = CLUBS.concat([
   _xc("fais", "Al-Faisaly", "Harmah", "sa", "spl", 2.8, "#F36C21", "#0033A0"),
   _xc("fath", "Al-Fateh", "Al-Mubarraz", "sa", "spl", 3.1, "#007A33", "#0033A0"),
   _xc("fayh", "Al-Fayha", "Majmaah", "sa", "spl", 3.1, "#F26522", "#111111"),
+  _xc("hazm", "Al-Hazem", "Ar Rass", "sa", "spl", 2.9, "#F5B400", "#111111"),
   _xc("hil", "Al-Hilal", "Riade", "sa", "spl", 4.2, "#0033A0", "#FFFFFF"),
   _xc("ittj", "Al-Ittihad", "Jidá", "sa", "spl", 4.0, "#FFD100", "#111111"),
   _xc("khlj", "Al-Khaleej", "Saihat", "sa", "spl", 2.9, "#007A33", "#FFD100"),
@@ -465,6 +465,7 @@ CLUBS = CLUBS.concat([
   _xc("nass", "Al-Nassr", "Riade", "sa", "spl", 4.1, "#FFD100", "#0033A0"),
   _xc("qads", "Al-Qadsiah", "Khobar", "sa", "spl", 3.7, "#C8102E", "#FFD100"),
   _xc("riyd", "Al-Riyadh", "Riade", "sa", "spl", 3.0, "#111111", "#E10600"),
+  _xc("shab", "Al-Shabab", "Riade", "sa", "spl", 3.5, "#FFFFFF", "#111111"),
   _xc("taaw", "Al-Taawoun", "Buraidah", "sa", "spl", 3.3, "#FFD100", "#0033A0"),
   _xc("neom", "NEOM", "Tabuk", "sa", "spl", 3.6, "#111111", "#00B5B8"),
   _xc("abq", "Abou Qir", "Alexandria", "eg", "epl", 2.6, "#007A33", "#FFD100"),
