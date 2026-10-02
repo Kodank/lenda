@@ -187,6 +187,12 @@ var TROPHIES = {
   dsliga: { name: "Superliga", img: "img/trophies/dsliga.png?v=nordic-1", kind: "league", w: 5 },
   allsvenskan: { name: "Allsvenskan", img: "img/trophies/allsvenskan.png?v=nordic-1", kind: "league", w: 5 },
   eliteserien: { name: "Eliteserien", img: "img/trophies/eliteserien.png?v=nordic-1", kind: "league", w: 5 },
+  spl: { name: "Saudi Pro League", img: "img/trophies/spl.png?v=arab-1", kind: "league", w: 5 },
+  epl: { name: "Egyptian Premier League", img: "img/trophies/epl.png?v=arab-1", kind: "league", w: 5 },
+  alg1: { name: "Ligue 1 Algérie", img: "img/trophies/alg1.png?v=arab-1", kind: "league", w: 4 },
+  tun1: { name: "Ligue 1 Tunisie", img: "img/trophies/tun1.png?v=arab-1", kind: "league", w: 4 },
+  qsl: { name: "Qatar Stars League", img: "img/trophies/qsl.png?v=arab-1", kind: "league", w: 4 },
+  uaepl: { name: "UAE Pro League", img: "img/trophies/uaepl.png?v=arab-1", kind: "league", w: 4 },
   serie_c: { name: "Série C", img: "img/trophies/serie_c.png?v=npfl-concacaf-2", kind: "league", w: 2 },
   championship: { name: "Championship", img: "img/trophies/championship.png?v=npfl-concacaf-2", kind: "league", w: 3 },
   bundesliga2: { name: "2. Bundesliga", img: "img/trophies/bundesliga2.png?v=npfl-concacaf-2", kind: "league", w: 3 },
@@ -254,6 +260,7 @@ var NATION_CUP = {
   se: "svenska_cup", no: "nm_cup"
 };
 /* hr omitted: no real Hrvatski kup cutout. dk omitted: no separate Sydbank Pokalen cutout (DBU image is the Superliga trophy). League cupTrophy false blocks the generic copa fallback. */
+/* sa/eg/dz/tn/qa/ae omitted: no free King's Cup / Egypt Cup / Coupe d'Algérie / Coupe de Tunisie / Emir Cup / President's Cup cutout. */
 
 /* Even non-World-Cup years: one continental NT trophy per confederation. */
 function ntContinentalId(nat) {
@@ -298,7 +305,13 @@ var NATION_SHIRT = {
   ca: { shirt: "img/shirts/ca.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
   dk: { shirt: "img/shirts/dk.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
   se: { shirt: "img/shirts/se.png", ink: "#006AA7", inkShadow: "rgba(255,255,255,.25)" },
-  no: { shirt: "img/shirts/no.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" }
+  no: { shirt: "img/shirts/no.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  sa: { shirt: "img/shirts/sa.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  eg: { shirt: "img/shirts/eg.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  dz: { shirt: "img/shirts/dz.png", ink: "#006233", inkShadow: "rgba(255,255,255,.25)" },
+  tn: { shirt: "img/shirts/tn.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  qa: { shirt: "img/shirts/qa.png", ink: "#FFFFFF", inkShadow: "rgba(0,0,0,.35)" },
+  ae: { shirt: "img/shirts/ae.png", ink: "#111111", inkShadow: "rgba(255,255,255,.25)" }
 };
 
 
