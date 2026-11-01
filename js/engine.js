@@ -643,6 +643,13 @@ function rememberSetupPrefs(src) {
 }
 
 function save() {
+  if (!S) return;
+  /* Evento de decisão aberto vai junto no save: recarregar não sorteia outro. */
+  try {
+    if (typeof UI !== "undefined" && UI) {
+      S._pendingEvent = (UI.screen === "decision" && UI.event && !S.retired) ? UI.event : null;
+    }
+  } catch (e) {}
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(S));
   } catch (e) {}
@@ -651,10 +658,90 @@ function load() {
   try {
     var raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw);
+    var s = JSON.parse(raw);
+    return validSaveShape(s) ? s : null;
   } catch (e) {
     return null;
   }
+}
+
+/* Save existe no storage, mas está corrompido/incompleto (não apaga sozinho). */
+function hasBrokenSave() {
+  try {
+    var raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    var s = JSON.parse(raw);
+    return !validSaveShape(s);
+  } catch (e) {
+    return true;
+  }
+}
+
+function _isNum(v) { return typeof v === "number" && isFinite(v); }
+function _hasId(list, id) {
+  for (var i = 0; i < list.length; i++) if (list[i].id === id) return true;
+  return false;
+}
+
+/* Formato mínimo que as telas precisam pra não quebrar. */
+function validSaveShape(s) {
+  if (!s || typeof s !== "object" || Array.isArray(s)) return false;
+  if (typeof s.nation !== "string" || typeof s.pos !== "string" || !POS[s.pos]) return false;
+  if (!_isNum(s.age) || !_isNum(s.ovr) || !_isNum(s.year)) return false;
+  if (!s.attrs || typeof s.attrs !== "object") return false;
+  if (!s.career || typeof s.career !== "object" || !Array.isArray(s.career.trophies)) return false;
+  if (!Array.isArray(s.seasons)) return false;
+  if (s.awards != null && !Array.isArray(s.awards)) return false;
+  /* Campos opcionais de saves antigos: repara em vez de recusar. */
+  if (!_isNum(s.seed)) s.seed = 1;
+  if (!s.traits || typeof s.traits !== "object") s.traits = { loyalty: 50, ambition: 50, discipline: 50, resilience: 50 };
+  if (!Array.isArray(s.clubs)) s.clubs = s.clubId ? [{ id: s.clubId, from: s.year }] : [];
+  if (s.awards == null) s.awards = [];
+  if (!s.clubId && !s.freeAgent && !s.retired) return false;
+  if (s.clubId != null && typeof s.clubId !== "string") return false;
+  return true;
+}
+
+/* Ids que sumiram entre versões: nunca cai calado no Flamengo/Brasil.
+   Retorna avisos em pt-BR (vazio = save limpo). */
+function migrateSaveIds(s) {
+  var notes = [];
+  if (!s) return notes;
+  if (!_hasId(NATIONS, s.nation)) {
+    notes.push("A seleção do save (" + s.nation + ") não existe nesta versão.");
+  }
+  if (s.clubId && !_hasId(CLUBS, s.clubId)) {
+    notes.push("O clube do save (" + s.clubId + ") não existe mais. Você virou agente livre.");
+    s.clubId = null;
+    s.loanFrom = null;
+    s.parentClubId = null;
+    s.onLoan = false;
+    s.loanYears = 0;
+    s._loanResolve = false;
+    if (!s.retired) { s.freeAgent = true; s.role = "bench"; s._rescindName = "um clube que saiu do jogo"; }
+    s._pendingEvent = null;
+  }
+  if (s.loanFrom && !_hasId(CLUBS, s.loanFrom)) {
+    notes.push("O clube dono do seu passe (" + s.loanFrom + ") não existe mais. O empréstimo virou definitivo.");
+    s.loanFrom = null;
+    s.parentClubId = null;
+    s.onLoan = false;
+    s.loanYears = 0;
+    s._loanResolve = false;
+    s._pendingEvent = null;
+  }
+  if (s.clubOverrides) {
+    for (var k in s.clubOverrides) {
+      if (!Object.prototype.hasOwnProperty.call(s.clubOverrides, k)) continue;
+      var ov = s.clubOverrides[k];
+      if (!_hasId(CLUBS, k)) delete s.clubOverrides[k];
+      else if (ov && ov.leagueId != null && !_hasId(LEAGUES, ov.leagueId)) delete ov.leagueId;
+    }
+  }
+  var lost = 0;
+  for (var i = 0; i < s.clubs.length; i++) if (s.clubs[i] && s.clubs[i].id && !_hasId(CLUBS, s.clubs[i].id)) lost++;
+  if (lost) notes.push(lost === 1 ? "1 clube do seu histórico não existe mais nesta versão." : lost + " clubes do seu histórico não existem mais nesta versão.");
+  return notes;
 }
 function clearSave() {
   /* Career progress only. Never drop lenda-setup-prefs (or anything else). */
@@ -734,7 +821,7 @@ function resolveGkSaves(bucket) {
   var apps = bucket.apps || 0;
   var cs = bucket.cs || 0;
   if (!apps && !cs) return 0;
-  return Math.max(0, Math.round(apps * 1.5));
+  return Math.max(0, Math.round(apps * 2.2));
 }
 
 function gkAwareStats(s, apps, goals, assists, saves, ga) {

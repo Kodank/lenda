@@ -1,4 +1,4 @@
-/* gerado por tools/build_assets.py — não edite à mão */
+/* Base criada por tools/build_assets.py, mas editada à mão desde então (diverge do script). Não regenere: edite aqui. */
 var NATIONS = [
   {
     "id": "br",

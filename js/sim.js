@@ -142,12 +142,12 @@ function simSeason(s) {
     cs = poisson(apps * ((pr.cs || 0.28) + ovrF * 0.22), function () { return rnd(s); });
     cs = Math.min(apps, cs);
     ga = Math.max(0, Math.round(apps * (1.35 - ovrF * 0.48) + (rnd(s) - 0.5) * 6));
-    /* Defesas ~1.2–1.7/jogo (não usa ovrF — explodia em OVR alto). */
-    var savePer = 1.55 - clamp((effectiveOvr(s) - 70) / 80, -0.2, 0.35);
+    /* Defesas ~2.0–2.5/jogo (não usa ovrF — explodia em OVR alto). */
+    var savePer = 2.3 - clamp((effectiveOvr(s) - 70) / 80, -0.2, 0.35) * 0.9;
     saves = poisson(apps * savePer * formF, function () { return rnd(s); });
     saves = Math.max(saves, Math.round(ga * 1.0 + cs * 0.25));
-    saves = Math.min(saves, Math.round(apps * 2.2));
-    rating = 6.0 + (cs / Math.max(1, apps)) * 1.6 + Math.min(1.0, saves / Math.max(1, apps) * 0.35) + ovrF * 0.15;
+    saves = Math.min(saves, Math.round(apps * 3.0));
+    rating = 6.0 + (cs / Math.max(1, apps)) * 1.6 + Math.min(1.0, saves / Math.max(1, apps) * 0.22) + ovrF * 0.15;
   }
   var rateCap = s.ovr >= 96 ? 9.4 : s.ovr >= 90 ? 9.1 : 8.8;
   rating = Math.round(clamp(rating, 5.4, rateCap) * 10) / 10;
@@ -274,6 +274,12 @@ function simSeason(s) {
       pBalon = contOrTitle && strong ? 0.62 : (strong || contOrTitle ? 0.42 : 0.24);
     }
     if (role === "rotation") pBalon *= 0.55;
+    /* Posição: atacante/meia; zagueiro raro, goleiro raríssimo. */
+    pBalon *= (typeof BALON_POS_MUL !== "undefined" && BALON_POS_MUL[s.pos] != null) ? BALON_POS_MUL[s.pos] : 0.5;
+    /* Saturação: cada Bola de Ouro já ganha deixa a próxima mais difícil (fim das 15 na carreira). */
+    var balonsSoFar = 0;
+    for (var bi = 0; bi < (s.awards || []).length; bi++) if (s.awards[bi] === "balon") balonsSoFar++;
+    pBalon *= BALON_BASE_MUL / (1 + balonsSoFar * BALON_REPEAT_DAMP);
     /* Destino baixo: Bola de Ouro quase impossível; extraordinária mantém taxas atuais. */
     pBalon *= destinyOf(s).balonMul != null ? destinyOf(s).balonMul : 1;
     if (pBalon > 0 && rnd(s) < pBalon) awards.push("balon");
@@ -523,6 +529,9 @@ function applyDeltaToAttrs(s, delta) {
   }
 }
 
+var BALON_BASE_MUL = 1;
+var BALON_REPEAT_DAMP = 0.22;
+
 /* WC win P: piecewise-linear through anchors 86→27%, 90→55%, 95→78%, 99→89% (teto). Never auto-win. */
 function worldCupWinP(ovr) {
   var pts = [[86, 0.27], [90, 0.55], [95, 0.78], [99, 0.89]];
@@ -566,12 +575,12 @@ function simNational(s) {
       var yF = perfOvrFactor(s.ovr);
       out.cs = Math.min(out.apps, poisson(out.apps * 0.28, function () { return rnd(s); }));
       out.ga = Math.max(0, Math.round(out.apps * (1.25 - yF * 0.42) + (rnd(s) - 0.5) * 3));
-      var ySave = 1.5 - clamp((s.ovr - 70) / 80, -0.2, 0.3);
+      var ySave = 2.25 - clamp((s.ovr - 70) / 80, -0.2, 0.3) * 0.9;
       out.saves = Math.max(
         poisson(out.apps * ySave, function () { return rnd(s); }),
         Math.round(out.ga * 1.0)
       );
-      out.saves = Math.min(out.saves, Math.round(out.apps * 2.2));
+      out.saves = Math.min(out.saves, Math.round(out.apps * 3.0));
     }
     if (year % 2 === 0 && rnd(s) < 0.2) out.trophies.push("youth");
     return out;
@@ -593,16 +602,17 @@ function simNational(s) {
     var nF = perfOvrFactor(s.ovr);
     out.cs = Math.min(out.apps, poisson(out.apps * (0.28 + nF * 0.12), function () { return rnd(s); }));
     out.ga = Math.max(0, Math.round(out.apps * (1.2 - nF * 0.4) + (rnd(s) - 0.5) * 3));
-    var nSave = 1.45 - clamp((s.ovr - 70) / 80, -0.2, 0.3);
+    var nSave = 2.2 - clamp((s.ovr - 70) / 80, -0.2, 0.3) * 0.9;
     out.saves = Math.max(
       poisson(out.apps * nSave, function () { return rnd(s); }),
       Math.round(out.ga * 1.0)
     );
-    out.saves = Math.min(out.saves, Math.round(out.apps * 2.2));
+    out.saves = Math.min(out.saves, Math.round(out.apps * 3.0));
   }
   /* NT gates = eligibility floors only; base chance rare at floor, then scales with OVR (never auto-win). */
   if (isWC && starter && s.ovr >= 86) {
-    if (rnd(s) < worldCupWinP(s.ovr)) out.trophies.push("worldcup");
+    var wcStr = typeof ntWorldCupStrength === "function" ? ntWorldCupStrength(s.nation) : 1;
+    if (rnd(s) < worldCupWinP(s.ovr) * wcStr) out.trophies.push("worldcup");
   }
   if (isCont && starter && s.ovr >= 84) {
     /* Same even-year slot for every confederation (calendar is not per-conf). */

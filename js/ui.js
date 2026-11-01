@@ -36,10 +36,21 @@ function crestBroken(el) {
   if (el.parentNode) el.parentNode.replaceChild(s, el);
 }
 
+/* Fallback de imagem sem handler inline (a CSP bloqueia onerror="..."). */
+if (typeof document !== "undefined" && document.addEventListener) {
+  document.addEventListener("error", function (e) {
+    var el = e.target;
+    if (!el || el.tagName !== "IMG") return;
+    if (el.getAttribute("data-crest-fb")) { crestBroken(el); return; }
+    var fb = el.getAttribute("data-fallback-src");
+    if (fb && !el._fbDone) { el._fbDone = 1; el.src = fb; }
+  }, true);
+}
+
 function imgCrest(path, cls, name) {
   var fb = crestInitials(name);
   return '<img class="' + (cls || "crest") + '" src="' + crestSrc(path) + '" alt="" data-fb="' + esc(fb) +
-    '" onerror="crestBroken(this)">';
+    '" data-crest-fb="1">';
 }
 
 function esc(t) {
@@ -263,7 +274,7 @@ function trophyCaseHtml(s) {
     var n = seen[id];
     return '<div class="case-item"><img src="' + meta.img + '" alt=""><span>' + esc(meta.name) + (n > 1 ? " ×" + n : "") + "</span></div>";
   }).join("");
-  return '<div class="trophy-case"><div class="case-label">VITRINE</div><div class="case-grid">' + cells + "</div></div>";
+  return '<div class="trophy-case" tabindex="0" role="region" aria-label="Vitrine de títulos"><div class="case-label">VITRINE</div><div class="case-grid">' + cells + "</div></div>";
 }
 
 function identityStrip(s) {
@@ -312,7 +323,14 @@ function render() {
   else if (UI.screen === "report") html = viewReport();
   else if (UI.screen === "legacy") html = viewLegacy();
   else html = viewHome();
-  root.innerHTML = html;
+  /* Um h1 por tela (leitor de tela); visualmente oculto quando a tela não tem título próprio. */
+  if (html.indexOf("<h1") < 0) {
+    var h1Text = { create: "Criar jogador", academy: "Escolher a base", decision: "Decisão da carreira", report: "Resumo da temporada", legacy: "Legado" }[UI.screen] || "Lenda";
+    html = '<h1 class="sr-only">' + h1Text + "</h1>" + html;
+  }
+  root.innerHTML = saveNoticeHtml() + html;
+  var noticeX = document.getElementById("save-notice-x");
+  if (noticeX) noticeX.onclick = function () { UI.saveNotice = ""; var n = noticeX.parentNode; if (n && n.parentNode) n.parentNode.removeChild(n); };
   root.className = "screen-" + UI.screen + (UI.screen === "create" ? " step-" + ((UI.draft && UI.draft.step) || 0) : "");
   bind();
   enforceLightInk();
@@ -340,18 +358,29 @@ function topBarHtml(brand, slim) {
     "</div></div>";
 }
 
+/* Aviso de save (inválido / clube removido). Fica até o jogador fechar. */
+function showSaveNotice(msg) {
+  UI.saveNotice = msg ? String(msg) : "";
+}
+function saveNoticeHtml() {
+  if (!UI.saveNotice) return "";
+  return '<div class="save-notice" role="alert"><span>' + esc(UI.saveNotice) + '</span>' +
+    '<button type="button" class="ghost" id="save-notice-x" aria-label="Fechar aviso">OK</button></div>';
+}
+
 function viewHome() {
   var has = !!load();
+  var broken = !has && typeof hasBrokenSave === "function" && hasBrokenSave();
   return '<div class="home">' +
     '<div class="home-top">' +
     (typeof JUICE !== "undefined" ? JUICE.soundToggleHtml() : "") +
     "</div>" +
     '<div class="kicker">Simulador de carreira</div>' +
     "<h1>LENDA</h1>" +
-    "<p>Escolhe a origem, toma as decisões e deixa o destino virar títulos, números e um quadro para guardar.</p>" +
+    "<p>Escolha a origem, tome as decisões e deixe o destino virar títulos, números e um quadro para guardar.</p>" +
     '<button class="btn" data-go="create">Começar carreira</button>' +
     (has ? '<button class="btn alt" data-go="continue">Continuar</button>' : "") +
-    (has ? '<button class="btn danger" data-go="reset">Reiniciar tudo</button>' : "") +
+    ((has || broken) ? '<button class="btn danger" data-go="reset">Reiniciar tudo</button>' : "") +
     "</div>";
 }
 
@@ -418,7 +447,7 @@ function viewCreate() {
     return top +
       '<div class="step-card focus-nation">' +
       "<h2>Nacionalidade</h2>" +
-      '<p class="lead tight">Escolhe o país. A camisa ganha as cores da seleção.</p>' +
+      '<p class="lead tight">Escolha o país. A camisa ganha as cores da seleção.</p>' +
       '<div class="nation-split">' +
       '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "nome", d.nation) + "</div>" +
       '<div class="nation-panel"><input id="nat-search" type="text" placeholder="Buscar país…" autocomplete="off">' +
@@ -469,7 +498,7 @@ function viewCreate() {
   return top +
     '<div class="step-card focus-pos">' +
     "<h2>Posição</h2>" +
-    '<p class="lead tight">16 anos · OVR 50 · toca no campo para escolher.</p>' +
+    '<p class="lead tight">16 anos · OVR 50 · toque no campo para escolher.</p>' +
     '<div class="pos-split">' +
     '<div class="pos-summary">' +
     '<div class="shirt-mini">' + shirtHtml(kit[0], kit[1], d.number, d.name || "nome", d.nation) + "</div>" +
@@ -681,7 +710,7 @@ function timelineHtml(s, hiN, choosing) {
   var aHead = s.pos === "GOL" ? "GS" : "A";
   var html = '<div class="timeline-panel">' +
     '<div class="tl-head"><span>IDADE</span><span>CLUBE</span><span>OVR</span><span>J</span><span>' + gHead + '</span><span>' + aHead + '</span></div>' +
-    '<div class="timeline-scroll">';
+    '<div class="timeline-scroll" tabindex="0" role="region" aria-label="Linha do tempo da carreira">';
 
   for (var age = START_AGE; age < START_AGE + 24; age++) {
     var hit = byAge[age];
@@ -878,7 +907,7 @@ function viewDecision() {
     "</div>" +
     '<div class="career-body">' +
     '<div class="story compact">' +
-    '<div class="event-hero"><img src="' + hero + '" alt="" loading="lazy" onerror="this.src=\'img/choices/default.png\'"></div>' +
+    '<div class="event-hero"><img src="' + hero + '" alt="" loading="lazy" data-fallback-src="img/choices/default.png"></div>' +
     '<div class="meta">' + esc((!s.clubId || s.freeAgent) ? "Agente livre" : clubOf(s.clubId).name) + " · " + s.age + " anos</div>" +
     "<h2>" + esc(ev.title) + "</h2>" +
     "<p>" + esc(ev.text) + "</p></div>" +
@@ -1095,8 +1124,10 @@ function nextDecision() {
     UI.screen = "legacy";
     return;
   }
-  UI.event = pickEvent(S);
+  var pend = S && S._pendingEvent;
+  UI.event = (pend && typeof pend === "object" && (pend.a || pend.b || pend.c)) ? pend : pickEvent(S);
   UI.screen = "decision";
+  save();
 }
 
 function freshSetupDraft() {
@@ -1137,8 +1168,8 @@ function bind() {
       var cur = UI.draft.step || 0;
       /* País first: must pick nationality before Camisa / Posição. */
       if (next > cur && next >= 1 && !UI.draft.nation) {
-        if (typeof JUICE !== "undefined" && JUICE.showToast) JUICE.showToast("Escolhe o país primeiro", "bad", 1800);
-        else window.alert("Escolhe o país primeiro");
+        if (typeof JUICE !== "undefined" && JUICE.showToast) JUICE.showToast("Escolha o país primeiro", "bad", 1800);
+        else window.alert("Escolha o país primeiro");
         return;
       }
       UI.draft.step = next;
@@ -1253,11 +1284,15 @@ function bind() {
         }
         b.classList.add("landed-pulse");
         if (typeof JUICE !== "undefined") JUICE.onAfterChoice(S, b);
+        /* Escolha + temporada gravadas na hora: recarregar durante a animação não desfaz nem troca a decisão. */
+        var reports = advance(S);
+        UI.event = null;
+        UI.screen = "report";
+        save();
         setTimeout(function () {
           UI._picking = false;
-          UI.reports = advance(S);
+          UI.reports = reports;
           UI.screen = "report";
-          save();
           render();
           startTrophyQueue(trophiesFromReports(UI.reports));
         }, 980);
@@ -1283,19 +1318,28 @@ function bind() {
 function go(to) {
   if (to === "home") UI.screen = "home";
   else if (to === "create") {
+    if (UI.screen === "home" && (load() || (typeof hasBrokenSave === "function" && hasBrokenSave()))) {
+      if (!window.confirm("Já existe uma carreira salva. Começar uma nova vai substituir a atual quando você escolher a base. Continuar?")) return;
+    }
     UI.draft = freshSetupDraft();
     UI.screen = "create";
   } else if (to === "continue") {
     var s = load();
     if (s) {
       S = s;
+      if (typeof ensureDestiny === "function") ensureDestiny(S);
+      var contNotes = typeof migrateSaveIds === "function" ? migrateSaveIds(S) : [];
+      if (contNotes.length) showSaveNotice(contNotes.join(" "));
       if (s.retired) UI.screen = "legacy";
       else nextDecision();
+    } else if (typeof hasBrokenSave === "function" && hasBrokenSave()) {
+      showSaveNotice("Save inválido: não deu pra carregar a carreira. Use \u201cReiniciar tudo\u201d pra começar de novo.");
+      UI.screen = "home";
     }
   } else if (to === "academies") {
     if (!UI.draft || !UI.draft.nation) {
-      if (typeof JUICE !== "undefined" && JUICE.showToast) JUICE.showToast("Escolhe o país primeiro", "bad", 1800);
-      else window.alert("Escolhe o país primeiro");
+      if (typeof JUICE !== "undefined" && JUICE.showToast) JUICE.showToast("Escolha o país primeiro", "bad", 1800);
+      else window.alert("Escolha o país primeiro");
       if (UI.draft) UI.draft.step = 0;
       UI.screen = "create";
       render();

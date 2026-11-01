@@ -1559,6 +1559,10 @@ function finalScore(s) {
   var total = Math.round(ach * 0.27 + legend * 0.25 + loyalty * 0.16 + inf * 0.16 + res * 0.16);
   if (typeof farewellLegacyBonus === "function") total = clamp(total + farewellLegacyBonus(s), 1, 99);
   else if (s.farewellBonus) total = clamp(total + 4, 1, 99);
+  /* Teto pelo auge: carreira de OVR baixo não vira nota de lenda só por longevidade/títulos menores.
+     auge 75 → 66 · 80 → 74 · 85 → 82 · 88 → 87 · 92 → 93 · 96+ → 99 */
+  var peakCap = Math.round(clamp(66 + (peak - 75) * 1.6, 50, 99));
+  if (total > peakCap) total = peakCap;
   return { total: clamp(total, 1, 99), ach: Math.round(ach), legend: Math.round(legend), loyalty: Math.round(loyalty), inf: Math.round(inf), res: Math.round(res) };
 }
 
@@ -1568,7 +1572,7 @@ function verdict(s, score) {
   if (nClubs === 1 && s.career.apps >= 300) return "Ídolo de uma camisa";
   if (countTrophy(s, "ucl") + countTrophy(s, "libertadores") + countTrophy(s, "acl") + countTrophy(s, "caf") + countTrophy(s, "concacaf") >= 3) return "Rei de copas";
   if (s.caps >= 60 && (countTrophy(s, "worldcup") + countTrophy(s, "copaamerica") + countTrophy(s, "euro") + countTrophy(s, "afcon") + countTrophy(s, "asiancup") + countTrophy(s, "goldcup")) >= 1) return "Herói da seleção";
-  if (s.age >= 36 && s.peakOvr < 74 && s.caps < 15) return "Sobrevivente";
+  if (s.age >= 35 && s.peakOvr < 78 && s.career.apps >= 250) return "Sobrevivente";
   if (score.total >= 86) return "Lenda";
   if (score.total >= 74) return "Craque";
   if (score.total >= 60) return "Profissional";

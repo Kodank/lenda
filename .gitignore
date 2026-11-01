@@ -1,3 +1,4 @@
 tools/__pycache__/
 *.pyc
 .DS_Store
+tools/_trophy_tmp/

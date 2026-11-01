@@ -32,20 +32,20 @@ LEAGUES = LEAGUES.concat([
   { id: "ecu", name: "LigaPro Serie A", nation: "ec", tier: 1, level: 2.9, continental: "lib", size: 16, trophy: "liga_ec", logo: "img/leagues/ecu.png", color: "#FFD100" },
   { id: "par", name: "Primera División", nation: "py", tier: 1, level: 2.8, continental: "lib", size: 12, trophy: "primera_py", logo: "img/leagues/par.png", color: "#D52B1E" },
   { id: "hnl", name: "HNL", nation: "hr", tier: 1, level: 3.3, continental: "ucl", size: 10, trophy: "hnl", logo: "img/leagues/hnl.png", color: "#FF0000" },
-  { id: "slg", name: "Super League Greece", nation: "gr", tier: 1, level: 3.2, continental: "ucl", size: 14, trophy: "slgreece", logo: "img/leagues/slg.png", color: "#0D5EAF" },
-  { id: "rpl", name: "Russian Premier League", nation: "ru", tier: 1, level: 3.5, continental: "ucl", size: 16, trophy: "rpl", logo: "img/leagues/rpl.png", color: "#E4181C" },
+  { id: "slg", name: "Superliga Grega", nation: "gr", tier: 1, level: 3.2, continental: "ucl", size: 14, trophy: "slgreece", logo: "img/leagues/slg.png", color: "#0D5EAF" },
+  { id: "rpl", name: "Premier League Russa", nation: "ru", tier: 1, level: 3.5, continental: "ucl", size: 16, trophy: "rpl", logo: "img/leagues/rpl.png", color: "#E4181C" },
   { id: "bot", name: "Botola Pro", nation: "ma", tier: 1, level: 2.6, continental: "caf", size: 16, trophy: "botola", logo: "img/leagues/bot.png", color: "#C1272D" },
   { id: "kle", name: "K League 1", nation: "kr", tier: 1, level: 3.1, continental: "acl", size: 12, trophy: "kleague", logo: "img/leagues/kle.png", color: "#E8342A" },
-  { id: "cpl", name: "Canadian Premier League", nation: "ca", tier: 1, level: 2.7, continental: "concacaf", size: 8, trophy: "cpl", logo: "img/leagues/cpl.png", color: "#E4002B" },
-  { id: "dsl", name: "Danish Superliga", nation: "dk", tier: 1, level: 3.6, continental: "ucl", size: 12, trophy: "dsliga", logo: "img/leagues/dsl.png", color: "#C60C30" },
+  { id: "cpl", name: "Premier League Canadense", nation: "ca", tier: 1, level: 2.7, continental: "concacaf", size: 8, trophy: "cpl", logo: "img/leagues/cpl.png", color: "#E4002B" },
+  { id: "dsl", name: "Superliga Dinamarquesa", nation: "dk", tier: 1, level: 3.6, continental: "ucl", size: 12, trophy: "dsliga", logo: "img/leagues/dsl.png", color: "#C60C30" },
   { id: "all", name: "Allsvenskan", nation: "se", tier: 1, level: 3.4, continental: "ucl", size: 16, trophy: "allsvenskan", logo: "img/leagues/all.png", color: "#006AA7" },
   { id: "eli", name: "Eliteserien", nation: "no", tier: 1, level: 3.4, continental: "ucl", size: 16, trophy: "eliteserien", logo: "img/leagues/eli.png", color: "#BA0C2F" },
-  { id: "spl", name: "Saudi Pro League", nation: "sa", tier: 1, level: 3.6, continental: "acl", size: 18, trophy: "spl", logo: "img/leagues/spl.png", color: "#006C35" },
-  { id: "epl", name: "Egyptian Premier League", nation: "eg", tier: 1, level: 3.4, continental: "caf", size: 20, trophy: "epl", logo: "img/leagues/epl.png", color: "#C8102E" },
-  { id: "alg", name: "Algerian Ligue 1", nation: "dz", tier: 1, level: 3.1, continental: "caf", size: 16, trophy: "alg1", logo: "img/leagues/alg.png", color: "#006233" },
-  { id: "tun", name: "Tunisian Ligue 1", nation: "tn", tier: 1, level: 3.1, continental: "caf", size: 16, trophy: "tun1", logo: "img/leagues/tun.png", color: "#E70013" },
-  { id: "qsl", name: "Qatar Stars League", nation: "qa", tier: 1, level: 3.3, continental: "acl", size: 12, trophy: "qsl", logo: "img/leagues/qsl.png", color: "#8A1538" },
-  { id: "uae", name: "UAE Pro League", nation: "ae", tier: 1, level: 3.2, continental: "acl", size: 14, trophy: "uaepl", logo: "img/leagues/uae.png", color: "#00732F" }
+  { id: "spl", name: "Liga Profissional Saudita", nation: "sa", tier: 1, level: 3.6, continental: "acl", size: 18, trophy: "spl", logo: "img/leagues/spl.png", color: "#006C35" },
+  { id: "epl", name: "Premier League Egípcia", nation: "eg", tier: 1, level: 3.4, continental: "caf", size: 20, trophy: "epl", logo: "img/leagues/epl.png", color: "#C8102E" },
+  { id: "alg", name: "Ligue 1 Argelina", nation: "dz", tier: 1, level: 3.1, continental: "caf", size: 16, trophy: "alg1", logo: "img/leagues/alg.png", color: "#006233" },
+  { id: "tun", name: "Ligue 1 Tunisiana", nation: "tn", tier: 1, level: 3.1, continental: "caf", size: 16, trophy: "tun1", logo: "img/leagues/tun.png", color: "#E70013" },
+  { id: "qsl", name: "Liga das Estrelas do Catar", nation: "qa", tier: 1, level: 3.3, continental: "acl", size: 12, trophy: "qsl", logo: "img/leagues/qsl.png", color: "#8A1538" },
+  { id: "uae", name: "Liga Profissional dos Emirados", nation: "ae", tier: 1, level: 3.2, continental: "acl", size: 14, trophy: "uaepl", logo: "img/leagues/uae.png", color: "#00732F" }
 ]);
 
 function _xc(id, name, city, nation, leagueId, level, c1, c2) {

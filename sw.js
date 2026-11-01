@@ -1,25 +1,42 @@
 /* Lenda minimal service worker — cache app shell for offline-ish LAN/localhost use */
-const CACHE = "lenda-shell-v51-destiny-easy-1";
+const TAG = "qa-pack-1";
+const CACHE = "lenda-shell-v52-" + TAG;
+/* Mesmas URLs que o index.html pede (com ?v=), senão o modo offline não acha nada no cache. */
 const SHELL = [
+  "./",
+  "./index.html",
   "./manifest.webmanifest",
-  "./css/style.css",
-  "./js/app.js",
-  "./js/juice.js",
-  "./js/ui.js",
-  "./js/dev.js",
-  "./js/data.js",
-  "./js/engine.js",
-  "./js/fun.js",
-  "./js/sim.js",
-  "./js/career.js",
-  "./js/card.js",
-  "./js/rng.js",
-  "./js/world.js",
-  "./js/more_clubs.js",
+  "./css/style.css?v=" + TAG,
+  "./js/world.js?v=" + TAG,
+  "./js/more_clubs.js?v=" + TAG,
+  "./js/data.js?v=" + TAG,
+  "./js/rng.js?v=" + TAG,
+  "./js/engine.js?v=" + TAG,
+  "./js/fun.js?v=" + TAG,
+  "./js/sim.js?v=" + TAG,
+  "./js/career.js?v=" + TAG,
+  "./js/card.js?v=" + TAG,
+  "./js/juice.js?v=" + TAG,
+  "./js/ui.js?v=" + TAG,
+  "./js/dev.js?v=" + TAG,
+  "./js/app.js?v=" + TAG,
   "./img/icons/icon-192.png",
   "./img/icons/icon-512.png",
   "./img/icons/apple-touch-icon.png"
 ];
+
+/* Primeiro acerto no cache: exato → mesmo arquivo sem ?v= → shell. */
+function cacheFallback(req, extra) {
+  return caches.match(req).then(function (hit) {
+    if (hit) return hit;
+    return caches.match(req, { ignoreSearch: true }).then(function (hit2) {
+      if (hit2 || !extra) return hit2;
+      return caches.match("./index.html").then(function (h3) {
+        return h3 || caches.match("./");
+      });
+    });
+  });
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -63,9 +80,7 @@ self.addEventListener("fetch", (event) => {
           } catch (_) {}
           return res;
         })
-        .catch(() =>
-          caches.match(req).then((cached) => cached || caches.match("./index.html") || caches.match("./"))
-        )
+        .catch(() => cacheFallback(req, true))
     );
     return;
   }
@@ -86,7 +101,7 @@ self.addEventListener("fetch", (event) => {
             } catch (_) {}
             return res;
           })
-          .catch(() => caches.match(req))
+          .catch(() => cacheFallback(req, false))
       );
       return;
     }
@@ -103,7 +118,7 @@ self.addEventListener("fetch", (event) => {
           }
         } catch (_) {}
         return res;
-      }).catch(() => cached);
+      }).catch(() => cached || caches.match(req, { ignoreSearch: true }));
       return cached || net;
     })
   );

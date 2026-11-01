@@ -179,20 +179,20 @@ var TROPHIES = {
   liga_ec: { name: "LigaPro", img: "img/trophies/liga_ec.png?v=nations-1", kind: "league", w: 4 },
   primera_py: { name: "Primera Paraguai", img: "img/trophies/primera_py.png?v=nations-1", kind: "league", w: 4 },
   hnl: { name: "HNL", img: "img/trophies/hnl.png?v=nations-1", kind: "league", w: 5 },
-  slgreece: { name: "Super League", img: "img/trophies/slgreece.png?v=nations-1", kind: "league", w: 5 },
-  rpl: { name: "Premier Russa", img: "img/trophies/rpl.png?v=nations-1", kind: "league", w: 5 },
+  slgreece: { name: "Superliga Grega", img: "img/trophies/slgreece.png?v=nations-1", kind: "league", w: 5 },
+  rpl: { name: "Premier League Russa", img: "img/trophies/rpl.png?v=nations-1", kind: "league", w: 5 },
   botola: { name: "Botola Pro", img: "img/trophies/botola.png?v=nations-1", kind: "league", w: 4 },
   kleague: { name: "K League 1", img: "img/trophies/kleague.png?v=nations-1", kind: "league", w: 4 },
-  cpl: { name: "Canadian Premier League", img: "img/trophies/cpl.png?v=nations-1", kind: "league", w: 4 },
-  dsliga: { name: "Superliga", img: "img/trophies/dsliga.png?v=nordic-1", kind: "league", w: 5 },
+  cpl: { name: "Premier League Canadense", img: "img/trophies/cpl.png?v=nations-1", kind: "league", w: 4 },
+  dsliga: { name: "Superliga Dinamarquesa", img: "img/trophies/dsliga.png?v=nordic-1", kind: "league", w: 5 },
   allsvenskan: { name: "Allsvenskan", img: "img/trophies/allsvenskan.png?v=nordic-1", kind: "league", w: 5 },
   eliteserien: { name: "Eliteserien", img: "img/trophies/eliteserien.png?v=nordic-1", kind: "league", w: 5 },
-  spl: { name: "Saudi Pro League", img: "img/trophies/spl.png?v=arab-1", kind: "league", w: 5 },
-  epl: { name: "Egyptian Premier League", img: "img/trophies/epl.png?v=arab-1", kind: "league", w: 5 },
-  alg1: { name: "Ligue 1 Algérie", img: "img/trophies/alg1.png?v=arab-1", kind: "league", w: 4 },
-  tun1: { name: "Ligue 1 Tunisie", img: "img/trophies/tun1.png?v=arab-1", kind: "league", w: 4 },
-  qsl: { name: "Qatar Stars League", img: "img/trophies/qsl.png?v=arab-1", kind: "league", w: 4 },
-  uaepl: { name: "UAE Pro League", img: "img/trophies/uaepl.png?v=arab-1", kind: "league", w: 4 },
+  spl: { name: "Liga Profissional Saudita", img: "img/trophies/spl.png?v=arab-1", kind: "league", w: 5 },
+  epl: { name: "Premier League Egípcia", img: "img/trophies/epl.png?v=arab-1", kind: "league", w: 5 },
+  alg1: { name: "Ligue 1 Argelina", img: "img/trophies/alg1.png?v=arab-1", kind: "league", w: 4 },
+  tun1: { name: "Ligue 1 Tunisiana", img: "img/trophies/tun1.png?v=arab-1", kind: "league", w: 4 },
+  qsl: { name: "Liga das Estrelas do Catar", img: "img/trophies/qsl.png?v=arab-1", kind: "league", w: 4 },
+  uaepl: { name: "Liga Profissional dos Emirados", img: "img/trophies/uaepl.png?v=arab-1", kind: "league", w: 4 },
   serie_c: { name: "Série C", img: "img/trophies/serie_c.png?v=npfl-concacaf-2", kind: "league", w: 2 },
   championship: { name: "Championship", img: "img/trophies/championship.png?v=npfl-concacaf-2", kind: "league", w: 3 },
   bundesliga2: { name: "2. Bundesliga", img: "img/trophies/bundesliga2.png?v=npfl-concacaf-2", kind: "league", w: 3 },
@@ -322,7 +322,7 @@ var EVENTS = [
   { id: "loan", title: "Empréstimo para jogar", text: "O técnico admite: na base você não estreia. Um clube menor pede empréstimo — comum no começo. Pode virar sequência (2–3) até o Retorno ou um definitivo.", when: { maxAge: 22, roles: ["youth", "bench", "rotation"] }, a: { label: "Aceitar o empréstimo", hint: "Empréstimo · jogos agora", fx: { loan: 1, resilience: 4 } }, b: { label: "Ficar e brigar", hint: "Menos minutos, mais visibilidade", fx: { loyalty: 5, coach: -6, energy: -6 } } },
   { id: "rival", title: "O rival bateu", text: "O maior rival da cidade oferece o dobro e a titularidade. A torcida não perdoa.", when: { minAge: 20, minOvr: 68 }, a: { label: "Vestir o rival", hint: "Minutos e dinheiro, lealdade em ruínas", fx: { transferRival: 1, loyalty: -16, ambition: 5 } }, b: { label: "Recusar na hora", hint: "Ídolo da casa", fx: { loyalty: 12, confidence: 8, wage: -1 } } },
   { id: "home", title: "Volta pra casa", text: "Seu primeiro clube quer o ídolo de volta. Menos liga, mais amor.", when: { minAge: 28, abroad: 1 }, a: { label: "Voltar", hint: "Lealdade, liga mais fraca", fx: { transferHome: 1, loyalty: 14, energy: 8 } }, b: { label: "Seguir no exterior", hint: "Ambiente de elite", fx: { ambition: 6, loyalty: -4 } } },
-  { id: "injury", title: "A joelho estalou", text: "Lesão séria. O médico fala em oito meses. O atalho é voltar no sexto.", when: { minAge: 18 },
+  { id: "injury", title: "O joelho estalou", text: "Lesão séria. O médico fala em oito meses. O atalho é voltar no sexto.", when: { minAge: 18 },
     a: { label: "Respeitar o tempo", hint: "Temporada curta, corpo inteiro", theme: "physio", fx: { injury: 28, resilience: 8, energy: 6 } },
     b: { label: "Adiantar o retorno", hint: "Mais jogos, risco de recaída", theme: "injury", fx: { injury: 14, energy: -18, form: -10, tempOvr: { delta: -2, seasons: 2 } } } },
   { id: "muscle", title: "Estiramento", text: "Três semanas no departamento médico no meio do returno.", when: { minAge: 17 },
@@ -571,3 +571,22 @@ function clubDisplayName(club, compact) {
   }
   return club.name || "";
 }
+
+/* Força real da seleção na Copa do Mundo (multiplica a chance de título).
+   1 = potência histórica; seleção fraca quase nunca ganha, mesmo com o craque em campo. */
+var NT_WC_STRENGTH = {
+  br: 1, ar: 1, fr: 1, de: 1, es: 1, en: 0.95,
+  it: 0.85, pt: 0.85, nl: 0.8,
+  be: 0.55, hr: 0.55, uy: 0.55,
+  co: 0.42, ma: 0.42, dk: 0.36, mx: 0.32, us: 0.3, jp: 0.32, sn: 0.3,
+  se: 0.28, ch: 0.28, kr: 0.26, ng: 0.26, ec: 0.24, tr: 0.24, ru: 0.24,
+  cl: 0.2, no: 0.18, py: 0.16, eg: 0.14, dz: 0.14, gr: 0.14,
+  sct: 0.12, sa: 0.12, ca: 0.12, tn: 0.1, qa: 0.08, ae: 0.06
+};
+function ntWorldCupStrength(natId) {
+  var v = NT_WC_STRENGTH[natId];
+  return typeof v === "number" ? v : 0.2;
+}
+
+/* Bola de Ouro por posição: atacante/meia levam; zagueiro raro, goleiro raríssimo (tem a Luva de Ouro). */
+var BALON_POS_MUL = { ATA: 1, PE: 0.95, PD: 0.95, MEI: 0.9, MC: 0.55, VOL: 0.3, LE: 0.05, LD: 0.05, ZAG: 0.045, GOL: 0.012 };
